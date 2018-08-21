@@ -13,32 +13,34 @@
 
 해당 문서와 관련해 내용을 참고한 곳이 있다면 **반드시 참고 링크 혹은 출처를 명시해야 합니다.**
 
-문서파일은 해당 메뉴의 하위폴더에 생성합니다.   
-파일 이름은 `이슈 번호_문서이름`으로 생성합니다. ex) `10_keras_tutorial_1.md` ...
+파일 이름은 `이슈 번호_문서이름`으로 생성합니다. ex) `09_keras_tutorial.md` ...
 
-이미지 혹은 비디오 파일은 각 프로젝트 디렉터리의 media 디렉터리에 모아둡니다. 파일 이름은 `이슈번호_사진번호`로 생성합니다. ex) `10_0.png`, `10_1.png`, `10_0.mov` ...
-
+이미지 혹은 비디오 파일은 media 디렉터리에 모아둡니다. 파일 이름은 `이슈번호_사진번호`로 생성합니다. ex) `09_0.png`, `09_1.png`, `09_0.mov` ...
 
 ### 작업순서
 1. Issue 중 자신이 시작하고자 하는 작업을 self-assign합니다. 혹은 자신이 assign 되어있는 이슈를 찾습니다.
 2. 작업을 시작할 때 Project의 `Todo` column에 위치한 이슈를 `Doing`으로 이동합니다. 
 3. 문서 작업을 마치면 Pull Request(PR)를 보냅니다. 
-	* 작업을 시작할 때 이슈 번호와 동일한 이름의 브랜치를 생성해 작업한 뒤 작업을 완료하면 `master`로 PR을 요청합니다. ex) 만약 10번 이슈라면, `issue_10`으로 브랜치를 생성합니다. 
+	* 작업을 시작할 때 이슈 번호와 동일한 이름의 브랜치를 생성해 작업한 뒤 작업을 완료하면 `master`로 PR을 요청합니다. ex) 만약 9번 이슈라면, `issue_09`으로 브랜치를 생성합니다. 
 	
 	```
-	$ git checkout -b issue_10
+	$ git checkout -b issue_09
 	```
 	 
 	* Pull Request는 **각각의 작업단위(Issue 단위)**의 commit으로 보냅니다.
-	* Commit message는 `#이슈넘버_내용`으로 작성합니다 (한글로 작성해도 무방합니다). ex) `#10_Add Keras Tutorial 10`, `#10_오탈자 수정`
-	* [Git Style Guide](https://github.com/ikaruce/git-style-guide)를 참고하면 사용이 더욱 편할 거에요!
+	* Commit message는 `#이슈넘버_내용`으로 작성합니다 (한글로 작성해도 무방합니다). ex) `#9_Add Keras Tutorial 09`, `#9_오탈자 수정`
+	* 참고 : [Git Style Guide](https://github.com/ikaruce/git-style-guide)
 
 ### 문서 작성
+> 샘플 문서인 [01_guide_document](https://github.com/KerasKorea/KEKOxTutorial/blob/master/01_guide_document.md)를 참고해주세요.
+
 * 모든 문서는 마크다운(*.md)으로 작성합니다. 
 	* 중요한 부분은 **bold**, *italiic* 등을 적절히 활용해 강조합니다.
 	* 내용의 주제가 나뉘는 경우 대제목과 소제목으로 나눠 가독성을 높힙니다.
 	* 코드는 코드 블럭으로 묶어서 나타냅니다.
 * 스크린 샷이 필요한 경우 글자가 깨지지 않도록 큰 사이즈로 캡쳐합니다.
+* 참고 링크는 하단에 모아둡니다.
+* 모두가 함께 보는 글이 될테니 PR 전에 [맞춤법 교정](http://speller.cs.pusan.ac.kr) 하는 것을 추천합니다.
 
 ### 용어집
 [Wiki 용어집 바로가기](https://github.com/KerasKorea/KEKOxTutorial/wiki/KEKOxTutorial-용어집)
@@ -50,5 +52,5 @@
 * 자주 확인하고 업데이트해서 알찬 용어집을 만들어 보아요 📖
 
 ### 추가 사항
-* 이슈는 프로젝트가 진행되면서 추가 될 수 있습니다.
+* 이슈는 프로젝트가 진행되면서 계속 추가됩니다.
 * 작업하다 어려운 사항이 생기면 망설이지 말고 언제든 이슈 및 슬랙으로 물어보세요. 🤗
