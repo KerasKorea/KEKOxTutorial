@@ -68,7 +68,7 @@ def get_model():
     return  updatedModel
 ```
 
-![average pooling image](media/0_0.png)  
+![average pooling image](media/01_0.png)  
 [이미지 출처](https://pythonmachinelearning.pro/introduction-to-convolutional-neural-networks-for-vision-tasks/)
 
 ### 참고 사이트
