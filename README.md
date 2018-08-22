@@ -28,7 +28,7 @@
 	```
 	 
 	* Pull Request는 **각각의 작업단위(Issue 단위)** 의 commit으로 보냅니다.
-	* Commit message는 `#이슈넘버_내용`으로 작성합니다 (한글로 작성해도 무방합니다). ex) `#9_Add Keras Tutorial 09`, `#9_오탈자 수정`
+	* Commit message는 `#이슈넘버: 내용`으로 작성합니다 (한글로 작성해도 무방합니다). ex) `#9: Add Keras Tutorial 09`, `#9: 오탈자 수정`
 	* 참고 : [Git Style Guide](https://github.com/ikaruce/git-style-guide)
 
 ### 문서 작성
