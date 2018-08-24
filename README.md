@@ -17,6 +17,9 @@
 
 이미지 혹은 비디오 파일은 `media` 디렉터리에 모아둡니다. 파일 이름은 `이슈번호_사진번호`로 생성합니다. ex) `09_0.png`, `09_1.png`, `09_0.mov` ...
 
+### 작업 분담
+[팀 Google Sheet](https://docs.google.com/spreadsheets/d/1BGkEhFrbvxEMn3TE2DFSiQlBisH3mGAc8cJnU4s6DTA/edit#gid=0)를 통해 주 담당자와 보조 담당자를 정해서 작업을 분담합니다.
+
 ### 작업순서
 1. Issue 중 자신이 시작하고자 하는 작업을 self-assign합니다. 혹은 자신이 assign 되어있는 이슈를 찾습니다.
 2. 작업을 시작할 때 Project의 `Todo` column에 위치한 이슈를 `Doing`으로 이동합니다. 
