@@ -409,8 +409,14 @@ Figure 4: LSTM 네트워크로 만들어진 음악의 예
 
 마지막으로, 데이터 세트에 악기를 추가합니다. 현재로서, 네트워크는 하나의 악기만 있는 부품만 지원합니다. 오케스트라 전체를 지원하기 위해 여러개의 악기를 예측할 수 있도록 확장해보는 것 역시 흥미로울 것입니다.
 
-#### Conclusion (결과)
+### Conclusion (결과)
 
 이 튜토리얼에서는 LSTM 신경 네트워크를 생성하여 음악을 생성하는 방법을 보여 줍니다. 결과는 완벽하지 않을 수도 있지만 그럼에도 불구하고 그것들은 꽤 인상적이고 신경망이 음악을 만들어 낼 수 있고 더 복잡한 음악 작품을 만드는 데 사용될 수 있다는 것을 보여줍니다.
 
 [튜토리얼의 Github 저장소를 여기서 확인하세요.](https://github.com/Skuldur/Classical-Piano-Composer)
+
+### 참고 사이트
+* [케라스 공식 홈페이지](https://keras.io)
+* [RNN & LSTM](https://www.youtube.com/watch?v=2ngo9-YCxzY)
+* [music21](http://web.mit.edu/music21/)
+* [Droput](http://blog.naver.com/PostView.nhn?blogId=laonple&logNo=220542170499)
