@@ -29,13 +29,52 @@ sequence-to-sequence(Seq2Seq)은 한 도메인(예: 영문장)에서 다른 도�
 이러한 접근법의 주의사항은 주어진 `input[...t]`로 `target[...t]`를 생성 가능하다고 추정합니다. 일부의 경우(예: 숫자 문자열 추가)에선 정상작동하지만 대다수의 경우는 아닙니다. 일반적인 경우, 전체 입력 문장에 대한 정보는 목표 문장 생성을 시작하기 위해 필수적입니다.
 
 #### 일반적인 사례 : 표준 sequence-to-sequence
+일반적인 경우, 입출력 문장이 다른 길이이고(예: 기계 번역) 전체 입력 문장는 목표 문장 예측을 시작하기 위해 필요합니다. 이를 위해 더 이상 문맥없이 일반적으로 "Seq2Seq models"를 언급할 때 참조하는 고급 설정이 필요합니다. 하단에 어떻게 동작하는지 나와있습니다.
+
+- 하나의 RNN 계층(혹은 stack thereof)은 "encoder" 역할을 띕니다. : 입력 문장을 처리하고 자체 내부 상태를 반환합니다. 여기서, encoder RNN의 결과는 사용하지 않고 상태만 복구시킵니다. 이 상태가 다음 단계에서 decoder의 "문맥" 혹은 "조건"으로 역할을 띕니다.
+- 또 하나의 RNN 계층(혹은 stack thereof)은 "decoder" 역할을 띕니다. : 목표 문장의 이전 문자에 따라 목표 문장의 다음 문자를 예측하도록 훈련이 됩니다. 상세히 말하면, 목표 문장을 동일한 문장으로 바꾸지만 후에 "teacher forcing"이라는 학습 과정인, 한개의 타임스탭만큼 offset되도록 훈련됩니다. 중요한 건, encoder는 encoder의 상태 벡터들을 초기 상태로 사용하고 이는 decoder의 생의성물을 구하는 방법입니다. 사실, decoder는 주어진 `target[...t]`를 입력 문장에 맞춰서 `target[t+1...]`를 생성하는 법을 학습합니다.
+
 
 ![seq2seq-teacher-forcing](media/28_1.png)
 
-추론 방식(예: 알 수 없는 입력 문장을 해독하려고 할 때)에선 약간 다른 처리를 거치게 됩니다.
+추론 방식(즉: 알 수 없는 입력 문장을 해독하려고 할 때)에선 약간 다른 처리를 거치게 됩니다.
+
+- 1) 입력 문장을 상태 벡터들로 바꿉니다.
+- 2) 크기가 1인 목표 문장로 시작합니다.(문장의 시작 문자에만 해당)
+- 3) 상태 벡터들과 크기가 1인 목표 문장을 decoder에 대입해 다음 문자을 예측치를 만듭니다. 즉
+- 4) 이런 예측치들을 사용해 다음 문자를 샘플링합니다.(간단하게 argmax를 사용)
+- 5) 목표 문장에 샘플링된 문자를 붙입니다.
+- 6) 문장 종료 문자를 생성하거나 끝문자에 도달할 때까지 반복합니다.
 
 ![seq2seq-inference](media/28_2.png)
+
+이같은 과정은 *"teacher forcing"없이* Seq2Seq를 학습시킬 때 쓰일 수도 있습니다.(decoder의 예측치들을 decoder에 다시 기입함으로써)
+
+
 #### 케라스 예제
+
+실제 코드를 통해 위의 아이디어들을 설명하겠습니다.
+
+예제를 구현하기 위해, 영어 문장과 이에 대한 불어 번역 한쌍인 데이터셋을 사용합니다.([manythings.org/anki](http://www.manythings.org/anki/)에서 다운 받을수 있습니다.) 다운받을 파일은 `fra-eng.zip`입니다. 입력 문자를 문자별로 처리하고 문자별로 출력문자를 생성하는 *문자 수준* Seq2Seq model을 구현할 예정입니다. 또 다른 옵션은 기계 번역에 좀 더 일반적인 경향을 띄는 *단어 수준* model입니다. 글 끝단에서, 설명에 쓰인 model을 계층들을 embedding해 단어 수준 model로 바꿀수 있는 참고 사항을 발견하실 껍니다.
+
+설명에 쓰인 예제 전체 code는 [Github](https://github.com/fchollet/keras/blob/master/examples/lstm_seq2seq.py)에서 보실수 있습니다.
+
+진행할 과정들의 요약으론:
+
+- 1) 문장들을 3차원 배열(`encoder_input_data`, `decoder_input_data`, `decoder_target_data`)로 변환합니다.
+    - `encoder_input_datas`는 (`num_pairs`, `max_english_sentence_length`, `num_english_characters`)의 형태를 띈 3차원 배열로 영어 문장의 one-hot형식 벡터 데이터를 갖고있습니다.
+    - `decoder_input_data`는 (`num_pairs`, `max_french_sentence_length`, `num_french_characters`)의 형태를 띈 3차원 배열로 불어 문장의 one-hot형식 벡터 데이터를 갖고있습니다.
+    - `decoder_target_data`는 `decoder_input_data`와 동일하지만 하나의 타임스탭에 offset됩니다. `decoder_target_data[:, t, :]`는 `decoder_input_data[:, t + 1, :]`와 동일합니다.  
+- 2) 기본 LSTM 기반의 Seq2Seq model를 주어진 `encoder_input_data`와 `decoder_input_data`로 `decoder_target_data`를 예측합니다. 해당 model은 teacher forcing를 사용합니다.
+- 3) model이 작동하는지 확인하기 위해 일부 문장을 디코딩합니다.(`encoder_input_data`의 샘플을 `decoder_target_data`의 표본으로 변환합니다.)
+
+(문장을 디코딩하는)학습 단계와 추론 단계는 꽤나 다르기 때문에, 두 모델이 동일한 내부 계층을 사용하나 서로 다른 모델을 사용합니다.  
+
+다음은 원문 저자가 제공하는 model로 keras RNN의 3가지 핵심 특징들을 사용합니다:
+- `return_state`는 encoder의 출력과 내부 RNN 상태인 리스트를 반환하도록 RNN을 구성하는 인수입니다. 이는 encoder의 상태를 복구하는데 사용합니다.
+- `inital_state`는 RNN의 초기 상태를 지정하는 인수입니다. 초기 상태로 incoder를 deocoder로 전달하는데 사용합니다.력
+- `return_sequences`는 출력된 전체 문장을 반환하도록 구성하는 인수(마지막 출력을 제외하곤 기본 동작)로 decoder에 사용합니다.
+
 
 ```python
 from keras.models import Model
@@ -61,6 +100,7 @@ decoder_outputs = decoder_dense(decoder_outputs)
 # `encoder_input_data`와 `decoder_input_data`를 `decoder_target_data`로 반환하도록 모델을 정의
 model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
 ```
+밑의 2줄로 샘플의 20%를 검증 데이터셋으로 손실을 관찰하면서 모델을 학습시킵니다.
 
 ```python
 # 학습 실행
@@ -71,6 +111,14 @@ model.fit([encoder_input_data, decoder_input_data], decoder_target_data,
           validation_split=0.2)
 
 ```
+
+맥북 CPU에서 1시간 정도 후에, 추론할 준비가 됩니다. 테스트 문장을 decode하기 위해 반복 수행할 것입니다.
+
+- 1) 입력문장을 encode하고 초기 상태에 decoder의 상태를 갖고옵니다.
+- 2) 초기상태 decoder의 한 단계와 "문장의 시작"토큰을 목표로 실행합니다. 출력은 다음 목표 문자입니다.
+- 3) 예측된 목표 문자를 붙이고 이를 반복합니다.
+
+다음은 추론을 설정한 부분입니다.
 
 ```python
 encoder_model = Model(encoder_inputs, encoder_states)
@@ -86,6 +134,8 @@ decoder_model = Model(
     [decoder_inputs] + decoder_states_inputs,
     [decoder_outputs] + decoder_states)
 ```
+
+아래의 코드는 위의 추론 루프를 구현하는데 사용했습니다.
 
 ```python
 def decode_sequence(input_seq):
@@ -125,6 +175,9 @@ def decode_sequence(input_seq):
     return decoded_sentence
 ```
 
+몇가지 좋은 결과를 얻게됩니다. (학습 테스트에서 추출한 샘플을 해독하기에 놀랄만한 결과는 아니지만...)
+
+
 ```bash
 Input sentence: Be nice.
 Decoded sentence: Soyez gentil !
@@ -135,6 +188,9 @@ Decoded sentence: Laissez tomber !
 Input sentence: Get out!
 Decoded sentence: Sortez !
 ```
+
+이로써 keras의 Seq2Seq model에 대한 10분안의 소개를 마치겠습니다. 알림 : 
+설명에 쓰인 예제 전체 code는 [Github](https://github.com/fchollet/keras/blob/master/examples/lstm_seq2seq.py)에서 보실수 있습니다. 
 
 ### 참고문서
 * [Sequence to Sequence Learning with Neural Networks](https://arxiv.org/abs/1409.3215)
