@@ -6,7 +6,7 @@
 
 * 케라스
 * LSTM
-* Neural Netwroks layer
+* Neural Networks layer
 
 <br></br>
 ![intro image](https://cdn-images-1.medium.com/max/2000/1*evQj8gukICFrnBICeJvY0w.jpeg)
@@ -27,17 +27,17 @@
 #### Music21
 [Music21](http://web.mit.edu/music21/)은 컴퓨터 지원 음악학에 사용되는 Python 툴킷입니다. 우리가 음악 이론의 기초를 가르치고, 음악의 예를 만들고, 음악을 공부할 수 있게 해줍니다. 이 툴킷은 MIDI 파일의 음악 표기법을 습득할 수 있는 간단한 인터페이스를 제공합니다. 또한 노트 및 코드 객체를 만들어 쉽게 MIDI 파일을 만들 수 있습니다.
 
-이 튜토리얼에서 우리는 Music21 을 데이터 셋의 콘텐츠를 추출하고, 음악 표기법으로부터 인공 신경망을 통해 결과값을 얻는데 사용할 것입니다.
+이 튜토리얼에서 우리는 Music21 을 데이터셋의 콘텐츠를 추출하고, 음악 표기법으로부터 인공 신경망을 통해 결과값을 얻는데 사용할 것입니다.
 
 > 이 문서에서는 Anaconda 패키지를 사용하여 가상환경을 만들어서 사용했고, Anaconda 를 사용하면 music21 설치할 필요가 없습니다.
 >
 > Anaconda 가상환경에서 music21 을 설치하려고 한다면 아래와 같이 이미 설치되어 있다는 메세지가 나올 것입니다.
 >
->(issue_09)  junghyun@MacBook-Pro-4/~/KEKOxTutorial/issue_09/  pip install music21
-Requirement already satisfied: music21 in /anaconda3/lib/python3.6/site-packages (5.1.0)
+>(issue_09)  junghyun@MacBook-Pro-4/~/KEKOxTutorial/issue_09/  pip install music21  
+*Requirement already satisfied: music21 in /anaconda3/lib/python3.6/site-packages (5.1.0)*
 
 #### Keras
-케라스는 텐서플로우와의 상호작용을 단순화하는 고수준 인공 신경망 API 입니다. 빠르게 실험을 할 수 있도록 초점을 맞춰서 개발되었습니다.
+[케라스](https://keras.io/)는 [텐서플로우](https://www.tensorflow.org/)와의 상호작용을 단순화하는 고수준 인공 신경망 API 입니다. 빠르게 실험을 할 수 있도록 초점을 맞춰서 개발되었습니다.
 
 이 튜토리얼에서는 케라스 라이브러리를 이용해서 LSTM 모델을 만들고 학습시킬 것입니다. 모델이 학습되면 우리는 모델을 음악 표기법으로부터 우리의 음악을 만드는데 사용할 것입니다.
 
@@ -45,7 +45,7 @@ Requirement already satisfied: music21 in /anaconda3/lib/python3.6/site-packages
 이 섹션에서는 우리는 모델의 데이터를 수집하는 방법, LSTM 모델과 모델의 아키텍처에서 사용할 수 있도록 데이터를 준비하는 방법에 대해 이야기할 것입니다.
 
 #### Data
-우리의 Github 저장소에서 주로 Final Fantasy 사운드트랙 음악으로 구성된 피아노 음악을 사용했습니다. 우리는 대부분의 곡들이 가지고 있는 독특하고 아름다운 멜로디와 엄청난 양의 곡이 있기 때문에 Final Fantasy 음악을 데이터로 결정했습니다. 하지만 한 개의 악기로 이루어진 모든 MIDI 파일은 데이터로 사용가능합니다.
+우리의 [Github 저장소](https://github.com/Skuldur/Classical-Piano-Composer)에서 주로 Final Fantasy 사운드트랙 음악으로 구성된 피아노 음악을 사용했습니다. 우리는 대부분의 곡들이 가지고 있는 독특하고 아름다운 멜로디와 엄청난 양의 곡이 있기 때문에 Final Fantasy 음악을 데이터로 결정했습니다. 하지만 한 개의 악기로 이루어진 모든 MIDI 파일은 데이터로 사용가능합니다.
 
 인공 신경망을 구현하는 첫 번째 스텝은 사용할 데이터를 검사해보는 것입니다.
 
