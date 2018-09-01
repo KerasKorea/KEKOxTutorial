@@ -175,7 +175,7 @@ for file in glob.glob("midi_songs/*.mid"):
 
 다음으로, 우리는 네트워크와 각각의 출력에 대한 입력 순서를 만들어야 합니다. 각 입력 시퀀스의 출력은 노트 리스트의 입력 시퀀스에서 노트의 시퀀스 뒤에 오는 첫 번째 노트 또는 코드입니다.
 
-```
+```python
 sequence_length = 100
 # 모든 계이름의 이름을 pitchnames 변수에 저장.
 # set 으로 중복을 피하고, sorted 함수로 sorting 함.
