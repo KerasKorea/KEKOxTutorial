@@ -79,5 +79,3 @@ Neural style transfer 의 프로세스는 **Figure1** 에서 확인할 수 있�
 각각의 구성요소는 개별적으로 계산이 된 후 한 개의 meta 손실 함수로 합쳐집니다. meta 손실 함수값을 최소화 시키기 위해서 우리는 content, style, total-variation 들의 손실을 최소화 시켜야 합니다.
 
 Gatys 등은 아름다운 결과를 만들어냈지만 문제는 그것이 꽤 느리다는 것이었습니다.
-
-Johnson et al. (2016) built on the work of Gatys et al., proposing a neural style transfer algorithm that is up to three orders of magnitude faster. The Johnson et al. method frames neural style transfer as a super-resolution-like problem based on perceptual loss functions.
