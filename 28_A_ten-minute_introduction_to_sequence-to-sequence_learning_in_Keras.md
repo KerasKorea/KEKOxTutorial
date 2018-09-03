@@ -22,17 +22,17 @@ sequence-to-sequence(Seq2Seq)은 한 도메인(예: 영어 문장)에서 다른 
 해당 작업을 다루기 위해 여러 가지 방법이(**RNN**을 사용하거나 **1D convnets**를 사용) 있습니다.  
 
 #### 자명한(명확한) 사실 : 입출력 문장이 같은 길이일 때
-입출력 두 가지 문장이 같은 길이일 경우, 케라스의 Long Short-Term Memory(LSTM) models 혹은 GRU 계층(혹은 stack thereof) 같은 모델들을 구현할 수 있습니다. [예제 스크립트](https://github.com/fchollet/keras/blob/master/examples/addition_rnn.py)에선 어떻게 RNN이 숫자를 추가하고 문자열로 인코딩하는 방법을 어떻게 학습하는지 보여주고 있습니다.
+입출력 두 가지 문장이 같은 길이일 경우, 케라스의 Long Short-Term Memory(LSTM) models 혹은 GRU 계층(혹은 stack thereof) 같은 모델들을 구현할 수 있습니다. [예제 스크립트](https://github.com/fchollet/keras/blob/master/examples/addition_rnn.py)에선 어떻게 RNN으로 문자열로 인코딩된 숫자들에 대한 덧셈 연산을 학습할 수 있는지 보여주고 있습니다.
 
 ![The trivial case](media/28_0.png)
 
-이러한 접근법의 주의사항은 주어진 `input[...t]`으로 `target[...t]`을 생성 가능하다고 추정합니다. 일부의 경우(예: 숫자 문자열 추가)에선 정상작동하지만, 대다수의 경우는 아닙니다. 일반적일 때, 전체 입력 문장에 대한 정보는 목표 문장 생성을 시작하기 위해 필수적입니다.
+이러한 접근법의 주의사항은 주어진 `input[...t]`으로 `target[...t]`을 생성 가능하다고 추정하는 것입니다. 일부의 경우(예: 숫자 문자열 추가)에선 정상작동하지만, 대다수의 경우에는 아닙니다. 일반적일 때, 전체 입력 문장에 대한 정보는 목표 문장 생성을 시작하기 위해 필수적입니다.
 
 #### 일반적인 사례 : 표준 sequence-to-sequence
 일반적일 때, 입출력 문장이 다른 길이이고(예: 기계 번역) 전체 입력 문장은 목표 문장 예측을 시작하기 위해 필요합니다. 이를 위해 더는 문맥 없이 일반적으로 "Seq2Seq models"를 언급할 때 참조하는 고급 설정이 필요합니다. 하단에 어떻게 동작하는지 나와 있습니다.
 
-- 하나의 RNN 계층(혹은 stack thereof)은 "encoder" 역할을 띕니다. : 입력 문장을 처리하고 자체 내부 상태를 반환합니다. 여기서, encoder RNN의 결과는 사용하지 않고 상태만 복구시킵니다. 이 상태가 다음 단계에서 decoder의 "문맥" 혹은 "조건"으로 역할을 띕니다.
-- 또 하나의 RNN 계층(혹은 stack thereof)은 "decoder" 역할을 띕니다. : 목표 문장의 이전 문자에 따라 목표 문장의 다음 문자를 예측하도록 훈련이 됩니다. 상세히 말하면, 목표 문장을 같은 문장으로 바꾸지만 후에 "teacher forcing"이라는 학습 과정인, 한 개의 time step만큼 offset 되도록 훈련됩니다. 중요한 건, encoder은 encoder의 상태 벡터들을 초기 상태로 사용하고 이는 decoder가 생성되어야 하는 정보를 구하는 방법입니다. 사실, decoder는 주어진 `target[...t]`을 입력 문장에 맞춰서 `target[t+1...]`을 생성하는 법을 학습합니다.
+- 하나(혹은 여러 개)의 RNN 계층은 "encoder" 역할을 띱니다 : 입력 문장을 처리하고 자체 내부 상태를 반환합니다. 여기서, encoder RNN의 결과는 사용하지 않고 상태만 복구시킵니다. 이 상태가 다음 단계에서 decoder의 "문맥" 혹은 "조건"으로 역할을 띕니다.
+- 또 하나(혹은 여러 개)의 RNN 계층은 "decoder" 역할을 띱니다 : 목표 문장의 이전 문자들에 따라 목표 문장의 다음 문자들을 예측하도록 훈련이 됩니다. 상세히 말하면, 목표 문장을 같은 문장으로 바꾸지만 후에 "teacher forcing"이라는 학습 과정인, 한 개의 time step만큼 offset 되도록 훈련됩니다. 중요한 건, encoder은 encoder의 상태 벡터들을 초기 상태로 사용하고 이는 decoder가 생성되어야 하는 정보를 구하는 방법입니다. 사실, decoder는 주어진 `target[...t]`을 입력 문장에 맞춰서 `target[t+1...]`을 생성하는 법을 학습합니다.
 
 
 ![seq2seq-teacher-forcing](media/28_1.png)
@@ -40,8 +40,8 @@ sequence-to-sequence(Seq2Seq)은 한 도메인(예: 영어 문장)에서 다른 
 추론 방식(즉: 알 수 없는 입력 문장을 해독하려고 할 때)에선 약간 다른 처리를 거치게 됩니다.
 
 - 1) 입력 문장을 상태 벡터들로 바꿉니다.
-- 2) 크기가 1인 목표 문장로 시작합니다. (문장의 시작 문자에만 해당)
-- 3) 상태 벡터들과 크기가 1인 목표 문장을 decoder에 대입해 다음 문자를 예측치를 만듭니다.
+- 2) 크기가 1인 목표 문장으로 시작합니다. (문장의 시작 문자에만 해당)
+- 3) 상태 벡터들과 크기가 1인 목표 문장을 decoder에 대입해 다음 문자에 대한 예측치를 만듭니다.
 - 4) 이런 예측치들을 사용해 다음 문자의 표본을 뽑습니다.(간단하게 argmax를 사용)
 - 5) 목표 문장에 샘플링된 문자를 붙입니다.
 - 6) 문장 종료 문자를 생성하거나 끝 문자에 도달할 때까지 반복합니다.
@@ -55,16 +55,16 @@ sequence-to-sequence(Seq2Seq)은 한 도메인(예: 영어 문장)에서 다른 
 
 실제 코드를 통해 위의 아이디어들을 설명하겠습니다.
 
-예제를 구현하기 위해, 영어 문장과 이에 대한 불어 번역 한 쌍인 데이터 세트를 사용합니다. ([manythings.org/anki](http://www.manythings.org/anki/)에서 내려받을 수 있습니다.)다운받을 파일은 `fra-eng.zip`입니다. 입력 문자를 문자별로 처리하고 문자별로 출력문자를 생성하는 *문자 수준* Seq2Seq model을 구현할 예정입니다. 또 다른 옵션은 기계 번역에 좀 더 일반적인 경향을 띠는 *단어 수준* model입니다. 글 끝단에서, 설명에 쓰인 model을 계층들을 embedding해 단어 수준 model로 바꿀 수 있는 참고 사항을 발견하실 겁니다.
+예제를 구현하기 위해, 영어 문장과 이에 대한 불어 번역 한 쌍인 데이터 세트를 사용합니다. ([manythings.org/anki](http://www.manythings.org/anki/)에서 내려받을 수 있습니다.)다운받을 파일은 `fra-eng.zip`입니다. 입력 문자를 문자별로 처리하고 문자별로 출력문자를 생성하는 *문자 수준* Seq2Seq model을 구현할 예정입니다. 또 다른 옵션은 기계 번역에 좀 더 일반적인 경향을 띠는 *단어 수준* model입니다. 글 끝단에서, Embedding계층을 사용하여 설명에 쓰인 model을 단어 수준 model로 바꿀 수 있는 참고 사항을 발견하실 겁니다.
 
 설명에 쓰인 예제 전체 code는 [Github](https://github.com/fchollet/keras/blob/master/examples/lstm_seq2seq.py)에서 보실 수 있습니다.
 
 진행할 과정들의 요약으론:
 
 - 1) 문장들을 3차원 배열(`encoder_input_data`, `decoder_input_data`, `decoder_target_data`)로 변환합니다.
-    - `encoder_input_datas`는 (`num_pairs`, `max_english_sentence_length`, `num_english_characters`)의 형태를 띤 3차원 배열로 영어 문장의 one-hot 형식 벡터 데이터를 갖고 있습니다.
+    - `encoder_input_data`는 (`num_pairs`, `max_english_sentence_length`, `num_english_characters`)의 형태를 띤 3차원 배열로 영어 문장의 one-hot 형식 벡터 데이터를 갖고 있습니다.
     - `decoder_input_data`는 (`num_pairs`, `max_french_sentence_length`, `num_french_characters`)의 형태를 띤 3차원 배열로 불어 문장의 one-hot형식 벡터 데이터를 갖고 있습니다.
-    - `decoder_target_data`는 `decoder_input_data`와 같지만 하나의 time step에 offset 됩니다. `decoder_target_data[:, t, :]`는 `decoder_input_data[:, t + 1, :]`와 같습니다.  
+    - `decoder_target_data`는 `decoder_input_data`와 같지만 *하나의 time step만큼 offset 됩니다.* `decoder_target_data[:, t, :]`는 `decoder_input_data[:, t + 1, :]`와 같습니다.  
 - 2) 기본 LSTM 기반의 Seq2Seq model을 주어진 `encoder_input_data`와 `decoder_input_data`로 `decoder_target_data`를 예측합니다. 해당 model은 teacher forcing을 사용합니다.
 - 3) model이 작동하는지 확인하기 위해 일부 문장을 디코딩합니다. (`encoder_input_data`의 샘플을 `decoder_target_data`의 표본으로 변환합니다.)
 
@@ -222,7 +222,7 @@ model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
 #### 정수 문장이 포함된 단어단계 모델을 사용하려면 어떻게 해야 합니까?
 
 만약 입력이 정수형 문장일 경우(예: 사전에서 색인에 의해 encode 된 일련의 단어들)라면?
-Embedding 계층을 통해서 정수형 토큰을 포함시킬 수 있습니다. 어떻게 구현방법이 있습니다: 
+Embedding 계층을 통해서 정수형 토큰을 포함시킬 수 있습니다. 구현은 아래와 같습니다: 
 
 ```python
 # 입력 문장의 정의와 처리.
