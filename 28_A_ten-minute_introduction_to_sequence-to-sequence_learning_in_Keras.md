@@ -41,7 +41,7 @@ sequence-to-sequence(Seq2Seq)은 한 도메인(예: 영문장)에서 다른 도�
 
 - 1) 입력 문장을 상태 벡터들로 바꿉니다.
 - 2) 크기가 1인 목표 문장로 시작합니다.(문장의 시작 문자에만 해당)
-- 3) 상태 벡터들과 크기가 1인 목표 문장을 decoder에 대입해 다음 문자을 예측치를 만듭니다. 즉
+- 3) 상태 벡터들과 크기가 1인 목표 문장을 decoder에 대입해 다음 문자을 예측치를 만듭니다.
 - 4) 이런 예측치들을 사용해 다음 문자를 샘플링합니다.(간단하게 argmax를 사용)
 - 5) 목표 문장에 샘플링된 문자를 붙입니다.
 - 6) 문장 종료 문자를 생성하거나 끝문자에 도달할 때까지 반복합니다.
@@ -201,6 +201,10 @@ Decoded sentence: Sortez !
 ### 추가 FAQ
 
 #### LSTM대신 GRU 계층을 사용하려면 어떻게 해야합니까?
+
+GRU는 오직 상태 1개만 가지지만 LSTM은 상태가 2개가 있기 때문에 실제론 약간 단순합니다.
+아래에 GRU 계층을 사용해 학습 모델을 조정하는 방법이 있습니다.
+
 ```python
 encoder_inputs = Input(shape=(None, num_encoder_tokens))
 encoder = GRU(latent_dim, return_state=True)
@@ -216,6 +220,10 @@ model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
 
 
 #### 정수 문장이 포함된 단어단계 모델을 사용하려면 어떻게 해야합니까?
+
+만약 입력이 정수형 문장일 경우(예: 사전에서 색인에 의해 encode된 일련의 단어들)?
+Embedding 계층을 통해서 정수형 토큰을 포함시킬수 있습니다. 어떻게 구현방법이 있습니다: 
+
 ```python
 # 입력 문장의 정의와 처리.
 encoder_inputs = Input(shape=(None,))
@@ -242,7 +250,12 @@ model.fit([encoder_input_data, decoder_input_data], decoder_target_data,
           validation_split=0.2)
 ```
 
-#### 학습하는 동안 teacher forcing(?)를 사용하지 않으려면 어떻게 해야 합니까?
+#### 학습하는 동안 Teacher forcing(?)를 사용하지 않으려면 어떻게 해야 합니까?
+
+일부 niche 경우 전한 입력-목표 문장쌍을 버퍼링할 수 없듯이(예를 들어, 만약 매우 긴 문장을 online 학습) 이는 전체 목표 문장으로 접근이 불가능하기 때문에 Teahcer forcing을 사용할 수 없습니다. 이 경우 decoder의 예측값을 입력으로 재입력하여 학습을 실행할 수 있습니다.(그저 추론에 맞게 구현했듯이)
+
+출력값을 재주입하는 루프를 하드 코드화한 모델을 구축하면 다음과 같은 결과을 얻을 수 있습니다.
+
 ```python
 from keras.layers import Lambda
 from keras import backend as K
@@ -289,3 +302,5 @@ model.fit([encoder_input_data, decoder_input_data], decoder_target_data,
           epochs=epochs,
           validation_split=0.2)
 ```
+
+만약 추가적인 의문점이 있다면, [Twitter](https://twitter.com/fchollet)로 연락주세요.
