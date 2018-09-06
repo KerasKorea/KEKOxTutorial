@@ -305,7 +305,11 @@ $ python neural_style_transfer.py --image images/giraffe.jpg \
 
 이제 단일 영상에 신경 스타일 전송을 적용하는 방법을 배웠으니 실시간 비디오에도 이 프로세스를 적용하는 방법을 알아보겠습니다.
 
-이 과정은 정적 이미지에서 신경 스타일 전송을 수행하는 것과 매우 유사합니다. 이 스크립트에서는 다음을 수행합니다. :
+이 과정은 정적 이미지에서 신경 스타일 전송을 수행하는 것과 매우 유사합니다.
+
+> 웹캠에서 한 프레임을 가져오는 것은 이미지 하나를 처리하는 것과 같기 때문입니다.
+
+이 스크립트에서는 다음을 수행합니다. :
 
 * `모델` 경로에서 사용 가능한 모든 신경 스타일 전송 모델을 순환시킬 수 있는 특별한 Python iterator 를 사용합니다.
 
@@ -345,17 +349,135 @@ Next, let’s create our model path iterator:
 다음은, 모델 path iterator 를 만들어 봅시다. :
 
 ```Python
-# grab the paths to all neural style transfer models in our 'models'
-# directory, provided all models end with the '.t7' file extension
+# 모든 neurl style transfer 모델이 들어있는 model 디렉토리의 path 를 설정하세요.
+# 디렉토리에 있는 모든 모델은 '.t7' file 확장자입니다.
 modelPaths = paths.list_files(args["models"], validExts=(".t7",))
 modelPaths = sorted(list(modelPaths))
 
-# generate unique IDs for each of the model paths, then combine the
-# two lists together
+# 각 모델 path 에 대한 고유한 ID 들을 만드세요. 그리고 두 개의 리스트를 합치세요.
 models = list(zip(range(0, len(modelPaths)), (modelPaths)))
 
-# use the cycle function of itertools that can loop over all model
-# paths, and then when the end is reached, restart again
+# 모든 모델에 대해서 순환을 할 수 있도록 itertools 순환(반복)을 하는 함수를 사용할 거에요. 그리고 마지막까지 다 돌았을 때 다시 시작하게 해줍니다.
 modelIter = itertools.cycle(models)
 (modelID, modelPath) = next(modelIter)
 ```
+
+위의 코드 블록을 보면 중간 반복문에서 프레임을 처리하기 시작하면, "n" 키를 눌렀을 때 iterator 에 "다음" 모델이 로드됩니다. 이렇게 하면 스크립트를 중지하고 모델 경로를 변경한 다음 다시 시작하지 않고도 비디오 스트림에서 각 neural style 의 효과를 볼 수 있습니다.
+
+모델 iterator 를 구성하기 위해 다음과 같은 작업을 수행합니다 :
+
+* 모든 신neural style transfer 모델의 경로를 정렬합니다.
+* 고유 ID를 할당합니다.
+* `Itertools` 의  `cycle` 을 사용하여 iterator를 만듭니다. 기본적으로 `cycle` 은 순환 리스트 만들 수 있게 해줍니다. 이 리스트는 끝 부분에 도달하면 처음부터 다시 시작됩니다.
+* `next` 함수로 `modelIter` 의 다음 `modelID` 와 `modelPath` 를 가져옵니다.
+
+만약 당신이 Python iterators 또는 반복문(대부분의 프로그래밍 언어가 이를 구현함)을 처음 접하는 경우 [RealPython](https://realpython.com/python-itertools/)의 기사를 반드시 읽어 보십시오.
+
+이제 neural style transfer 모델을 로드하고 비디오 스트림을 초기화 합시다! :
+
+```Python
+# neural style transfer 모델을 로드합니다.
+print("[INFO] loading style transfer model...")
+net = cv2.dnn.readNetFromTorch(modelPath)
+
+# 비디오 스트림을 초기화하고, 카메라 센서를가시작하도록 설정합니다.
+print("[INFO] starting video stream...")
+vs = VideoStream(src=0).start()
+time.sleep(2.0)
+print("[INFO] {}. {}".format(modelID + 1, modelPath))
+```
+
+위의 코드 블록에서는 우리는 우리의 첫 번째 neural style transfer 모델의 경로를 이용해서 모델을 사용합니다.
+
+그 다음, 웹캠으로 영상을 촬영할 수 있도록 비디오 스트림을 초기화합니다.
+
+프레임 반복을 하는 과정을 구현해 봅시다 :
+
+```Python
+while True:
+  # 비디오 스트림에 있는 한 개의 프레임을 가져옵니다.
+  frame = vs.read()
+
+  # 프레임의 사이즈를 가로 600 픽셀로 바꿉니다.
+  # then grab the image dimensions
+  frame = imutils.resize(frame, width=600)
+  orig = frame.copy()
+  (h, w) = frame.shape[:2]
+
+  # 이미지로부터 blob 처리를 하고, 뉴럴넷의 forward pass 를 진행합니다.
+  blob = cv2.dnn.blobFromImage(frame, 1.0, (w, h),
+  	(103.939, 116.779, 123.680), swapRB=False, crop=False)
+  net.setInput(blob)
+  output = net.forward()
+```
+
+우리는 `while` 을 이용해서 반복문을 사용할 것입니다.
+
+코드 블록은 우리가 검토한 이전 스크립트와 거의 비슷합니다. 유일한 차이는 이미지 파일이 아니라 비디오 스트림에서 프레임을 로드한다는 것입니다.
+
+본질적으로 우리는 `프레임` 을 로드해서 `blob` 처리를 하고, CNN 의 input 으로 사용합니다. 위에서 설명한 이 과정에 대해서 읽지 않았다면, 꼭 읽고 오세요.
+
+input 이미지에 대해 CNN에서는 많은 연산이 이루어집니다. 케라스로 neural style transfer 모델을 어떻게 훈련시키는지 궁금하다면, 제 책 ["Deep Learning for Computer Vision with Python"](https://www.pyimagesearch.com/deep-learning-computer-vision-python-book/)을 참고하세요.
+
+그런 다음 `output 이미지` 를 후처리하고 표시합니다.
+
+```Python
+  # 결과 tensor 를 reshape 하고, mean subtraction 했던 만큼 더해줍니다.
+  # 그리고 채널 순서를 바꿉니다.
+  output = output.reshape((3, output.shape[2], output.shape[3]))
+  output[0] += 103.939
+  output[1] += 116.779
+  output[2] += 123.680
+  output /= 255.0
+  output = output.transpose(1, 2, 0)
+
+  # neural style transfer 의 결과를 보여줍니다.
+  cv2.imshow("Input", frame)
+  cv2.imshow("Output", output)
+  key = cv2.waitKey(1) & 0xFF
+```
+
+정적 이미지 신경 스타일 스크립트와 동일합니다. 우리의 출력 이미지는 reshape, 평균 추가(평균을 이전에 뺀 이후)를 통해 "de-processed"됩니다.
+
+원래의 프레임과 가공된 프레임이 모두 화면에 표시됩니다.
+
+```Python
+  # "다음" 이라는 의미의 `n` 키가 눌리면, 다음 neural style transfer 모델을 가져옵니다.
+  if key == ord("n"):
+    (modelID, modelPath) = next(modelIter)
+    print("[INFO] {}. {}".format(modelID + 1, modelPath))
+    net = cv2.dnn.readNetFromTorch(modelPath)
+
+  # `q` 키를 누르면 반복문이 종료됩니다.
+  elif key == ord("q"):
+    break
+
+# 정리 코드
+cv2.destroyAllWindows()
+vs.stop()
+```
+
+스크립트가 실행되는 동안 다른 동작을 유발하는 두 가지 키가 있습니다.
+
+"n": "다음" 신경 스타일 전달 모델 경로 + ID를 가져와서 로드합니다. 마지막 모델에 도달한 경우, iterator는 처음부터 다시 순환합니다.
+"q": "q" 키를 누르면 `while` 루프(라인 83 및 84)가 "종료"됩니다.
+
+### 실시간 neural style transfer 의 결과
+
+이 튜토리얼의 <strong>*"다운로드"*</strong> 섹션을 사용하여 소스 코드와 신경 스타일 전송 모델을 다운로드했으면 다음 명령을 실행하여 당신의 비디오 스트림에 neural style transfer 를 적용할 수 있습니다.
+
+![](https://s3-us-west-2.amazonaws.com/static.pyimagesearch.com/opencv-neural-style/neural_style_transfer_animation.gif)
+
+보시는 바와 같이, 한 번의 키 누름 버튼을 사용하여 neural style transfer 모델을 순환(반복)하기 쉽습니다.
+
+### neural style transfer 에 대해 조금 더 알아보기
+["Deep Learning for Computer Vision with Python"](https://www.pyimagesearch.com/deep-learning-computer-vision-python-book/) 을 참조하세요.
+
+### Summary
+오늘 블로그 게시물에서 OpenCV와 Python을 사용하여 이미지와 비디오 모두에 neural style transfer를 적용하는 방법을 배웠습니다.
+
+특히, 우리는 2016년 Johnson 과 연구진들이 발표한 논문의 모델을 활용하였습니다. 당신의 편의를 위해, 저는 이 블로그 포스트의 <strong>*"다운로드"*</strong> 섹션에 모델을 포함시켰습니다.
+
+오늘 신경 전달에 관한 튜토리얼 즐거우셨기를 바랍니다!
+
+트위터와 코멘트 섹션을 사용하여 여러분만의 아름다운 예술작품에 대한 링크를 게시하십시오.
