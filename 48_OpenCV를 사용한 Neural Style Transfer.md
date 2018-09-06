@@ -559,7 +559,7 @@ vs.stop()
 > style 이미지의 스타일 뿐만 아니라 content 이미지의 윤곽을 굉장히 잘 살려주는 모델이라고 느껴집니다.
 > <br></br>
 > <center>input image</center>
->
+> <br></br>
 > <center><figure><img src='./media/spiderman.png', width=400, height=400></figure></center>
 >
 > <br></br>
