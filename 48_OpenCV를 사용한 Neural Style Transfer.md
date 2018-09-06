@@ -91,7 +91,7 @@ Johnson 외 연구진들은 그들이 어떻게 Neural style transfer 모델을 
 
 마지막으로, 2017 년에 발표한 Ulyanov 외 연구진들의 논문인 [ Instance Normalization: The Missing Ingredient for Fast Stylization](https://arxiv.org/abs/1607.08022) 역시 주목할 가치가 있습니다. 배치 정규화를 instance normalization 으로 대체 함으로서(instance normalization 학습과 테스트 모두에 적용하였습니다.) 실시간으로 더욱 빠른 퍼포먼스와 이론적으로 더 만족스러운 결과를 이끌어 냈습니다.
 
-나는 Johnson 외 연구진이 사용한 두 가지 모델을 ECCV 논문에 Ulyanov 외 연구진들의 모델들과 함께 이 게시물의 "다운로드" 섹션에 포함시켰다.
+나는 Johnson 외 연구진이 사용한 두 가지 모델을 ECCV 논문에 Ulyanov 외 연구진들의 모델들과 함께 이 게시물의 "다운로드" 섹션에 포함시켰습니다.
 
 <br></br><br></br>
 
@@ -481,3 +481,32 @@ vs.stop()
 오늘 신경 전달에 관한 튜토리얼 즐거우셨기를 바랍니다!
 
 트위터와 코멘트 섹션을 사용하여 여러분만의 아름다운 예술작품에 대한 링크를 게시하십시오.
+
+<br><br>
+
+> neural style transfer 를 실행해보았습니다.
+> style 이미지의 스타일 뿐만 아니라 content 이미지의 윤곽을 굉장히 잘 살려주는 모델이라고 느껴집니다.
+>
+> <center><figure><img src='./media/spiderman.png', width=400, height=400><figcaption><center>input image</center></figcaption></figure></center>
+>
+> <br></br>
+><center><figure><img src='./media/spiderman_wave.png', width=400, height=400><figcaption><center>output image : spiderman with wave</center></figcaption></figure></center>
+>
+> <br></br>
+><center><figure><img src='./media/spiderman_starrynight.png', width=400, height=400><figcaption><center>output image : spiderman with composition_vii</center></figcaption></figure></center>
+>
+> <br></br>
+><center><figure><img src='./media/spiderman_composition_vii.png', width=400, height=400><figcaption><center>input image : my pic of inside the lift</center></figcaption></figure></center>
+>
+> 스파이더맨의 수트의 선 뿐만 아니라 배경의 모양 윤곽도 잘 살렸습니다.
+> <br></br>
+> 그래서 제 Github 사진으로도 시도해 보았습니다.
+> <br></br>
+><center><figure><img src='./media/my_pic.jpeg', width=400, height=500><figcaption><center>output image : spiderman with starry night</center></figcaption></figure></center>
+> <br></br>
+><center><figure><img src='./media/my_pic_starrynight.png', width=400, height=500><figcaption><center>output image : my pic with starry night</center></figcaption></figure></center>
+>
+> <br></br>
+><center><figure><img src='./media/my_pic_composition_vii.png', width=400, height=500><figcaption><center>output image : my pic with composition_vii</center></figcaption></figure></center>
+>
+> input 이미지를 보면 사진이 셀피이기 때문에 거울에 비친 뒷모습이 있고, 체크무늬 셔츠를 입은것을 볼 수 있는데 output 이미지를 봤을 때도 거울에 비친 모습과 체크무늬 셔츠가 아주 선명하게 style transfer 되서 나타난 것을 볼 수 있습니다!
