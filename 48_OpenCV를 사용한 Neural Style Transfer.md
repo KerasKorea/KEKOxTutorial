@@ -95,6 +95,11 @@ Johnson 외 연구진들은 그들이 어떻게 Neural style transfer 모델을 
 
 <br></br><br></br>
 
+> 이 튜토리얼에서는 loss function 에 대한 이야기를 더 이상 하지 않습니다.
+> 그래서 짧게 설명할까 합니다.
+
+<br></br>
+<br></br>
 ### 프로젝트 구조
 
 프로젝트는 몇 개의 파일을 가지고 있는데, 이 프로젝트는 <strong>*"Downloads"*</strong> 섹션에서 다운로드 받을 수 있습니다.
@@ -133,7 +138,8 @@ $ tree --dirsfirst
 <strong>*"Downloads"*</strong> 섹션에서 .zip 파일을 다운받으면, 당신은 이 프로젝트를 위해서 온라인의 그 어떤곳에서 다른 것을 다운로드 받을 필요가 없습니다. 제가 test 에 도움이 될 이미지들을 `images/` 에, 모델들은 `models/` 에 준비를 해놓았습니다. 이 모델들은 Johnson 외 연구진들이 미리 학습시켜놓은 것입니다.
 당신은 또한 세개의 파이썬 스크립트를 찾을 수 있을 것입니다.
 
-<br></br><br></br>
+<br></br>
+<br></br>
 
 ### Neural Style Transfer 구현하기
 
@@ -164,13 +170,18 @@ args = vars(ap.parse_args())
 * [imutils](https://github.com/jrosebr1/imutils): 이 패키지는 `pip install --upgrade imutils` 로 설치가 가능합니다. 최근에 imutils==0.5.1 버전이 배포되었으니 업그레이드 하는 것을 잊지마세요!
 * [OpenCV](https://opencv.org): 이 튜토리얼을 위해서 OpenCV 3.4 또는 그 이상의 버전이 필요합니다. 제가 업로드한 또 다른 튜토리얼을 이용해서 [Ubuntu](https://www.pyimagesearch.com/2018/08/15/how-to-install-opencv-4-on-ubuntu/)와 [macOS](https://www.pyimagesearch.com/2018/08/17/install-opencv-4-on-macos/) 를 위한 OpenCV 4 를 설치할 수도 있을 거에요.
 
+<br></br>
+
 우리는 또한 두 줄의 커맨드 라인 arguments 가 필요합니다.
 * `--model` : Neural style transfer 모델의 path(위치) 입니다. 11 개의 미리 학습된 모델들이 <strong>*"Downloads"*</strong> 에 있습니다.
 * `--image` : 우리가 스타일을 적용할 입력 이미지입니다. 이미 4 개의 샘플 이미지를 준비해뒀습니다. 튜토리얼을 진행하는데 부담갖지 마세요!
 
+<br></br>
 당신은 커맨드 라인 arguments 코드를 바꿀 필요가 없습니다. - arguments 는 실행시간동안 처리될 것 입니다. 만약 이런 방식이 익숙하지 않다면, [커맨드 라인 arguments + argparse](https://www.pyimagesearch.com/2018/03/12/python-argparse-command-line-arguments/) 에 대한 블로그 포스트를 한 번 읽어보세요.
 
 이제는 재미있는 파트입니다. - 우리는 우리의 이미지와 모델을 가져올 것이고, 그 다음엔 neural style transfer 를 해볼 것입니다.
+
+<br></br>
 
 ```python
 # neural style transfer model 로드 합니다.
@@ -214,30 +225,39 @@ end = time.time()
 >
 > 위의 과정들을 거치면 아래의 왼쪽 이미지는 오른쪽 이미지처럼 바뀔 것입니다.
 >
-> ![](https://www.pyimagesearch.com/wp-content/uploads/2017/11/blob_from_images_mean_subtraction.jpg)
+> <center><img src='https://www.pyimagesearch.com/wp-content/uploads/2017/11/blob_from_images_mean_subtraction.jpg'></center>
+>
+> <br></br>
 >
 > Mean subtraction 을 산하기 위해서 input 이미지로 사용할 이미지의 R(Red), G(Green), B(Blue) 채널의 평균값을 각각 구합니다.
 > 각 채널의 평균값을 ![](https://www.pyimagesearch.com/wp-content/latex/00d/00d17f8035a0d96ed31b6c7d4f68d407-ffffff-000000-0.png)  ,      ![](https://www.pyimagesearch.com/wp-content/latex/029/02949639dff879b56cef44160bc985c7-ffffff-000000-0.png) , ![](https://www.pyimagesearch.com/wp-content/latex/4b7/4b7a4c54b57c9297141ab648398f6dfc-ffffff-000000-0.png)  로 표현한다고 했을 때, 각각의 진짜 채널 값에서 평균 값을 뺍니다. 아래와 같이 표현할 수 있을 것입니다.
 >
->![](https://www.pyimagesearch.com/wp-content/latex/d11/d11ee9121f3d326ef4d5c81ff11bc5e6-ffffff-000000-0.png)
+><center><img src ='https://www.pyimagesearch.com/wp-content/latex/d11/d11ee9121f3d326ef4d5c81ff11bc5e6-ffffff-000000-0.png'>
 >
 > ![](https://www.pyimagesearch.com/wp-content/latex/ee5/ee51f3278d2531147a8ac04d00a4fedc-ffffff-000000-0.png)
 >
->![](https://www.pyimagesearch.com/wp-content/latex/7a7/7a7638be15fc944e9cac16bbd923e834-ffffff-000000-0.png)
+>![](https://www.pyimagesearch.com/wp-content/latex/7a7/7a7638be15fc944e9cac16bbd923e834-ffffff-000000-0.png)</center>
+>
+>
 > 그 다음에는 2 단계인 scaling 을 위해서 표준편차인 ![](https://www.pyimagesearch.com/wp-content/latex/a2a/a2ab7d71a0f07f388ff823293c147d21-ffffff-000000-0.png) 를 사용합니다.
 >
-> ![](https://www.pyimagesearch.com/wp-content/latex/a48/a48e51a51bd1c136db406951be811fc8-ffffff-000000-0.png)
+> <center><img src='https://www.pyimagesearch.com/wp-content/latex/a48/a48e51a51bd1c136db406951be811fc8-ffffff-000000-0.png'>
 >
 > ![](https://www.pyimagesearch.com/wp-content/latex/372/372f7e9f48777b8015c5160138e4dbc8-ffffff-000000-0.png)
 >
-> ![](https://www.pyimagesearch.com/wp-content/latex/74a/74a24112c5ba30331b2a554f005eebb2-ffffff-000000-0.png)
+> ![](https://www.pyimagesearch.com/wp-content/latex/74a/74a24112c5ba30331b2a554f005eebb2-ffffff-000000-0.png)</center>
 >
 > 평균을 빼주고, 표준편차로 나눠줌으로써 데이터를 정규화시켜줍니다.
 >
 > <strong>모든 딥러닝 아키텍처들이 mean subtraction 및 scaling 을 수행하는 것은 아닙니다!</strong>
+>
 
+
+<br></br>
 
 다시 튜토리얼로 돌아와서, 지금까지 전처리를 하고 forward pass 를 실행하고 결과를 이미지를 얻었으니 다음으로 `출력 이미지` 를 후처리하는 것이 중요합니다.
+
+<br></br>
 
 ```Python
 # 결과 tensor 를 reshape 하고, mean subtraction 했던 만큼 더해줍니다.
@@ -275,6 +295,9 @@ cv2.imshow("Output", output)
 cv2.waitKey(0)
 ```
 
+<br></br>
+<br></br>
+
 ### Neural style transfer 결과들
 
 내 결과를 복사하려면 이 블로그 게시물에 대한 "다운로드"를 받아야 합니다.
@@ -288,18 +311,28 @@ $ python neural_style_transfer.py --image images/giraffe.jpg \
 [INFO] loading style transfer model...
 [INFO] neural style transfer took 0.3152 seconds
 ```
+<br></br>
 
 ![](https://www.pyimagesearch.com/wp-content/uploads/2018/08/neural_style_transfer_output02.jpg)
 
+<br></br>
+
 다른 이미지로 style transfer 된 결과 이미지를 얻고 싶다면 커맨드의 이미지 path와 와 모델 path 를 변경해 보세요.
 
+<br></br>
+
 ![](https://www.pyimagesearch.com/wp-content/uploads/2018/08/neural_style_transfer_output03.jpg)
+
+<br></br>
 
 ![](https://www.pyimagesearch.com/wp-content/uploads/2018/08/neural_style_transfer_output04.jpg)
 
 위의 세 개의 예제처럼, 우리는 딥러닝 예술작품을 만들었습니다! 터미널 출력에서 출력 이미지를 계산하는 데 경과된 시간이 표시됩니다. 각 CNN 모델은 약간 다르므로 각 모델에 대해 서로 다른 타이밍을 예상해야 합니다.
 
 도전! 신경 스타일의 전이가 있는 화려한 딥러닝 작품을 만들 수 있나요? 저는 당신이 작품을 트윗하는 것을 보고 싶습니다. 해시태그, #noralstyletransfer를 사용하여 트윗(@PyImageSearch)에서 저를 언급하세요. 또한, 아티스트와 사진작가가 트위터에 있다면 태그를 달아주세요.
+
+<br></br>
+<br></br>
 
 ### 실시간 neural style transfer
 
@@ -466,12 +499,19 @@ vs.stop()
 
 이 튜토리얼의 <strong>*"다운로드"*</strong> 섹션을 사용하여 소스 코드와 신경 스타일 전송 모델을 다운로드했으면 다음 명령을 실행하여 당신의 비디오 스트림에 neural style transfer 를 적용할 수 있습니다.
 
-![](https://s3-us-west-2.amazonaws.com/static.pyimagesearch.com/opencv-neural-style/neural_style_transfer_animation.gif)
+<center><img  src ='https://s3-us-west-2.amazonaws.com/static.pyimagesearch.com/opencv-neural-style/neural_style_transfer_animation.gif'></center>
 
+<br></br>
 보시는 바와 같이, 한 번의 키 누름 버튼을 사용하여 neural style transfer 모델을 순환(반복)하기 쉽습니다.
+
+<br></br>
+<br></br>
 
 ### neural style transfer 에 대해 조금 더 알아보기
 ["Deep Learning for Computer Vision with Python"](https://www.pyimagesearch.com/deep-learning-computer-vision-python-book/) 을 참조하세요.
+
+<br></br>
+<br></br>
 
 ### Summary
 오늘 블로그 게시물에서 OpenCV와 Python을 사용하여 이미지와 비디오 모두에 neural style transfer를 적용하는 방법을 배웠습니다.
@@ -486,27 +526,34 @@ vs.stop()
 
 > neural style transfer 를 실행해보았습니다.
 > style 이미지의 스타일 뿐만 아니라 content 이미지의 윤곽을 굉장히 잘 살려주는 모델이라고 느껴집니다.
->
-> <center><figure><img src='./media/spiderman.png', width=400, height=400><figcaption><center>input image</center></figcaption></figure></center>
+> <br></br>
+> <center>input image</center>
+> <center><figure><img src='./media/spiderman.png', width=400, height=400></figure></center>
 >
 > <br></br>
-><center><figure><img src='./media/spiderman_wave.png', width=400, height=400><figcaption><center>output image : spiderman with wave</center></figcaption></figure></center>
+> <center>output image : spiderman with wave</center>
+><center><figure><img src='./media/spiderman_wave.png', width=400, height=400></figure></center>
 >
 > <br></br>
-><center><figure><img src='./media/spiderman_starrynight.png', width=400, height=400><figcaption><center>output image : spiderman with composition_vii</center></figcaption></figure></center>
+> <center>output image : spiderman with starry night</center>
+><center><figure><img src='./media/spiderman_starrynight.png', width=400, height=400></figure></center>
 >
 > <br></br>
-><center><figure><img src='./media/spiderman_composition_vii.png', width=400, height=400><figcaption><center>input image : my pic of inside the lift</center></figcaption></figure></center>
+> <center>output image : spiderman with composition_vii</center>
+><center><figure><img src='./media/spiderman_composition_vii.png', width=400, height=400></center>
 >
 > 스파이더맨의 수트의 선 뿐만 아니라 배경의 모양 윤곽도 잘 살렸습니다.
 > <br></br>
 > 그래서 제 Github 사진으로도 시도해 보았습니다.
 > <br></br>
-><center><figure><img src='./media/my_pic.jpeg', width=400, height=500><figcaption><center>output image : spiderman with starry night</center></figcaption></figure></center>
+> <center>input image : my pic of inside the lift</center>
+><center><figure><img src='./media/my_pic.jpeg', width=400, height=500></figure></center>
 > <br></br>
-><center><figure><img src='./media/my_pic_starrynight.png', width=400, height=500><figcaption><center>output image : my pic with starry night</center></figcaption></figure></center>
+> <center>output image : my pic with starry night</center>
+><center><figure><img src='./media/my_pic_starrynight.png', width=400, height=500></figure></center>
 >
 > <br></br>
-><center><figure><img src='./media/my_pic_composition_vii.png', width=400, height=500><figcaption><center>output image : my pic with composition_vii</center></figcaption></figure></center>
+> <center>output image : my pic with composition_vii</center>
+><center><figure><img src='./media/my_pic_composition_vii.png', width=400, height=500></figure></center>
 >
 > input 이미지를 보면 사진이 셀피이기 때문에 거울에 비친 뒷모습이 있고, 체크무늬 셔츠를 입은것을 볼 수 있는데 output 이미지를 봤을 때도 거울에 비친 모습과 체크무늬 셔츠가 아주 선명하게 style transfer 되서 나타난 것을 볼 수 있습니다!
