@@ -2,7 +2,7 @@
 [원문 링크](https://towardsdatascience.com/how-to-generate-music-using-a-lstm-neural-network-in-keras-68786834d4c5)
 > 이 문서는 순환신경망(RNN)인 `LSTM` 과 Python 음악 툴킷인 `music21` 을 이용해서 작곡을 해보는 것에 대해 설명합니다.
 2018년 8월을 기준으로, 동작하지 않는 코드는 동작하지 않는 부분을 동작하도록 변형하였기 때문에 코드는 원문과 같지 않을 수 있습니다. 또한 그대로 번역한 것이 아닌 필요한 설명과 합쳐서 다시 쓴 글이기 때문에 원문과 다를 수 있습니다. 모든 이미지들은 원문에서 가져온 이미지입니다.
-원문에서 나온 코드들을 이해를 돕기 위해 jupyter notebook 파일을 첨부합니다.
+원문에서 나온 코드의 이해를 돕기 위해 코드에 주석을 붙인 jupyter notebook 파일을 첨부합니다.
 
 * 케라스
 * LSTM
@@ -128,7 +128,7 @@ Requirement already satisfied: music21 in /anaconda3/lib/python3.6/site-packages
 
 먼저 아래 code 의 일부분에서 볼 수 있는 것처럼 데이터를 배열에 로드합니다.
 
-```
+```python
 from music21 import converter, instrument, note, chord
 import glob     # 원문에는 없지만 아래에서 사용하기 때문에 glob 을 import 해줘야합니다.
 
@@ -170,8 +170,7 @@ for file in glob.glob("midi_songs/*.mid"):
 
 이제 모든 노트와 코드(chord)를 순차적 목록에 넣었으므로 네트워크의 입력으로 사용될 시퀀스를 만들 수 있습니다.
 
-![Figure1](https://cdn-images-1.medium.com/max/1600/1*sM3FeKwC-SD66FCKzoExDQ.jpeg)
-<center>Figure 1: 우리가 데이터를 'apple', 'orange' 와 같은 카테고리 형식에서 0, 1 과 같은 숫자 형태로 변환할 때, 데이터는 범주가 고유한 값 집합에 있는 위치를 나타내는 정수 인덱스로 변환됩니다. 예를 들어, 사과는 첫 번째 뚜렷한 값이기 때문에 0으로 매핑됩니다. 오렌지는 리스트에서 인덱스가 1인 값이고, 그래서 1이 됩니다. 파인애플은 리스트에서 인덱스가 3이지만 'apple' 이라는 이미 매핑된 값이 있는 엘레먼트가 있으므로 2에 매핑됩니다</center>
+<figure><img src='https://cdn-images-1.medium.com/max/1600/1*sM3FeKwC-SD66FCKzoExDQ.jpeg'><figcaption><center>Figure 1: 우리가 데이터를 'apple', 'orange' 와 같은 카테고리 형식에서 0, 1 과 같은 숫자 형태로 변환할 때, 데이터는 범주가 고유한 값 집합에 있는 위치를 나타내는 정수 인덱스로 변환됩니다. 예를 들어, 사과는 첫 번째 뚜렷한 값이기 때문에 0으로 매핑됩니다. 오렌지는 리스트에서 인덱스가 1인 값이고, 그래서 1이 됩니다. 파인애플은 리스트에서 인덱스가 3이지만 'apple' 이라는 이미 매핑된 값이 있는 엘레먼트가 있으므로 2에 매핑됩니다</center></figcaption></figure>
 
 <br></br>
 
@@ -179,7 +178,7 @@ for file in glob.glob("midi_songs/*.mid"):
 
 다음으로, 우리는 네트워크와 각각의 출력에 대한 입력 순서를 만들어야 합니다. 각 입력 시퀀스의 출력은 노트 리스트의 입력 시퀀스에서 노트의 시퀀스 뒤에 오는 첫 번째 노트 또는 코드입니다.
 
-```
+```python
 sequence_length = 100
 # 모든 계이름의 이름을 pitchnames 변수에 저장.
 # set 으로 중복을 피하고, sorted 함수로 sorting 함.
@@ -222,7 +221,7 @@ code 예에서 각 시퀀스의 길이는 100노트/코드(chord) 입니다. 즉
 
 **Activation 레이어** 는 신경망이 노드의 출력을 계산하는 데 사용할 활성화 기능을 결정합니다.
 
-```
+```python
 model = Sequential()
     model.add(LSTM(
         256,
@@ -253,7 +252,7 @@ Dropout 계층의 경우 첫 번째 매개변수는 교육 중에 삭제해야 �
 
 각 학습의 반복에 대한 손실을 계산하기 위해, 우리는 [categorical 크로스 엔트로피](https://rdipietro.github.io/friendly-intro-to-cross-entropy-loss/)를 사용할 것입니다. Categorical 크로스 엔트로피를 사용하는 이유는 각 출력은 단 한 개의 클래스에만 속해야하고 우리는 두 개 이상의 클래스를 가지고 있기 때문입니다. 또한 네트워크를 최적화하기 위해 RMSprop optimizer를 사용할 것입니다. RMSprop optimizer는 일반적으로 순환신경망에 매우 적합합니다.
 
-```
+```python
 filepath = "weights-improvement-{epoch:02d}-{loss:.4f}-bigger.hdf5"    
 checkpoint = ModelCheckpoint(
     filepath, monitor='loss',
@@ -275,7 +274,7 @@ model.fit(network_input, network_output, epochs=200, batch_size=64, callbacks=ca
 
 학습된 신경망을 사용하여 음악을 생성하려면 이전과 같은 상태로 만들어야 합니다. 간단하게 하기 위해 학습 섹션의 코드(chord)를 재사용하여 데이터를 준비하고 전과 동일한 방식으로 네트워크 모델을 설정합니다. 단, 네트워크를 교육하는 대신 학습 섹션에서 저장한 가중치를 모델에 로드합니다.
 
-```
+```python
 model = Sequential()
 model.add(LSTM(
     512,
@@ -302,7 +301,7 @@ model.load_weights('weights.hdf5')
 
 여기서는 네트워크 출력을 디코딩하는 매핑 기능도 생성해야 합니다. 입력은 categorical 한 것을 숫자로 바꾸었지만 이번엔 반대로 숫자에서 categorical 데이터(정수에서 노트까지)로 매핑합니다.
 
-```
+```python
 # 입력 시퀀스를 랜덤하게 주는 부분.
 start = numpy.random.randint(0, len(network_input)-1)
 
@@ -330,13 +329,15 @@ for note_index in range(500):
 
 우리는 네트워크를 이용하여 500개의 음을 만들기로 정했습니다. 왜냐하면 500개의 노트는 약 2분 정도의 음악이기 떄문입니다. 그리고 네트워크에게 멜로디를 만들 수 있는 충분한 공간을 주기 때문이기도 합니다. 생성하려는 각 노트에 대해 네트워크에 시퀀스를 제출해야 합니다. 우리가 입력한 첫 번째 시퀀스는 시작 인덱스에 있는 노트 입니다. 우리는 다음 출력 시퀀스를 얻기 위해서, 출력된 시퀀스에서 입력으로 사용된 부분을 제거하고 그것을 입력 시퀀스로 씁니다. figure2 를 보면 더 이해가 쉬울 것입니다.
 
-![figure2](https://cdn-images-1.medium.com/max/1600/1*lsMVJ484dEqIVMFyJ1gV2g.jpeg)
-Figure 2: 첫 번째 시퀀스는 ABCDE 입니다. 우리가 시퀀스 ABCDED 를 입력으로 넣고 얻은 출력값은 F 입니다. 다음 결과값을 위해서 우리는 A를 제거하고 F를 넣은 BCDEF 를 새 입력 데이터로 사용합니다. 이러한 프로세스를 반복합니다.
+<figure><img src='https://cdn-images-1.medium.com/max/1600/1*lsMVJ484dEqIVMFyJ1gV2g.jpeg'><figcaption><center>Figure 2: 첫 번째 시퀀스는 ABCDE 입니다. 우리가 시퀀스 ABCDED 를 입력으로 넣고 얻은 출력값은 F 입니다. 다음 결과값을 위해서 우리는 A를 제거하고 F를 넣은 BCDEF 를 새 입력 데이터로 사용합니다. 이러한 프로세스를 반복합니다.</center></figcaption></figure>
+
+<br></br>
 
 네트워크 출력에서 가장 가능성이 높은 예측값을 결정하기 위해 가장 높은 확률의 인덱스를 추출합니다. 출력 배열에서 인덱스 X의 값은 X가 다음 노트가 될 확률에 해당합니다. 그림 3이 이해를 도와줄 것입니다.
 
-![figure3](https://cdn-images-1.medium.com/max/1600/1*YpnnaPA1Sm8rzTR4N2knKQ.jpeg)
-Figure 3: 여기서 우리는 출력값이 각 클래스가 될 확률이 어느 정도인지를 리스트로 나타낸것을 볼 수 있습니다. 우리가 figure3 를 보면 알 수 있듯, D 가 가장 확률이 높습니다. 우리는 다음 노트로서 D 를 취하도록 만들어야 합니다.
+<figure><img src='https://cdn-images-1.medium.com/max/1600/1*YpnnaPA1Sm8rzTR4N2knKQ.jpeg'><figcaption><center>Figure 3: 여기서 우리는 출력값이 각 클래스가 될 확률이 어느 정도인지를 리스트로 나타낸것을 볼 수 있습니다. 우리가 figure3 를 보면 알 수 있듯, D 가 가장 확률이 높습니다. 우리는 다음 노트로서 D 를 취하도록 만들어야 합니다</center></figcaption></figure>
+
+<br></br>
 
 그런 다음 리스트에 모든 출력을 수집합니다.
 이제 리스트에 인코딩된 모든 노트와 코드(chord) 표시가 있으므로 노트의 디코딩을 시작하고 노트와 코드(chord) 개체의 리스트 만들 수 있습니다.
@@ -351,7 +352,7 @@ Figure 3: 여기서 우리는 출력값이 각 클래스가 될 확률이 어느
 
 각 반복이 끝날 때마다 오프셋이 0.5씩 증가하고(0.5 는 우리가 이전 섹션에서 결정했습니다) 생성된 노트/코드(chord) 개체가 리스트에 추가됩니다.
 
-```
+```python
 offset = 0
 output_notes = []
 # 모델에 의해 예측된 값을 바탕으로 노트와 코드(chord) 객체를 만듭니다.
@@ -381,7 +382,7 @@ for pattern in prediction_output:
 
 이제 네트워크에서 생성된 노트 및 코드(chord) 리스트를 매개 변수로 사용하여 Music21 Stream 객체를 만들 것입니다. 진짜 음악을 만드는 부분입니다. 마지막으로 네트워크에서 생성된 음악을 저장할 MIDI 파일을 만들기 위해 Music21 툴킷의 쓰기 기능을 사용하여 스트림을 파일에 씁니다.
 
-```
+```python3
 midi_stream = stream.Stream(output_notes)
 midi_stream.write('midi', fp='test_output.mid')
 ```
