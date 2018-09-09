@@ -1,7 +1,7 @@
 ## OpenCV를 사용한 Neural Style Transfer(Neural Style Transfer with OpenCV)
 [원문 링크](https://www.pyimagesearch.com/2018/08/27/neural-style-transfer-with-opencv/)
 > 이 문서는 Neural Style Transfer 를 하는 방법을 `Keras` 와 `OpenCV` 를 이용해서 보여줍니다. 많은 예제들이 content 이미지에 style 이미지의 style 을 합치지만, 이 튜토리얼에서는 OpenCV 를 사용해서 content 이미지 뿐만 아니라 실시간으로 촬영되는 비디오에도 style 이미지의 style 을 합칩니다. 원작자의 튜토리얼에 대한 부가설명은 `인용구` 를 이용해서 표현할 것입니다.
-
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
 * 케라스
 * Neural Style transfer
