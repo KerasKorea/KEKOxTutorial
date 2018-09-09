@@ -1,7 +1,7 @@
 ## OpenCV를 사용한 Neural Style Transfer(Neural Style Transfer with OpenCV)
 [원문 링크](https://www.pyimagesearch.com/2018/08/27/neural-style-transfer-with-opencv/)
 > 이 문서는 Neural Style Transfer 를 하는 방법을 `Keras` 와 `OpenCV` 를 이용해서 보여줍니다. 많은 예제들이 content 이미지에 style 이미지의 style 을 합치지만, 이 튜토리얼에서는 OpenCV 를 사용해서 content 이미지 뿐만 아니라 실시간으로 촬영되는 비디오에도 style 이미지의 style 을 합칩니다. 원작자의 튜토리얼에 대한 부가설명은 `인용구` 를 이용해서 표현할 것입니다.
-
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
 * 케라스
 * Neural Style transfer
@@ -64,8 +64,8 @@ Neural style transfer 의 프로세스는 **Figure1** 에서 확인할 수 있�
 
 ### Neural style transfer 는 어떻게 동작할까?
 <br></br>
-<center><img  src='https://www.pyimagesearch.com/wp-content/uploads/2018/08/neural_style_transfer_gatys.jpg'>
-<center>Figure 2: Neural Style Transfer with OpenCV possible (Figure 1 of Gatys et. al. 2015).</center>
+<img  src='https://www.pyimagesearch.com/wp-content/uploads/2018/08/neural_style_transfer_gatys.jpg'>
+Figure 2: Neural Style Transfer with OpenCV possible (Figure 1 of Gatys et. al. 2015).
 
 <br></br>
 
@@ -106,7 +106,60 @@ Johnson 외 연구진들은 그들이 어떻게 Neural style transfer 모델을 
 <br></br><br></br>
 
 > 이 튜토리얼에서는 loss function 에 대한 이야기를 더 이상 하지 않습니다.
-> 그래서 짧게 설명할까 합니다.
+> 그래서 코드와 함께 짧게 설명할까 합니다. [이곳](https://medium.com/tensorflow/neural-style-transfer-creating-art-with-deep-learning-using-tf-keras-and-eager-execution-7d541ac31398) 을 참고하였고, 이를 번역한 Keras Tutorial 의 문서 Neural Style Transfer : tf.keras와 eager execution를 이용한 딥러닝 미술 작품 만들기(Neural Style Transfer: Creating Art with Deep Learning using tf.keras and eager execution) 를 참고하시면 좋을 것 같습니다. 또한 code 는 Team-Keras 의 코드를 가져왔습니다. 그것은 [여기](https://github.com/keras-team/keras/blob/master/examples/neural_style_transfer.py)를 고해주세요.
+>
+> `content loss` 는 아주 간단합니다. 미리 학습된 신경망(예를 들어, VGG19) 으로 부터 얻은, 우리가 바꾸고 싶은 입력 이미지 x 의 feature map 과 content 이미지 p 사이의 feature map 의 loss 를 구하는 것과 같습니다! 수식으로 표현하면 아래의 수식과 같습니다.
+>
+> ![N_l](http://latex.codecogs.com/gif.latex?N_l) : ![l](http://latex.codecogs.com/gif.latex?l) 번 째 레이어의 filter 개수
+> ![M_l](http://latex.codecogs.com/gif.latex?M_l) : filter 의 output 개수
+> ![F_l](http://latex.codecogs.com/gif.latex?F^l\in{R^{N_l\times{M_l}}) : ![F_l](http://latex.codecogs.com/gif.latex?F^l) 는 Feature map
+> 입력 이미지 ![x](http://latex.codecogs.com/gif.latex?x), content 이미지 ![p](http://latex.codecogs.com/gif.latex?p) 의 Feature map 을  ![x_l](http://latex.codecogs.com/gif.latex?x^l), ![p_l](http://latex.codecogs.com/gif.latex?p^l) 이라고 할 때 `content loss` 는 다음과 같습니다.
+> <br></br> ![Lcontent](http://latex.codecogs.com/gif.latex?L_%7Bcontent%7D%3D%5Cfrac%7B1%7D%7B2%7D%5Csum_%7Bij%7D%28F_%7Bij%7D%5El%20-%20P_%7Bij%7D%5El%29%5E2)
+> ```python
+> from keras import backend as K
+>
+> def content_loss(base, combination):
+>    return K.sum(K.square(combination - base))
+> ```
+> <br></br>
+> `style loss` 는 조금 더 어렵지만, content loss 와 같은 원리입니다. 이번에는 feature map에 대해 Gram matrix를 구하고, Gram matrix 간 차의 제곱을 loss 로 정의합니다. 그렇다면 아래와 같은 수식이 되겠죠? Gram matrix 는 같은 레이어의 서로 다른 filter 들의 correlation 입니다. filter 가 ![N_l](http://latex.codecogs.com/gif.latex?N_l) 개 있으므로 Gram matrix ![p_l](http://latex.codecogs.com/gif.latex?G%5El%20%5Cin%20R%5E%7BN_l%5Ctimes%20N_l%7D) 입니다.
+>
+> ![gram_matrix](http://latex.codecogs.com/gif.latex?G_%7Bij%7D%5El%20%3D%20%5Csum%20F_%7Bik%7D%5Ccdot%20F_%7Bjk%7D)
+>
+> 따라서 Gram matrix 는 위와 같이 표현이 됩니다. `style loss` 는 레이어마다 계산한 후 weighted sum 을 합니다. 한 레이어의 style loss 는 아래와 같이 표현됩니다.
+>
+> ![E_l](http://latex.codecogs.com/gif.latex?E_l%20%3D%20%5Cfrac%7B1%7D%7B4N_l%5E2M_l%5E2%7D%5Csum_%7Bij%7D%28G_%7Bij%7D%20-%20A_%7Bij%7D%29%5E2)
+>
+> 전체 style loss 는 아래와 같이 표현됩니다.
+> ![L_style](http://latex.codecogs.com/gif.latex?L_%7Bstyle%7D%28a%2C%20x%29%20%3D%20%5Csum_%7Bl%3D0%7D%5E%7BL%7Dw_lE_l)
+> <br></br>
+> ```Python
+> def gram_matrix(x):
+>    assert K.ndim(x) == 3
+>    # image_data_format() 함수의 return 값은 'channels_first' 또는 'channels_last'
+>    if K.image_data_format() == 'channels_first':
+>        features = K.batch_flatten(x)
+>    else:
+>        features = K.batch_flatten(K.permute_dimensions(x, (2, 0, 1)))
+>    # 필터들의 correlation 을 계산
+>    gram = K.dot(features, K.transpose(features))
+>    return gram
+>
+>
+> def style_loss(style, combination):
+>    assert K.ndim(style) == 3
+>    assert K.ndim(combination) == 3
+>    # style 이미지의 Gram matrix
+>    S = gram_matrix(style)
+>    # 바꾸고 싶은 이미지의 Gram matrix
+>    C = gram_matrix(combination)
+>    channels = 3
+>    size = img_nrows * img_ncols
+>    # python 에서 ** 은 거듭제곱 연산으로 사용됩니다.
+>    # 위에서 말한 E 표현
+>    return K.sum(K.square(S - C)) / (4. * (channels ** 2) * (size ** 2))
+> ```
+> channels_first, channels_last 에 대한 이야기는 keras 문서 혹은 한글로는 [김태영님의 블로그](https://tykimos.github.io/2017/01/27/CNN_Layer_Talk/) 에 잘 설명되어 있습니다.
 
 <br></br>
 <br></br>
@@ -560,41 +613,47 @@ vs.stop()
 > <br></br>
 > <center>input image</center>
 >
-> > <center><figure><img src='./media/spiderman.png', width=400, height=400></figure></center>
+> > <center><figure><img src='./media/48_0.png', width=400, height=400></figure></center>
 >
 > <br></br>
 >
 > <center>output image : spiderman with wave</center>
 >
-> > <center><figure><img src='./media/spiderman_wave.png', width=400, height=400></figure></center>
+> > <center><figure><img src='./media/48_1.png', width=400, height=400></figure></center>
 >
 > <br></br>
 >
 > <center>output image : spiderman with starry night</center>
 >
-> > <center><figure><img src='./media/spiderman_starrynight.png', width=400, height=400></figure></center>
+> > <center><figure><img src='./media/48_2.png', width=400, height=400></figure></center>
 >
 > <br></br>
 >
 > <center>output image : spiderman with composition_vii</center>
 >
-> > <center><figure><img src='./media/spiderman_composition_vii.png', width=400, height=400></center>
+> > <center><figure><img src='./media/48_3.png', width=400, height=400></center>
 >
 > 스파이더맨의 수트의 선 뿐만 아니라 배경의 모양 윤곽도 잘 살렸습니다.
 > <br></br>
-> 그래서 제 Github 사진으로도 시도해 보았습니다.
+> 그래서 제 Github 프로필 사진으로도 시도해 보았습니다.
 > <br></br>
 > <center>input image : my pic of inside the lift</center>
 >
-> > <center><figure><img src='./media/my_pic.jpeg', width=400, height=500></figure></center>
+> > <center><figure><img src='./media/48_4.jpeg', width=400, height=500></figure></center>
 > <br></br>
 > <center>output image : my pic with starry night</center>
 >
-> > <center><figure><img src='./media/my_pic_starrynight.png', width=400, height=500></figure></center>
+> > <center><figure><img src='./media/48_5.png', width=400, height=500></figure></center>
 >
 > <br></br>
 > <center>output image : my pic with composition_vii</center>
 >
-> > <center><figure><img src='./media/my_pic_composition_vii.png', width=400, height=500></figure></center>
+> > <center><figure><img src='./media/48_6.png', width=400, height=500></figure></center>
 >
 > input 이미지를 보면 사진이 셀피이기 때문에 거울에 비친 뒷모습이 있고, 체크무늬 셔츠를 입은것을 볼 수 있는데 output 이미지를 봤을 때도 거울에 비친 모습과 체크무늬 셔츠가 아주 선명하게 style transfer 되서 나타난 것을 볼 수 있습니다!
+
+### 참고 사이트
+* [케라스 공식 홈페이지](https://keras.io/)
+* [김태영의 케라스 블로그](https://tykimos.github.io/)
+* [Neural Style Transfer: Creating Art with Deep Learning using tf.keras and eager execution](https://medium.com/tensorflow/neural-style-transfer-creating-art-with-deep-learning-using-tf-keras-and-eager-execution-7d541ac31398)
+* [Image Style Transfer Using Convolutional Neural Networks](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Gatys_Image_Style_Transfer_CVPR_2016_paper.pdf)
