@@ -560,41 +560,41 @@ vs.stop()
 > <br></br>
 > <center>input image</center>
 >
-> > <center><figure><img src='./media/spiderman.png', width=400, height=400></figure></center>
+> > <center><figure><img src='./media/48_0.png', width=400, height=400></figure></center>
 >
 > <br></br>
 >
 > <center>output image : spiderman with wave</center>
 >
-> > <center><figure><img src='./media/spiderman_wave.png', width=400, height=400></figure></center>
+> > <center><figure><img src='./media/48_1.png', width=400, height=400></figure></center>
 >
 > <br></br>
 >
 > <center>output image : spiderman with starry night</center>
 >
-> > <center><figure><img src='./media/spiderman_starrynight.png', width=400, height=400></figure></center>
+> > <center><figure><img src='./media/48_2.png', width=400, height=400></figure></center>
 >
 > <br></br>
 >
 > <center>output image : spiderman with composition_vii</center>
 >
-> > <center><figure><img src='./media/spiderman_composition_vii.png', width=400, height=400></center>
+> > <center><figure><img src='./media/48_3.png', width=400, height=400></center>
 >
 > 스파이더맨의 수트의 선 뿐만 아니라 배경의 모양 윤곽도 잘 살렸습니다.
 > <br></br>
-> 그래서 제 Github 사진으로도 시도해 보았습니다.
+> 그래서 제 Github 프로필 사진으로도 시도해 보았습니다.
 > <br></br>
 > <center>input image : my pic of inside the lift</center>
 >
-> > <center><figure><img src='./media/my_pic.jpeg', width=400, height=500></figure></center>
+> > <center><figure><img src='./media/48_4.jpeg', width=400, height=500></figure></center>
 > <br></br>
 > <center>output image : my pic with starry night</center>
 >
-> > <center><figure><img src='./media/my_pic_starrynight.png', width=400, height=500></figure></center>
+> > <center><figure><img src='./media/48_5.png', width=400, height=500></figure></center>
 >
 > <br></br>
 > <center>output image : my pic with composition_vii</center>
 >
-> > <center><figure><img src='./media/my_pic_composition_vii.png', width=400, height=500></figure></center>
+> > <center><figure><img src='./media/48_6.png', width=400, height=500></figure></center>
 >
 > input 이미지를 보면 사진이 셀피이기 때문에 거울에 비친 뒷모습이 있고, 체크무늬 셔츠를 입은것을 볼 수 있는데 output 이미지를 봤을 때도 거울에 비친 모습과 체크무늬 셔츠가 아주 선명하게 style transfer 되서 나타난 것을 볼 수 있습니다!
