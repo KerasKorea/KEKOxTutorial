@@ -109,7 +109,9 @@ Johnson 외 연구진들은 그들이 어떻게 Neural style transfer 모델을 
 > 그래서 코드와 함께 짧게 설명할까 합니다. [이곳](https://medium.com/tensorflow/neural-style-transfer-creating-art-with-deep-learning-using-tf-keras-and-eager-execution-7d541ac31398) 을 참고하였고, 이를 번역한 Keras Tutorial 의 문서 Neural Style Transfer : tf.keras와 eager execution를 이용한 딥러닝 미술 작품 만들기(Neural Style Transfer: Creating Art with Deep Learning using tf.keras and eager execution) 를 참고하시면 좋을 것 같습니다.
 >
 > `content loss` 는 아주 간단합니다. 미리 학습된 신경망(예를 들어, VGG19) 으로 부터 얻은, 우리가 바꾸고 싶은 입력 이미지 x 의 feature map 과 content 이미지 p 사이의 feature map 의 loss 를 구하는 것과 같습니다! 수식으로 표현하면 아래의 수식과 같습니다.
-> <br></br> ![content_loss](https://cdn-images-1.medium.com/max/1600/0*_xXDGQ3ZV62zte06)
+> <br></br>
+> $N_l$
+> ![content_loss](https://cdn-images-1.medium.com/max/1600/0*_xXDGQ3ZV62zte06)
 > ```python
 > # base_content 는 x, target 은 p
 > def get_content_loss(base_content, target):
@@ -119,7 +121,7 @@ Johnson 외 연구진들은 그들이 어떻게 Neural style transfer 모델을 
 > `style loss` 는 조금 더 어렵지만, content loss 와 같은 원리입니다. 이번에는 feature map에 대해 Gram matrix를 구하고, Gram matrix 간 차의 제곱을 loss 로 정의합니다. 그렇다면 아래와 같은 수식이 되겠죠? Gram matrix 는 서로 다른 filter 들의 correlation 입니다.
 >
 > ![48_7.png](./media/48_7.png)
->
+> $$$display$$
 > 위의 수식에 맞게 설명을 한다면, 우리가 바꾸고 싶은 이미지가 F, style 이미지가 S 입니다. 각 이미지들의 Gram matrix 의 차의 제곱을 구해야 합니다.
 > 사실 style loss 는 레이어마다 계산한 후 weighted sum 을 합니다.
 > ![48_8.png](./media/48_8.png)
