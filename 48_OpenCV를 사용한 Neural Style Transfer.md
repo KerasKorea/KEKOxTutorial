@@ -1,10 +1,10 @@
 ## OpenCV를 사용한 Neural Style Transfer(Neural Style Transfer with OpenCV)
 [원문 링크](https://www.pyimagesearch.com/2018/08/27/neural-style-transfer-with-opencv/)
 > 이 문서는 Neural Style Transfer 를 하는 방법을 `Keras` 와 `OpenCV` 를 이용해서 보여줍니다. 많은 예제들이 content 이미지에 style 이미지의 style 을 합치지만, 이 튜토리얼에서는 OpenCV 를 사용해서 content 이미지 뿐만 아니라 실시간으로 촬영되는 비디오에도 style 이미지의 style 을 합칩니다. 원작자의 튜토리얼에 대한 부가설명은 `인용구` 를 이용해서 표현할 것입니다.
-<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
 * 케라스
 * Neural Style transfer
+* Gram matrix
 
 <br></br>
 <center><img src='https://s3-us-west-2.amazonaws.com/static.pyimagesearch.com/opencv-neural-style/neural_style_transfer_animation.gif'></center>
@@ -65,13 +65,16 @@ Neural style transfer 의 프로세스는 **Figure1** 에서 확인할 수 있�
 ### Neural style transfer 는 어떻게 동작할까?
 <br></br>
 <img  src='https://www.pyimagesearch.com/wp-content/uploads/2018/08/neural_style_transfer_gatys.jpg'>
+
 Figure 2: Neural Style Transfer with OpenCV possible (Figure 1 of Gatys et. al. 2015).
 
 <br></br>
 
 이 시점에서 여러분은 아마 머리를 긁적이며 "우리가 어떻게 신경망을 정의해서 스타일 전달을 할 수 있을까?"라는 생각을 하고 있을 것입니다.
 
-흥미롭게도, 2015년에 [Gatys 등이 작성한 논문](https://arxiv.org/abs/1508.06576)은 새로운 구조를 전혀 필요로 하지 않는 Neural style transfer 알고리즘을 제안했습니다! 대신 미리 학습된 네트워크( pre-trained network, 일반적으로 ImageNet)를 사용하고 스타일 전송의 최종 목표를 달성하기 위해 필요한 손실 함수를 정의합니다.
+> Gatys et al, Johnson et al 은 해석하지 않고 바로 쓰겠습니다. Gatys 와 그 외 연구진들, Johnson 과 그 외 연구진들 이라는 뜻입니다.
+
+흥미롭게도, 2015년에 [Gatys et al 이 작성한 논문](https://arxiv.org/abs/1508.06576)은 새로운 구조를 전혀 필요로 하지 않는 Neural style transfer 알고리즘을 제안했습니다! 대신 미리 학습된 네트워크( pre-trained network, 일반적으로 ImageNet)를 사용하고 스타일 전송의 최종 목표를 달성하기 위해 필요한 손실 함수를 정의합니다.
 
 <br></br>
 **그러면 질문은 "어떤 뉴럴 네트워크를 우리가 써야할까" 가 아니라 "어떤 손실 함수를 우리가 써야할까?" 겠네요.**
@@ -87,25 +90,26 @@ Figure 2: Neural Style Transfer with OpenCV possible (Figure 1 of Gatys et. al. 
 
 각각의 구성요소는 개별적으로 계산이 된 후 한 개의 meta 손실 함수로 합쳐집니다. meta 손실 함수값을 최소화 시키기 위해서 우리는 content, style, total-variation 들의 손실을 최소화 시켜야 합니다.
 
-Gatys 등은 아름다운 결과를 만들어냈지만 문제는 그것이 꽤 느리다는 것이었습니다.
+Gatys et al 은 아름다운 결과를 만들어냈지만 문제는 그것이 꽤 느리다는 것이었습니다.
 
-Johnson 외 연구진 등(2016)은 Gatys 외 연구진(Gatys et al., Gatys 등)의 연구를 기반으로 했고, 최대 3배 까지 빠른 Neural style transfer 알고리즘을 제안하였습니다. Johnson 외 연구진들의 방법은 perceptual loss 함수를 기반으로하는 super-resolution 문제로 Neural style transfer 를 프레임화합니다.
+Johnson et al 등(2016)은 Gatys 외 연구진(Gatys et al)의 연구를 기반으로 했고, 최대 3배 까지 빠른 Neural style transfer 알고리즘을 제안하였습니다. Johnson et al 들의 방법은 perceptual loss 함수를 기반으로하는 super-resolution 문제로 Neural style transfer 를 프레임화합니다.
 
-Johnson 외 연구진들의 방법이 확실히 빠르지만 가장 큰 단점은 Gatys 외 연구진들의 방법에서와 같이 스타일 이미지를 임의로 선택할 수 없다는 것입니다.
+Johnson et al 들의 방법이 확실히 빠르지만 가장 큰 단점은 Gatys et al 들의 방법에서와 같이 스타일 이미지를 임의로 선택할 수 없다는 것입니다.
 
 <br></br>
 
-대신 먼저 원하는 이미지의 스타일을 재현하기 위해 네트워크를 명시적으로 학습해야 합니다. 네트워크가 학습이 되면 당신이 원하는 어떠한 content 이미지도 네트워크에 적용할 수 있습니다. You should see the Johnson et al. method as a more of an “investment” in your style image — you better like your style image as you’ll be training your own network to reproduce its style on content images.
+대신 먼저 원하는 이미지의 스타일을 재현하기 위해 네트워크를 명시적으로 학습해야 합니다. 네트워크가 학습이 되면 당신이 원하는 어떠한 content 이미지도 네트워크에 적용할 수 있습니다. 당신은 Johnson et al 의 방법을 확인해봐야 합니다.
 
-Johnson 외 연구진들은 그들이 어떻게 Neural style transfer 모델을 학습시켰는지에 대한 문서를 그들의 [GitHub 페이지](https://github.com/jcjohnson/fast-neural-style)에서 제공합니다.
+Johnson et al 들은 그들이 어떻게 Neural style transfer 모델을 학습시켰는지에 대한 문서를 그들의 [GitHub 페이지](https://github.com/jcjohnson/fast-neural-style)에서 제공합니다.
 
 마지막으로, 2017 년에 발표한 Ulyanov 외 연구진들의 논문인 [ Instance Normalization: The Missing Ingredient for Fast Stylization](https://arxiv.org/abs/1607.08022) 역시 주목할 가치가 있습니다. 배치 정규화를 instance normalization 으로 대체 함으로서(instance normalization 학습과 테스트 모두에 적용하였습니다.) 실시간으로 더욱 빠른 퍼포먼스와 이론적으로 더 만족스러운 결과를 이끌어 냈습니다.
 
-나는 Johnson 외 연구진이 사용한 두 가지 모델을 ECCV 논문에 Ulyanov 외 연구진들의 모델들과 함께 이 게시물의 "다운로드" 섹션에 포함시켰습니다.
+나는 Johnson et al 이 사용한 두 가지 모델을 ECCV 논문에 Ulyanov 외 연구진들의 모델들과 함께 이 게시물의 "다운로드" 섹션에 포함시켰습니다.
 
 <br></br><br></br>
 
 > 이 튜토리얼에서는 loss function 에 대한 이야기를 더 이상 하지 않습니다.
+>
 > 그래서 코드와 함께 짧게 설명할까 합니다. [이곳](https://medium.com/tensorflow/neural-style-transfer-creating-art-with-deep-learning-using-tf-keras-and-eager-execution-7d541ac31398) 을 참고하였고, 이를 번역한 Keras Tutorial 의 문서 Neural Style Transfer : tf.keras와 eager execution를 이용한 딥러닝 미술 작품 만들기(Neural Style Transfer: Creating Art with Deep Learning using tf.keras and eager execution) 를 참고하시면 좋을 것 같습니다. 또한 code 는 Team-Keras 의 코드를 가져왔습니다. 그것은 [여기](https://github.com/keras-team/keras/blob/master/examples/neural_style_transfer.py)를 고해주세요.
 >
 > `content loss` 는 아주 간단합니다. 미리 학습된 신경망(예를 들어, VGG19) 으로 부터 얻은, 우리가 바꾸고 싶은 입력 이미지 x 의 feature map 과 content 이미지 p 사이의 feature map 의 loss 를 구하는 것과 같습니다! 수식으로 표현하면 아래의 수식과 같습니다.
@@ -131,7 +135,7 @@ Johnson 외 연구진들은 그들이 어떻게 Neural style transfer 모델을 
 > ![E_l](http://latex.codecogs.com/gif.latex?E_l%20%3D%20%5Cfrac%7B1%7D%7B4N_l%5E2M_l%5E2%7D%5Csum_%7Bij%7D%28G_%7Bij%7D%20-%20A_%7Bij%7D%29%5E2)
 >
 > 전체 style loss 는 아래와 같이 표현됩니다.
-> ![L_style](http://latex.codecogs.com/gif.latex?L_%7Bstyle%7D%28a%2C%20x%29%20%3D%20%5Csum_%7Bl%3D0%7D%5E%7BL%7Dw_lE_l)
+> <br></br> ![L_style](http://latex.codecogs.com/gif.latex?L_%7Bstyle%7D%28a%2C%20x%29%20%3D%20%5Csum_%7Bl%3D0%7D%5E%7BL%7Dw_lE_l)
 > <br></br>
 > ```Python
 > def gram_matrix(x):
@@ -160,6 +164,7 @@ Johnson 외 연구진들은 그들이 어떻게 Neural style transfer 모델을 
 >    return K.sum(K.square(S - C)) / (4. * (channels ** 2) * (size ** 2))
 > ```
 > channels_first, channels_last 에 대한 이야기는 keras 문서 혹은 한글로는 [김태영님의 블로그](https://tykimos.github.io/2017/01/27/CNN_Layer_Talk/) 에 잘 설명되어 있습니다.
+
 
 <br></br>
 <br></br>
