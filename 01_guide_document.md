@@ -24,7 +24,7 @@
 [How to fine-tune ResNet in Keras and use it in an iOS App via CoreML 원문 바로 가기](https://heartbeat.fritz.ai/how-to-fine-tune-resnet-in-keras-and-use-it-in-an-ios-app-via-core-ml-ee7fd84c1b26)
 > 이 문서는 머신러닝에 익숙하지 않은 모바일 개발자들을 위해 빠르고 쉽게 딥러닝을 애플리케이션에 적용하는 방법에 관해 설명합니다. 케라스를 이용해 기존에 생성된 모델을 fine-tuning 하는 방법과 생성된 모델을 iOS 애플리케이션에 심는 방법에 대해 자세히 설명합니다. 최종 생성할 프로젝트는 시각 장애인을 위한 애플리케이션으로, 지폐 이미지를 인식해 지폐의 금액이 얼마인지 음성으로 읽어주는 기능을 합니다.
 
-* 케라스 
+* 케라스
 * ResNet
 * Fine-Tune
 * CoreML
@@ -50,21 +50,21 @@
 
 ```python
 def get_model():
-  
+
     input_tensor = Input(shape=(224, 224, 3))  # this assumes K.image_data_format() == 'channels_last'
-	
+
     # create the base pre-trained model
     base_model = ResNet50(input_tensor=input_tensor,weights='imagenet',include_top=False)
-	
+
     for layer in base_model.layers:
         layer.trainable=False
-	
+
     x = base_model.output
     x = GlobalAveragePooling2D(data_format='channels_last')(x)
     x = Dense(num_classes, activation='softmax')(x)
-	
+
     updatedModel = Model(base_model.input, x)
-	
+
     return  updatedModel
 ```
 
