@@ -1,12 +1,12 @@
 '''MNIST 데이터 셋으로 간단한 심층 신경망 학습하기
 원문: https://github.com/keras-team/keras/blob/master/examples/mnist_mlp.py
-> 이 스크립트는 케라스와 MNIST 데이터 셋을 이용해 손글씨 숫자 인식 분류기를 학습하는 예제입니다. 
+> 이 스크립트는 케라스와 MNIST 데이터 셋을 이용해 손글씨 숫자 분류기를 학습하는 예제입니다. 
 
 * keras
 * mnist
-* convolutional neural network
+* multi-layer perceptron
 
-20 에폭 학습 후 테스트 셋의 정확도가 98.40%이 됩니다
+20 에폭 학습 후 테스트 셋의 정확도가 98.40%가 됩니다
 (여기엔 아직 *많은* 파라미터 조정의 여지가 있습니다). 
 K520 GPU 사용 시 에폭 당 2초가 소요됩니다. 
 '''
