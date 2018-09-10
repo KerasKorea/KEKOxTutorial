@@ -130,9 +130,6 @@ Requirement already satisfied: music21 in /anaconda3/lib/python3.6/site-packages
 
 ```python
 from music21 import converter, instrument, note, chord
-import glob     # 원문에는 없지만 아래에서 사용하기 때문에 glob 을 import 해줘야합니다.
-
-from music21 import converter, instrument, note, chord
 import glob    # 원문에는 없지만 아래에서 사용하기 때문에 glob 을 import 해줘야합니다.
 
 notes = []
@@ -388,11 +385,11 @@ midi_stream = stream.Stream(output_notes)
 midi_stream.write('midi', fp='test_output.mid')
 ```
 
-### Result (결과)
+### Results (결과)
 
 이제 그 결과에 놀랄 타이밍입니다! 그림 4는 LSTM 네트워크를 사용하여 생성된 음악의 시트입니다. 우리는 음악 시트를 보고 한 눈에 스트럭처가 있다는 것을 알 수 있습니다. 특히 두 번째 페이지의 세 번째 줄에서 마지막 줄에서 두드러지게 보입니다.
 
-음악에 대해 잘 알고 있고 음악 표기법을 읽을 수 있는 사람들은 종이에 이상한 음들이 흩어져 있는 것을 알 수 있을 것입니다. 이것은 완벽한 멜로디를 만들 수 없는 신경망의 결과이다. 현재 구현에서는 몇 가지 잘못된 사항이 있으며 더 나은 결과를 얻으려면 더 큰 네트워크가 필요합니다.
+음악에 대해 잘 알고 있고 음악 표기법을 읽을 수 있는 사람들은 종이에 이상한 음들이 흩어져 있는 것을 알 수 있을 것입니다. 이것은 신경망이 완벽한 멜로디를 만들 수 없기 때문에 생기는 결과입니다. 현재 구현에서는 몇 가지 잘못된 사항이 있으며 더 나은 결과를 얻으려면 더 큰 네트워크가 필요합니다.
 
 ![figure4](https://cdn-images-1.medium.com/max/2000/1*tzfrAkHCbGjBXA5ZOthjrw.png)
 Figure 4: LSTM 네트워크로 만들어진 음악의 예
@@ -406,9 +403,9 @@ Figure 4: LSTM 네트워크로 만들어진 음악의 예
 
 더 많은 클래스를 추가하여 만족스러운 결과를 얻으려면 LSTM 네트워크의 깊이가 더 깊어져야 하는데, 이 네트워크에는 훨씬 더 성능좋은 컴퓨터가 필요합니다. 이 네트워크를 학습시키는데 집에서 사용하는 노트북으로 20시간 정도 걸렸기 때문입니다.
 
-두 번째, 피스들에 시작과 끝을 더하세요. 네트워크가 현재로선 조각들 간의 구분이 없기 때문에, 네트워크는 한 조각이 어디서 끝나는지 모르고 다른 하나가 시작되는지 모릅니다. 이렇게 하면 네트워크가 지금처럼 갑자기 생성된 부분을 끝내지 않고 처음부터 끝까지 다시 한 피스를 생성할 수 있다.
+두 번째, 피스들에 시작과 끝을 더하세요. 네트워크가 현재로선 조각들 간의 구분이 없기 때문에, 네트워크는 한 조각이 어디서 끝나는지 모르고 다른 하나가 시작되는지 모릅니다. 이렇게 하면 네트워크가 지금처럼 갑자기 생성된 부분을 끝내지 않고 처음부터 끝까지 다시 한 피스를 생성할 수 있습니다.
 
-셋째, 알 수 없는 노트를 처리하는 방법을 추가합니다. 현재는 네트워크가 모르는 메모를 접할 경우 에러 상태가 되버립니다. 이 문제를 해결하기 위한 가능한 방법은 알 수 없는 노트와 가장 유사한 노트 또는 코드(chord)를 찾는 것입니다.
+셋째, 알 수 없는 노트를 처리하는 방법을 추가합니다. 현재는 네트워크가 모르는 메모를 접할 경우 에러 상태가 .버립니다. 이 문제를 해결하기 위한 가능한 방법은 알 수 없는 노트와 가장 유사한 노트 또는 코드(chord)를 찾는 것입니다.
 
 마지막으로, 데이터 세트에 악기를 추가합니다. 현재로서, 네트워크는 하나의 악기만 있는 부품만 지원합니다. 오케스트라 전체를 지원하기 위해 여러개의 악기를 예측할 수 있도록 확장해보는 것 역시 흥미로울 것입니다.
 
@@ -424,4 +421,6 @@ Figure 4: LSTM 네트워크로 만들어진 음악의 예
 * [music21](http://web.mit.edu/music21/)
 * [Droput](http://blog.naver.com/PostView.nhn?blogId=laonple&logNo=220542170499)
 
-> 번역 및 정리: 박정현(parkjh688@gmail.com), 송문혁(firefinger07@gmail.com)
+> 이 글은 2018 컨트리뷰톤에서 [`Contribute to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.
+> Translator: [박정현](https://github.com/parkjh688), [송문혁](https://github.com/mike2ox)
+> Translator email : <parkjh688@gmail.com>, <firefinger07@gmail.com>
