@@ -12,14 +12,14 @@
 <br></br>
 
 ### Introduction
-이 튜토리얼에서, 당신은 neural style transfer 를 OpenCV, 파이썬, 딥러닝을 이용해서 이미지 뿐만 아니라 실시간으로 촬영되는 비디오에도 적용해볼 수 있을거에요. 튜토리얼이 끝날 때 쯤, 당신은 neural style transfer 를 이용한 아주 아름다운 작품을 만들 수 있을 겁니다.
+이 튜토리얼에서, 당신은 Neural style transfer 를 OpenCV, 파이썬, 딥러닝을 이용해서 이미지 뿐만 아니라 실시간으로 촬영되는 비디오에도 적용해볼 수 있을거에요. 튜토리얼이 끝날 때 쯤, 당신은 Neural style transfer 를 이용한 아주 아름다운 작품을 만들 수 있을 겁니다.
 
-오리지널 neural style transfer 알고리즘은 2015년에 Gatys 와 몇몇에 의해 그들의 논문인 [`A Neural Algorithm of Artistic Style`](https://arxiv.org/abs/1508.06576) 소개되었습니다.
+오리지널 Neural style transfer 알고리즘은 2015년에 Gatys 와 몇몇에 의해 그들의 논문인 [`A Neural Algorithm of Artistic Style`](https://arxiv.org/abs/1508.06576) 소개되었습니다.
 
 2016 년에 Johnson 과 몇몇이 실시간 Perceptual Losses for Real-Time Style Transfer and Super- Resolution (Style Trasfer 및 Super-Resolution 를 위한 perceptual 손실)을 발표했는데, 이는 perceptual 손실을 사용하는 Super-Resolution 문제를 Neural Style Transfer 에 적용한 것입니다.
-결과는  Gatys 등이 발표했던 neural style transfer 알고리즘 방법보다 최대 3배 정도 빠르다는 것입니다(그러나 몇 가지 단점이 있으며, 이 가이드에서 나중에 논의할 예정입니다).
+결과는  Gatys 등이 발표했던 Neural style transfer 알고리즘 방법보다 최대 3배 정도 빠르다는 것입니다(그러나 몇 가지 단점이 있으며, 이 가이드에서 나중에 논의할 예정입니다).
 
-이 포스트의 마지막엔 당신은 neural style transfer 알고리즘은 당신의 이미지와 비디오 스트림에 어떻게 적용하는지 알 수 있을 것입니다.
+이 포스트의 마지막엔 당신은 Neural style transfer 알고리즘은 당신의 이미지와 비디오 스트림에 어떻게 적용하는지 알 수 있을 것입니다.
 
 [Nueral style transfer with OpenCV 데모 영상](https://youtu.be/DRpydtvjGdE)
 
@@ -66,15 +66,15 @@ Neural style transfer 의 프로세스는 **Figure1** 에서 확인할 수 있�
 <br></br>
 <img  src='https://www.pyimagesearch.com/wp-content/uploads/2018/08/neural_style_transfer_gatys.jpg'>
 
-Figure 2: Neural Style Transfer with OpenCV possible (Figure 1 of Gatys et. al. 2015).
+Figure 2: Neural Style Transfer with OpenCV possible (Figure 1 of Gatys et al. 2015).
 
 <br></br>
 
 이 시점에서 여러분은 아마 머리를 긁적이며 "우리가 어떻게 신경망을 정의해서 스타일 전달을 할 수 있을까?"라는 생각을 하고 있을 것입니다.
 
-> Gatys et al, Johnson et al 은 해석하지 않고 바로 쓰겠습니다. Gatys 와 그 외 연구진들, Johnson 과 그 외 연구진들 이라는 뜻입니다.
+> Gatys et al., Johnson et al. 은 해석하지 않고 바로 쓰겠습니다. Gatys 와 그 외 연구진들, Johnson 과 그 외 연구진들 이라는 뜻입니다.
 
-흥미롭게도, 2015년에 [Gatys et al 이 작성한 논문](https://arxiv.org/abs/1508.06576)은 새로운 구조를 전혀 필요로 하지 않는 Neural style transfer 알고리즘을 제안했습니다! 대신 미리 학습된 네트워크( pre-trained network, 일반적으로 ImageNet)를 사용하고 스타일 전송의 최종 목표를 달성하기 위해 필요한 손실 함수를 정의합니다.
+흥미롭게도, 2015년에 [Gatys et al. 이 작성한 논문](https://arxiv.org/abs/1508.06576)은 새로운 구조를 전혀 필요로 하지 않는 Neural style transfer 알고리즘을 제안했습니다! 대신 미리 학습된 네트워크( pre-trained network, 일반적으로 ImageNet)를 사용하고 스타일 전송의 최종 목표를 달성하기 위해 필요한 손실 함수를 정의합니다.
 
 <br></br>
 **그러면 질문은 "어떤 뉴럴 네트워크를 우리가 써야할까" 가 아니라 "어떤 손실 함수를 우리가 써야할까?" 겠네요.**
@@ -90,21 +90,21 @@ Figure 2: Neural Style Transfer with OpenCV possible (Figure 1 of Gatys et. al. 
 
 각각의 구성요소는 개별적으로 계산이 된 후 한 개의 meta 손실 함수로 합쳐집니다. meta 손실 함수값을 최소화 시키기 위해서 우리는 content, style, total-variation 들의 손실을 최소화 시켜야 합니다.
 
-Gatys et al 은 아름다운 결과를 만들어냈지만 문제는 그것이 꽤 느리다는 것이었습니다.
+Gatys et al. 은 아름다운 결과를 만들어냈지만 문제는 그것이 꽤 느리다는 것이었습니다.
 
-Johnson et al 등(2016)은 Gatys 외 연구진(Gatys et al)의 연구를 기반으로 했고, 최대 3배 까지 빠른 Neural style transfer 알고리즘을 제안하였습니다. Johnson et al 들의 방법은 perceptual loss 함수를 기반으로하는 super-resolution 문제로 Neural style transfer 를 프레임화합니다.
+Johnson et al. 등(2016)은 Gatys 외 연구진(Gatys et al.)의 연구를 기반으로 했고, 최대 3배 까지 빠른 Neural style transfer 알고리즘을 제안하였습니다. Johnson et al. 들의 방법은 perceptual loss 함수를 기반으로하는 super-resolution 문제로 Neural style transfer 를 프레임화합니다.
 
-Johnson et al 들의 방법이 확실히 빠르지만 가장 큰 단점은 Gatys et al 들의 방법에서와 같이 스타일 이미지를 임의로 선택할 수 없다는 것입니다.
+Johnson et al. 들의 방법이 확실히 빠르지만 가장 큰 단점은 Gatys et al. 들의 방법에서와 같이 스타일 이미지를 임의로 선택할 수 없다는 것입니다.
 
 <br></br>
 
-대신 먼저 원하는 이미지의 스타일을 재현하기 위해 네트워크를 명시적으로 학습해야 합니다. 네트워크가 학습이 되면 당신이 원하는 어떠한 content 이미지도 네트워크에 적용할 수 있습니다. 당신은 Johnson et al 의 방법을 확인해봐야 합니다.
+대신 먼저 원하는 이미지의 스타일을 재현하기 위해 네트워크를 명시적으로 학습해야 합니다. 네트워크가 학습이 되면 당신이 원하는 어떠한 content 이미지도 네트워크에 적용할 수 있습니다. 당신은 Johnson et al. 의 방법을 확인해봐야 합니다.
 
-Johnson et al 들은 그들이 어떻게 Neural style transfer 모델을 학습시켰는지에 대한 문서를 그들의 [GitHub 페이지](https://github.com/jcjohnson/fast-neural-style)에서 제공합니다.
+Johnson et al. 들은 그들이 어떻게 Neural style transfer 모델을 학습시켰는지에 대한 문서를 그들의 [GitHub 페이지](https://github.com/jcjohnson/fast-neural-style)에서 제공합니다.
 
 마지막으로, 2017 년에 발표한 Ulyanov 외 연구진들의 논문인 [ Instance Normalization: The Missing Ingredient for Fast Stylization](https://arxiv.org/abs/1607.08022) 역시 주목할 가치가 있습니다. 배치 정규화를 instance normalization 으로 대체 함으로서(instance normalization 학습과 테스트 모두에 적용하였습니다.) 실시간으로 더욱 빠른 퍼포먼스와 이론적으로 더 만족스러운 결과를 이끌어 냈습니다.
 
-나는 Johnson et al 이 사용한 두 가지 모델을 ECCV 논문에 Ulyanov 외 연구진들의 모델들과 함께 이 게시물의 "다운로드" 섹션에 포함시켰습니다.
+나는 Johnson et al. 이 사용한 두 가지 모델을 ECCV 논문에 Ulyanov 외 연구진들의 모델들과 함께 이 게시물의 "다운로드" 섹션에 포함시켰습니다.
 
 <br></br><br></br>
 
@@ -247,12 +247,12 @@ args = vars(ap.parse_args())
 <br></br>
 당신은 커맨드 라인 arguments 코드를 바꿀 필요가 없습니다. - arguments 는 실행시간동안 처리될 것 입니다. 만약 이런 방식이 익숙하지 않다면, [커맨드 라인 arguments + argparse](https://www.pyimagesearch.com/2018/03/12/python-argparse-command-line-arguments/) 에 대한 블로그 포스트를 한 번 읽어보세요.
 
-이제는 재미있는 파트입니다. - 우리는 우리의 이미지와 모델을 가져올 것이고, 그 다음엔 neural style transfer 를 해볼 것입니다.
+이제는 재미있는 파트입니다. - 우리는 우리의 이미지와 모델을 가져올 것이고, 그 다음엔 Neural style transfer 를 해볼 것입니다.
 
 <br></br>
 
 ```python
-# neural style transfer model 로드 합니다.
+# Neural style transfer model 로드 합니다.
 print("[INFO] loading style transfer model...")
 net = cv2.dnn.readNetFromTorch(args["model"])
 
@@ -273,10 +273,10 @@ end = time.time()
 <br></br>
 이 코드 블록에서 우리는 아래 사항을 진행합니다 :
 
-* pre-trained(학습된) neural style transfer 모델을 로드합니다.
+* pre-trained(학습된) Neural style transfer 모델을 로드합니다.
 * input `이미지`를 로드하고 사이즈를 바꿉니다.
 * mean subtraction 을 통해서 `blob` 구성을 수행합니다. [`cv2.dnn.blobFromImage`](https://www.pyimagesearch.com/2017/11/06/deep-learning-opencvs-blobfromimage-works/)를 읽어보세요. blob 이 무엇인지 이해하는데 도움이 될 것입니다.
-* forward pass 를 수행해서 결과 이미지를 얻습니다. (i.e. neural style transfer 프로세스의 결과는 time.time() 사이에 있습니다. 결과를 얻는데까지의 시간 측정을 해보기 위해 time.time() 을 이용했습니다.)
+* forward pass 를 수행해서 결과 이미지를 얻습니다. (i.e. Neural style transfer 프로세스의 결과는 time.time() 사이에 있습니다. 결과를 얻는데까지의 시간 측정을 해보기 위해 time.time() 을 이용했습니다.)
 
 <br></br>
 
@@ -350,11 +350,11 @@ output = output.transpose(1, 2, 0)
 2. Scaling 해주고
 3. channels-last ordering 할 수 있도록 매트릭스의 전치행렬로 바꿉니다.
 
-마지막 단계는 neural style transfer 프로세스의 결과를 화면에 보여주는 것입니다.
+마지막 단계는 Neural style transfer 프로세스의 결과를 화면에 보여주는 것입니다.
 
 ```Python
-# neural style transfer 가 얼마나 걸렸는지 보여줍니다.
-print("[INFO] neural style transfer took {:.4f} seconds".format(
+# Neural style transfer 가 얼마나 걸렸는지 보여줍니다.
+print("[INFO] Neural style transfer took {:.4f} seconds".format(
 	end - start))
 
 # 이미지를 보여줍니다.
@@ -402,7 +402,7 @@ $ python neural_style_transfer.py --image images/giraffe.jpg \
 <br></br>
 <br></br>
 
-### 실시간 neural style transfer
+### 실시간 Neural style transfer
 
 이제 단일 영상에 신경 스타일 전송을 적용하는 방법을 배웠으니 실시간 비디오에도 이 프로세스를 적용하는 방법을 알아보겠습니다.
 
@@ -474,19 +474,19 @@ modelIter = itertools.cycle(models)
 
 모델 iterator 를 구성하기 위해 다음과 같은 작업을 수행합니다 :
 
-* 모든 신neural style transfer 모델의 경로를 정렬합니다.
+* 모든 Neural style transfer 모델의 경로를 정렬합니다.
 * 고유 ID를 할당합니다.
 * `Itertools` 의  `cycle` 을 사용하여 iterator를 만듭니다. 기본적으로 `cycle` 은 순환 리스트 만들 수 있게 해줍니다. 이 리스트는 끝 부분에 도달하면 처음부터 다시 시작됩니다.
 * `next` 함수로 `modelIter` 의 다음 `modelID` 와 `modelPath` 를 가져옵니다.
 
 만약 당신이 Python iterators 또는 반복문(대부분의 프로그래밍 언어가 이를 구현함)을 처음 접하는 경우 [RealPython](https://realpython.com/python-itertools/)의 기사를 반드시 읽어 보십시오.
 
-이제 neural style transfer 모델을 로드하고 비디오 스트림을 초기화 합시다! :
+이제 Neural style transfer 모델을 로드하고 비디오 스트림을 초기화 합시다! :
 
 <br></br>
 
 ```Python
-# neural style transfer 모델을 로드합니다.
+# Neural style transfer 모델을 로드합니다.
 print("[INFO] loading style transfer model...")
 net = cv2.dnn.readNetFromTorch(modelPath)
 
@@ -498,7 +498,7 @@ print("[INFO] {}. {}".format(modelID + 1, modelPath))
 ```
 <br></br>
 
-위의 코드 블록에서는 우리는 우리의 첫 번째 neural style transfer 모델의 경로를 이용해서 모델을 사용합니다.
+위의 코드 블록에서는 우리는 우리의 첫 번째 Neural style transfer 모델의 경로를 이용해서 모델을 사용합니다.
 
 그 다음, 웹캠으로 영상을 촬영할 수 있도록 비디오 스트림을 초기화합니다.
 
@@ -532,7 +532,7 @@ while True:
 
 본질적으로 우리는 `프레임` 을 로드해서 `blob` 처리를 하고, CNN 의 input 으로 사용합니다. 위에서 설명한 이 과정에 대해서 읽지 않았다면, 꼭 읽고 오세요.
 
-input 이미지에 대해 CNN에서는 많은 연산이 이루어집니다. 케라스로 neural style transfer 모델을 어떻게 훈련시키는지 궁금하다면, 제 책 ["Deep Learning for Computer Vision with Python"](https://www.pyimagesearch.com/deep-learning-computer-vision-python-book/)을 참고하세요.
+input 이미지에 대해 CNN에서는 많은 연산이 이루어집니다. 케라스로 Neural style transfer 모델을 어떻게 훈련시키는지 궁금하다면, 제 책 ["Deep Learning for Computer Vision with Python"](https://www.pyimagesearch.com/deep-learning-computer-vision-python-book/)을 참고하세요.
 
 그런 다음 `output 이미지` 를 후처리하고 표시합니다.
 <br></br>
@@ -547,7 +547,7 @@ input 이미지에 대해 CNN에서는 많은 연산이 이루어집니다. 케�
   output /= 255.0
   output = output.transpose(1, 2, 0)
 
-  # neural style transfer 의 결과를 보여줍니다.
+  # Neural style transfer 의 결과를 보여줍니다.
   cv2.imshow("Input", frame)
   cv2.imshow("Output", output)
   key = cv2.waitKey(1) & 0xFF
@@ -560,7 +560,7 @@ input 이미지에 대해 CNN에서는 많은 연산이 이루어집니다. 케�
 <br></br>
 
 ```Python
-  # "다음" 이라는 의미의 `n` 키가 눌리면, 다음 neural style transfer 모델을 가져옵니다.
+  # "다음" 이라는 의미의 `n` 키가 눌리면, 다음 Neural style transfer 모델을 가져옵니다.
   if key == ord("n"):
     (modelID, modelPath) = next(modelIter)
     print("[INFO] {}. {}".format(modelID + 1, modelPath))
@@ -584,26 +584,26 @@ vs.stop()
 <br></br>
 <br></br>
 
-### 실시간 neural style transfer 의 결과
+### 실시간 Neural style transfer 의 결과
 
-이 튜토리얼의 <strong>*"다운로드"*</strong> 섹션을 사용하여 소스 코드와 신경 스타일 전송 모델을 다운로드했으면 다음 명령을 실행하여 당신의 비디오 스트림에 neural style transfer 를 적용할 수 있습니다.
+이 튜토리얼의 <strong>*"다운로드"*</strong> 섹션을 사용하여 소스 코드와 신경 스타일 전송 모델을 다운로드했으면 다음 명령을 실행하여 당신의 비디오 스트림에 Neural style transfer 를 적용할 수 있습니다.
 
 <center><img  src ='https://s3-us-west-2.amazonaws.com/static.pyimagesearch.com/opencv-neural-style/neural_style_transfer_animation.gif'></center>
 
 
-보시는 바와 같이, 한 번의 키 누름 버튼을 사용하여 neural style transfer 모델을 순환(반복)하기 쉽습니다.
+보시는 바와 같이, 한 번의 키 누름 버튼을 사용하여 Neural style transfer 모델을 순환(반복)하기 쉽습니다.
 
 <br></br>
 <br></br>
 
-### neural style transfer 에 대해 조금 더 알아보기
+### Neural style transfer 에 대해 조금 더 알아보기
 ["Deep Learning for Computer Vision with Python"](https://www.pyimagesearch.com/deep-learning-computer-vision-python-book/) 을 참조하세요.
 
 <br></br>
 <br></br>
 
 ### Summary
-오늘 블로그 게시물에서 OpenCV와 Python을 사용하여 이미지와 비디오 모두에 neural style transfer를 적용하는 방법을 배웠습니다.
+오늘 블로그 게시물에서 OpenCV와 Python을 사용하여 이미지와 비디오 모두에 Neural style transfer를 적용하는 방법을 배웠습니다.
 
 특히, 우리는 2016년 Johnson 과 연구진들이 발표한 논문의 모델을 활용하였습니다. 당신의 편의를 위해, 저는 이 블로그 포스트의 <strong>*"다운로드"*</strong> 섹션에 모델을 포함시켰습니다.
 
@@ -613,7 +613,7 @@ vs.stop()
 
 <br><br>
 
-> neural style transfer 를 실행해보았습니다.
+> Neural style transfer 를 실행해보았습니다.
 > style 이미지의 스타일 뿐만 아니라 content 이미지의 윤곽을 굉장히 잘 살려주는 모델이라고 느껴집니다.
 > <br></br>
 > <center>input image</center>
@@ -663,4 +663,6 @@ vs.stop()
 * [Neural Style Transfer: Creating Art with Deep Learning using tf.keras and eager execution](https://medium.com/tensorflow/neural-style-transfer-creating-art-with-deep-learning-using-tf-keras-and-eager-execution-7d541ac31398)
 * [Image Style Transfer Using Convolutional Neural Networks](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Gatys_Image_Style_Transfer_CVPR_2016_paper.pdf)
 
-> 번역 및 정리: 박정현(parkjh688@gmail.com)
+> 이 글은 2018 컨트리뷰톤에서 [`Contribute to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.
+> Translator: [박정현](https://github.com/parkjh688)
+> Translator email : <parkjh688@gmail.com>
