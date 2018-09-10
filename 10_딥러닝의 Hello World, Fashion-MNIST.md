@@ -25,7 +25,7 @@
 
 모든 코드는 저의 GitHub에 있습니다. Google의 Colab을 사용하여 [저의 Gitub의 Jupyter Notebook](https://colab.research.google.com/github/margaretmz/deep-learning/blob/master/fashion_mnist_keras.ipynb)을 직접 열어서 실행할 수 있습니다. 빨리 노트북을 열여서 튜토리얼을 따라가고 싶으시다면 이 옵션을 선택해보세요. Colab에 대해 더 알기 원하신다면 [공식 블로그](https://medium.com/tensorflow/colab-an-easy-way-to-learn-and-use-tensorflow-d74d1686e309) 혹은 저의 [블로그](https://medium.com/@margaretmz/running-jupyter-notebook-with-colab-f4a29a9c7156)를 참고하세요.
 
-## Data
+# Data
 
 Fashion-MNIST 데이터 셋에는 10개의 카테고리가 있습니다.
 
@@ -63,3 +63,101 @@ print("x_train shape:", x_train.shape, "y_train shape:", y_train.shape)
 ```
 
 ## Visualize the data
+
+Jupyter Notebook에서 가장 좋아하는 것은 시각화 입니다. matplotlib 라이브러리의 ```imshow()```를 사용하여 학습 데이터 셋의 이미지를 시각화하여 데이터 셋의 이미지 중 하나를 살펴볼 수 있습니다. 각 이미지는 28x28 모양의 회색조 이미지입니다.
+
+ ```
+ # 학습 데이터 셋 중에서 하나의 이미지 보여주기
+ plt.imshow(x_train[img_index])
+ ```
+ ![](media/10_2.png)
+
+## Data normalization
+
+그런 다음 데이터 크기를 정규화하여 대략적으로 데이터 크기를 동일하게 맞춥니다.
+```
+x_train = x_train.astype('float32') / 255
+x_test = x_test.astype('float32') / 255
+```
+
+## Split the data into train/validation/test datasets
+
+데이터를 임포팅하는 과정에서, 60,000개의 학습 셋과 10,000개의 테스트셋을 얻었다. 이제 학습 셋을 학습 셋/평가 셋으로 나누고자 한다. 딥러닝에서 각 유형의 데이터셋이 사용되는 방법:
+  - Training data(학습 데이터) - 모델을 학습에 사용하는 데이터
+  - Validation data(평가 데이터) - 하이퍼파라미터를 튜닝하고 모델들을 평가하기 위해 사용하는 데이터
+  - Test data(테스트 데이터) - 평가 셋으로 모델의 초기 검사를 마친 후에, 모델을 테스트하는 데 사용하는 데이터
+
+# Model
+
+모델을 구성하고 학습시켜 봅시다.
+
+## Create the model architecture
+
+Keras에서 모델을 정의하기위한 두 가지 API:
+
+1. [시퀀스 모델 API](https://keras.io/models/sequential/)(순차 모델 API)
+2. [함수 API](https://keras.io/models/model/)
+
+이 튜토리얼에서는 시퀀스 모델 API를 사용하여  합성곱 계층을 반복하는 간단한 CNN 모델을 만들고 풀링 계층, 드롭 아웃 계층을 만듭니다. 만약 함수 API에 관심이 있다면 Sara Robinson의 블로그 [Kearas 함수 API와 TensorFlow로 와인 가격 예측하기](https://medium.com/tensorflow/predicting-the-price-of-wine-with-the-keras-functional-api-and-tensorflow-a95d1c2c1b03)를 확인해보세요. <br>
+
+첫 번째 계층은 입력 데이터 형상을 정의하기만 하면 됩니다. 마지막 계층은 소프트맥스 활성화가 되어있으며, fashion_mnist에서 10가지 범주의 데이터를 분류합니다.
+
+```
+model = tf.Keras.Sequential()
+
+# 신경망의 첫 번째 계층에서 입력 데이터 형상을 정의해야 합니다.
+model.add(tf.keras.layers.Conv2D(filters=64, kernel_size=2, padding='same', activation='relu', input_shape=(28,28,1)))
+model.add(tf.keras.layers.MaxPooling2D(pool_size=2))
+model.add(tf.keras.layers.Dropout(0.3))
+
+
+model.add(tf.keras.layers.MaxPooling2D(pool_size=2))
+model.add(tf.keras.layers.Dropout(0.3))
+
+model.add(tf.keras.layers.Flatten())
+model.add(tf.keras.layers.Dense(256, activation='relu'))
+model.add(tf.keras.layers.Dropout(0.5))
+model.add(tf.keras.layers.Dense(10, activation='softmax'))
+
+# 모델 요약을 살펴보세요.
+model.summary()
+```
+
+## Compile the model
+
+이제 ```model.compile()```을 사용하여 모델을 학습시키기 전에 학습 과정을 구성합니다. 이 과정에서는 손실함수, 옵티 마이저의 종류 및 학습 및 테스트 중 모델을 평가할 메트릭을 정의합니다. <이부분애매>
+
+```
+model.compile(loss='categorical_crossentropy',
+             optimizer='adam',
+             metrics=['accuracy'])
+```
+
+## Train the model
+
+배치 사이즈는 64, 에포크는 10으로 하여 모델을 학습시킵니다.
+```
+model.fit(x_train,
+         y_train,
+         batch_size=64,
+         epochs=10,
+         validation_data=(x_valid, y_valid),
+         callbacks=[checkpointer])
+```
+
+## Test Accuracy
+
+90% 이상의 테스트 정확도를 얻었습니다!
+```
+# 테스트 셋으로 모델 평가
+score = model.evaluate(x_test, y_test, verbose=0)
+
+# 테스트 정확도
+print('\n', 'Test accuracy:', score[1])
+```
+
+# Visualize the predictions
+
+이제 훈련 된 모델을 사용하여 테스트 셋을 예측/분류를 하고 ```model.predict(x_test)```   시각화 할 수 있습니다 . 레이블이 빨간색으로 보인다면 실제 레이블과 매칭되지 않음(예측 틀림)을 나타냅니다. 반대로 초록색으로 보인다면 잘 예측한 것 입니다.
+
+![](media/10_3.png)
