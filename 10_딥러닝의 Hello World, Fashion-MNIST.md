@@ -21,11 +21,11 @@
 
 저는 몇가지의 딥러닝 용어에 관해 검토할 것입니다. 만약 당신이 딥러닝 입문자라면, 저의 튜토리얼과 저수준(low-level)의 TensorFlow API을 사용한 훨씬 오래된 [MNIST 튜토리얼](https://www.tensorflow.org/tutorials/)을 비교하고 대조해서 보길 권합니다. 얼마나 쉬운 일이 일어났는지 볼 수 있기 때문입니다.  
 
-## Run this notebook in Colab
+## Run this notebook in Colab (Colab에서 실행)
 
 모든 코드는 저의 GitHub에 있습니다. Google의 Colab을 사용하여 [저의 Gitub의 Jupyter Notebook](https://colab.research.google.com/github/margaretmz/deep-learning/blob/master/fashion_mnist_keras.ipynb)을 직접 열어서 실행할 수 있습니다. 빨리 노트북을 열여서 튜토리얼을 따라가고 싶으시다면 이 옵션을 선택해보세요. Colab에 대해 더 알기 원하신다면 [공식 블로그](https://medium.com/tensorflow/colab-an-easy-way-to-learn-and-use-tensorflow-d74d1686e309) 혹은 저의 [블로그](https://medium.com/@margaretmz/running-jupyter-notebook-with-colab-f4a29a9c7156)를 참고하세요.
 
-# Data
+# Data(데이터)
 
 Fashion-MNIST 데이터 셋에는 10개의 카테고리가 있습니다.
 
@@ -42,9 +42,9 @@ Fashion-MNIST 데이터 셋에는 10개의 카테고리가 있습니다.
 8 가방 <br>
 9 앵클 부츠
 
-## Import the fashoin_mnist dataset
+## Import the fashoin_mnist dataset (fashion_mnist 데이터 셋 가져오기)
 
-데이터 셋을 임포트하고 학습, 평가, 테스트 셋을 준비해봅시다
+데이터 셋을 가져와서 학습, 평가, 테스트 셋을 준비해 봅니다.
 
 keras.datasets API를 사용하여 한 줄의 코드만으로 fashion_minst 데이터를 로드하세요. 그런 다음 학습 셋과 테스트 셋을 로드하면 각각 회색의 이미지 28x28 을 볼 수 있습니다.
 
@@ -62,7 +62,7 @@ import matplotlib.pyplot as plt
 print("x_train shape:", x_train.shape, "y_train shape:", y_train.shape)
 ```
 
-## Visualize the data
+## Visualize the data (데이터 시각화)
 
 Jupyter Notebook에서 가장 좋아하는 것은 시각화 입니다. matplotlib 라이브러리의 ```imshow()```를 사용하여 학습 데이터 셋의 이미지를 시각화하여 데이터 셋의 이미지 중 하나를 살펴볼 수 있습니다. 각 이미지는 28x28 모양의 회색조 이미지입니다.
 
@@ -72,7 +72,7 @@ Jupyter Notebook에서 가장 좋아하는 것은 시각화 입니다. matplotli
  ```
  ![](media/10_2.png)
 
-## Data normalization
+## Data normalization (정규화)
 
 그런 다음 데이터 크기를 정규화하여 대략적으로 데이터 크기를 동일하게 맞춥니다.
 ```
@@ -80,18 +80,18 @@ x_train = x_train.astype('float32') / 255
 x_test = x_test.astype('float32') / 255
 ```
 
-## Split the data into train/validation/test datasets
+## Split the data into train/validation/test datasets (데이터를 학습/평가/테스트 셋으로 나누기)
 
 데이터를 임포팅하는 과정에서, 60,000개의 학습 셋과 10,000개의 테스트셋을 얻었다. 이제 학습 셋을 학습 셋/평가 셋으로 나누고자 한다. 딥러닝에서 각 유형의 데이터셋이 사용되는 방법:
   - Training data(학습 데이터) - 모델을 학습에 사용하는 데이터
   - Validation data(평가 데이터) - 하이퍼파라미터를 튜닝하고 모델들을 평가하기 위해 사용하는 데이터
   - Test data(테스트 데이터) - 평가 셋으로 모델의 초기 검사를 마친 후에, 모델을 테스트하는 데 사용하는 데이터
 
-# Model
+# Model (모델)
 
 모델을 구성하고 학습시켜 봅시다.
 
-## Create the model architecture
+## Create the model architecture (모델 아키텍처 만들기)
 
 Keras에서 모델을 정의하기위한 두 가지 API:
 
@@ -123,9 +123,9 @@ model.add(tf.keras.layers.Dense(10, activation='softmax'))
 model.summary()
 ```
 
-## Compile the model
+## Compile the model (모델 컴파일하기)
 
-이제 ```model.compile()```을 사용하여 모델을 학습시키기 전에 학습 과정을 구성합니다. 이 과정에서는 손실함수, 옵티 마이저의 종류 및 학습 및 테스트 중 모델을 평가할 메트릭을 정의합니다. <이부분애매>
+이제 ```model.compile()```을 사용하여 모델을 학습시키기 전에 학습 과정을 구성합니다. 이 과정에서는 손실함수, 옵티 마이저의 종류 및 학습 및 테스트 중 모델을 평가할 metrics를 정의합니다.
 
 ```
 model.compile(loss='categorical_crossentropy',
@@ -133,7 +133,7 @@ model.compile(loss='categorical_crossentropy',
              metrics=['accuracy'])
 ```
 
-## Train the model
+## Train the model (모델 학습시키기)
 
 배치 사이즈는 64, 에포크는 10으로 하여 모델을 학습시킵니다.
 ```
@@ -145,7 +145,7 @@ model.fit(x_train,
          callbacks=[checkpointer])
 ```
 
-## Test Accuracy
+## Test Accuracy (테스트 정확도)
 
 90% 이상의 테스트 정확도를 얻었습니다!
 ```
@@ -156,7 +156,7 @@ score = model.evaluate(x_test, y_test, verbose=0)
 print('\n', 'Test accuracy:', score[1])
 ```
 
-# Visualize the predictions
+# Visualize the predictions (예측값 시각화하기)
 
 이제 훈련 된 모델을 사용하여 테스트 셋을 예측/분류를 하고 ```model.predict(x_test)```   시각화 할 수 있습니다 . 레이블이 빨간색으로 보인다면 실제 레이블과 매칭되지 않음(예측 틀림)을 나타냅니다. 반대로 초록색으로 보인다면 잘 예측한 것 입니다.
 
