@@ -662,3 +662,5 @@ vs.stop()
 * [김태영의 케라스 블로그](https://tykimos.github.io/)
 * [Neural Style Transfer: Creating Art with Deep Learning using tf.keras and eager execution](https://medium.com/tensorflow/neural-style-transfer-creating-art-with-deep-learning-using-tf-keras-and-eager-execution-7d541ac31398)
 * [Image Style Transfer Using Convolutional Neural Networks](https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Gatys_Image_Style_Transfer_CVPR_2016_paper.pdf)
+
+> 번역 및 정리: 박정현(parkjh688@gmail.com)
