@@ -423,3 +423,5 @@ Figure 4: LSTM 네트워크로 만들어진 음악의 예
 * [RNN & LSTM](https://www.youtube.com/watch?v=2ngo9-YCxzY)
 * [music21](http://web.mit.edu/music21/)
 * [Droput](http://blog.naver.com/PostView.nhn?blogId=laonple&logNo=220542170499)
+
+> 번역 및 정리: 박정현(parkjh688@gmail.com), 송문혁(firefinger07@gmail.com)
