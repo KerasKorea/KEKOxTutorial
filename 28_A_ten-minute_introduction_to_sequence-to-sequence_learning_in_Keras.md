@@ -267,7 +267,7 @@ from keras import backend as K
 encoder_inputs = Input(shape=(None, num_encoder_tokens))
 encoder = LSTM(latent_dim, return_state=True)
 encoder_outputs, state_h, state_c = encoder(encoder_inputs)
-states = [state_h, state_c]한
+states = [state_h, state_c]
 
 
 # 한 번에 한 개의 time step이 진행되도록 decoder를 설정
@@ -307,3 +307,7 @@ model.fit([encoder_input_data, decoder_input_data], decoder_target_data,
 ```
 
 만약 추가적인 의문점이 있다면, [Twitter](https://twitter.com/fchollet)로 연락해주세요.
+
+> 이 글은 2018 컨트리뷰톤에서 [`Contributue to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.
+> Translator : [mike2ox](https://github.com/mike2ox) (Moonhyeok Song)
+> Translator Email : <firefinger07@gmail.com>
