@@ -1,4 +1,4 @@
-# 딥러닝(CycleGAN)을 이용해 Fornite 를 PUBG 로 바꾸기
+# 딥러닝(CycleGAN)을 이용해 Fortnite 를 PUBG 로 바꾸기
 (Turning Fortnite into PUBG with Deep Learning (CycleGAN))
 [원문 링크](https://towardsdatascience.com/turning-fortnite-into-pubg-with-deep-learning-cyclegan-2f9d339dcdb0)
 > 이 문서는 `CycleGAN` 을 이용해 Image Style Trasfer 를 게임 배경에 적용해봅니다. 원작자의 튜토리얼에 대한 부가설명은 `인용구` 를 이용해서 표현할 것입니다. CycleGAN 을 설명하기 위해서 많은 글들이 Pix2Pix, GANs 에 대해서 이야기를 하는데 이 문서에서도 CycleGAN 설명을 위해 부가적인 설명을 할 것입니다.
@@ -85,7 +85,7 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 > X 가 G 를 거쳐서 G(X) 가 되고 다시 F 를 거쳐 F(G(X)) 가 된 값이 X 가 되어야하고, 똑같이 Y 가 F 를 거쳐서 F(Y) 가 되고 다시 G 를 거쳐서 G(F(Y)) 가 된 값이 Y가 되야한다는 이야기입니다.
 > 한 바퀴를 돌아도 다시 내 자신이 되어야 합니다.
 >
->
+> ![](https://latex.codecogs.com/gif.latex?L_%7Bcyc%7D%28G%2C%20F%29%20%3D%20%5Cmathbb%7BE%7D_%7Bx%20%5Csim%20p_%7Bdata%7D%28x%29%7D%5B%7C%7CF%28G%28x%29%29-x%7C%7C_1%5D%20&plus;%20%5Cmathbb%7BE%7D_%7By%20%5Csim%20p_%7Bdata%7D%28y%29%7D%5B%7C%7CG%28F%28y%29%29-y%7C%7C_1%5D)
 
 <br></br>
 
