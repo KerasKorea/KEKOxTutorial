@@ -1,7 +1,7 @@
-# 딥러닝(CycleGAN)을 이용해 Fornite 를 PUBG 로 바꾸기
+# 딥러닝(CycleGAN)을 이용해 Fortnite 를 PUBG 로 바꾸기
 (Turning Fortnite into PUBG with Deep Learning (CycleGAN))
 [원문 링크](https://towardsdatascience.com/turning-fortnite-into-pubg-with-deep-learning-cyclegan-2f9d339dcdb0)
-> 이 문서는 `CycleGAN` 을 이용해 Image Style Trasfer 를 게임 배경에 적용해봅니다. 원작자의 튜토리얼에 대한 부가설명은 `인용구` 를 이용해서 표현할 것입니다.
+> 이 문서는 `CycleGAN` 을 이용해 Image Style Trasfer 를 게임 배경에 적용해봅니다. 원작자의 튜토리얼에 대한 부가설명은 `인용구` 를 이용해서 표현할 것입니다. CycleGAN 을 설명하기 위해서 많은 글들이 Pix2Pix, GANs 에 대해서 이야기를 하는데 이 문서에서도 CycleGAN 설명을 위해 부가적인 설명을 할 것입니다.
 
 * Keras
 * GANs
@@ -34,6 +34,22 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 
 <br></br>
 
+> `CycleGAN` 의 논문 제목은 [`Unpaired Image-to-Image Translation using Cycle-Consistent Adversarial Networks
+`](https://arxiv.org/pdf/1703.10593.pdf) 입니다. 논문의 제목에서 알 수 있듯이 CycleGAN 은 **Unpaired Data** 데이터를 사용합니다.
+>
+> 아래는 Unpaired 데이터를 사용하는 이유를 설명하기 위한 이미지입니다. 왼쪽은 `Pix2Pix` 에 필요한 `Paired Data`, 오른쪽은 `CycleGAN` 에서 사용하는 `Unpaired Data` 입니다. Pix2Pix 모델에서 신발 윤곽선에 맞는 신발 이미지를 생성할 때는 왼쪽 그림처럼 (신발 윤곽, 완전한 신발이미지) 가 쌍으로(pair,  ![](https://latex.codecogs.com/gif.latex?%7B%5C%7Bx_i%2Cy_i%7D%5C%7D_%7Bi%3D1%7D%5EN) )로 필요합니다.
+>
+> ![74_0.png](./media/74_0.png)
+>
+> 하지만 paired data 를 얻는 것은 어렵고 비용이 많이 들 수 있습니다. 또한 아래의 이미지같이 말 형태를 놔두고 얼룩말로 무늬만 넣어줄 때, paired data 처럼 똑같은 포즈를 가진 얼룩말을 구하는 것은 쉽지 않습니다.
+>
+> ![74_1.png](./media/74_1.png)
+>
+> 이런 문제가 있기 때문에 CycleGAN 은 Unpaired Data 를 이용해서 학습하는 방법을 소개합니다.
+
+
+<br></br>
+
 ![original_github](https://cdn-images-1.medium.com/max/1200/1*-w1y7RK4Gq0WXdxaqIl0eQ.jpeg)
 원본 Github implementation 과 그에 따른 결과는 [여기](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix)서 볼 수 있습니다.
 
@@ -47,9 +63,35 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 <br></br>
 
 #### How do they work? (어떻게 동작하는 것일까요?)
+
+> **<U>CycleGAN 의 목표는 두 개의 도메인 X 와 Y 사이의 mapping function 을 학습하는 것입니다.**</U>
+>
+> ![74_2.png](./media/74_2.png)
+>
+> CycleGAN model 은 위 이미지와 같이 G : X → Y and F : Y → X 해주는 두 개의 mapping function 이 있고, F(Y) 를 판별하는 Dx and G(X) 를 판별하는 Dy 가 있습니다.
+>
+> 논문에서는 CycleGAN 은 생성된 이미지의 분포를 대상 도메인의 데이터 분포와 일치시키기 위한 `Adversarial loss` 와 학습된 매핑 G와 F가 서로 모순되는 것을 방지하기 위해 `Cycle consistency loss` 를 포함합니다. 여기서 말하는 <U>모순</U> 은 아래 Cycle consistency loss 에서 설명합니다.
+>
+> **Adversarial loss**
+>
+>  ![](https://latex.codecogs.com/gif.latex?L_%7BGAN%7D%28G%2C%20D_Y%2C%20X%2C%20Y%29%20%3D%20%5Cmathbb%7BE%7D_%7By%5Csim%20p_%7Bdata%28y%29%7D%7D%5BlogD_Y%28y%29%5D%20&plus;%20%5Cmathbb%7BE%7D_%7Bx%5Csim%20p_%7Bdata%28x%29%7D%7D%5Blog%281-D_Y%28G%28x%29%29%29%5D)
+>
+> **Cycle consistency loss**
+> Adversarial training 으로 각각 대상 도메인 Y와 X로 동일하게 분포된 출력을 생성하는 mapping G와 F를 배울 수 있지만, large capacity 에서는 네트워크는 동일한 입력 이미지 세트를 대상 도메인에서 이미지의 임의 허용에 맵핑할 수 있으며, 학습된 맵핑 중 하나라도 목표 위반과 일치하는 출력 분포를 유도할 수 있습니다. 이 문제가 위에서 말했던 모순입니다. 따라서 input ![](https://latex.codecogs.com/gif.latex?x_i) 를 우리가 원하는 ![](https://latex.codecogs.com/gif.latex?y_i) 에 맵핑할 수 있다고 보장할 수는 없기 때문에 `Cyvle consistency` 를 사용합니다.
+>
+> ![74_3.png](./media/74_3.png)
+>  (b) forward cycle-consistency loss: x → G(x) → F (G(x)) ≈ x, and (c) backward cycle-consistency loss: y → F (y) → G(F (y)) ≈ y
+>
+> X 가 G 를 거쳐서 G(X) 가 되고 다시 F 를 거쳐 F(G(X)) 가 된 값이 X 가 되어야하고, 똑같이 Y 가 F 를 거쳐서 F(Y) 가 되고 다시 G 를 거쳐서 G(F(Y)) 가 된 값이 Y가 되야한다는 이야기입니다.
+> 한 바퀴를 돌아도 다시 내 자신이 되어야 합니다.
+>
+> ![](https://latex.codecogs.com/gif.latex?L_%7Bcyc%7D%28G%2C%20F%29%20%3D%20%5Cmathbb%7BE%7D_%7Bx%20%5Csim%20p_%7Bdata%7D%28x%29%7D%5B%7C%7CF%28G%28x%29%29-x%7C%7C_1%5D%20&plus;%20%5Cmathbb%7BE%7D_%7By%20%5Csim%20p_%7Bdata%7D%28y%29%7D%5B%7C%7CG%28F%28y%29%29-y%7C%7C_1%5D)
+
+<br></br>
+
 `CycleGAN` 이 어떻게 동작을 하는지 알아보기 위해 입력 도메인으로 Fortnite 을 사용하고, PUBG 를 타겟 도메인으로 사용해보겠습니다. 많은 양의 두 게임에서 찍은 스크린샷을 사용하여 한 쌍의 `Generative Adversarial Networks` 를 학습합니다. 신경망은 Fortnite 의 시각적 스타일과 PUBG의 시각적 스타일을 학습할 것 입니다.
 
-이 두 네트워크는 주기적인(cyclic) 방식으로 동시에 훈련되어 두 게임 모두에서 동일한 개체 간의 관계를 형성하고 적절한 시각적 변환을 만듭니다. 다음 그림은 이러한 두 네트워크의 주기적(cyclic) 설정의 일반적인 아키텍처를 보여줍니다.
+이 두 네트워크는 순환(cyclic) 방식으로 동시에 훈련되어 두 게임 모두에서 동일한 개체 간의 관계를 형성하고 적절한 시각적 변환을 만듭니다. 다음 그림은 이러한 두 네트워크의 순환(cyclic) 설정의 일반적인 아키텍처를 보여줍니다.
 
 <br></br>
 
