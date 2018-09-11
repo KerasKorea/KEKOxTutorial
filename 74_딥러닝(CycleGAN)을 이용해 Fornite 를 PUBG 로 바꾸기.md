@@ -1,7 +1,7 @@
 # 딥러닝(CycleGAN)을 이용해 Fornite 를 PUBG 로 바꾸기
 (Turning Fortnite into PUBG with Deep Learning (CycleGAN))
 [원문 링크](https://towardsdatascience.com/turning-fortnite-into-pubg-with-deep-learning-cyclegan-2f9d339dcdb0)
-> 이 문서는 `CycleGAN` 을 이용해 Image Style Trasfer 를 게임 배경에 적용해봅니다. 원작자의 튜토리얼에 대한 부가설명은 `인용구` 를 이용해서 표현할 것입니다.
+> 이 문서는 `CycleGAN` 을 이용해 Image Style Trasfer 를 게임 배경에 적용해봅니다. 원작자의 튜토리얼에 대한 부가설명은 `인용구` 를 이용해서 표현할 것입니다. CycleGAN 을 설명하기 위해서 많은 글들이 Pix2Pix, GANs 에 대해서 이야기를 하는데 이 문서에서도 CycleGAN 설명을 위해 부가적인 설명을 할 것입니다.
 
 * Keras
 * GANs
@@ -31,6 +31,22 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 
 #### What are CycleGANs? (CycleGANs 이 뭘까요?)
 `CycleGANs` 는 도메인 사이의 `image style transfer` 에 사용되는 [Generative Adversarial Network(GAN)](https://skymind.ai/wiki/generative-adversarial-network-gan) 입니다. CycleGANs 을 사용하면 Fortnite 와 같은 한 영역의 이미지를 PUBG 와 같은 다른 영역으로 변환하도록 훈련할 수 있습니다. 이 작업은 비지도학습(unsupervised learning) 으로 수행됩니다. 즉, 두 도메인 모두에서 영상을 일대일 매핑을 하지 않습니다.
+
+<br></br>
+
+> `CycleGAN` 의 논문 제목은 [`Unpaired Image-to-Image Translation using Cycle-Consistent Adversarial Networks
+`](https://arxiv.org/pdf/1703.10593.pdf) 입니다. 논문의 제목에서 알 수 있듯이 CycleGAN 은 **Unpaired Data** 데이터를 사용합니다.
+>
+> 아래는 Unpaired 데이터를 사용하는 이유를 설명하기 위한 이미지입니다. 왼쪽은 `Pix2Pix` 에 필요한 `Paired Data`, 오른쪽은 `CycleGAN` 에서 사용하는 `Unpaired Data` 입니다. Pix2Pix 모델에서 신발 윤곽선에 맞는 신발 이미지를 생성할 때는 왼쪽 그림처럼 (신발 윤곽, 완전한 신발이미지) 가 쌍으로(pair,  ![](https://latex.codecogs.com/gif.latex?%7B%5C%7Bx_i%2Cy_i%7D%5C%7D_%7Bi%3D1%7D%5EN) )로 필요합니다.
+>
+> ![74_0.png](./media/74_0.png)
+>
+> 하지만 paired data 를 얻는 것은 어렵고 비용이 많이 들 수 있습니다. 또한 아래의 이미지같이 말 형태를 놔두고 얼룩말로 무늬만 넣어줄 때, paired data 처럼 똑같은 포즈를 가진 얼룩말을 구하는 것은 쉽지 않습니다.
+>
+> ![74_1.png](./media/74_1.png)
+>
+> 이런 문제가 있기 때문에 CycleGAN 은 Unpaired Data 를 이용해서 학습하는 방법을 소개합니다.
+
 
 <br></br>
 
