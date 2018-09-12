@@ -11,7 +11,7 @@
 ### introduction
 Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에 대한 적용 탐색을 할 것 입니다.
 
-![intro_gif](https://cdn-images-1.medium.com/max/1600/1*8h--ozdvpCR3__lOwUkAtw.gif)
+![74_4.gif](./media/74_4.gif)
 신경망은 PUBG 의 시각적 스타일로 Fortnite 를 재창조하려고 시도합니다.
 
 <br></br>
@@ -132,7 +132,7 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 
 <br></br>
 
-![results](https://cdn-images-1.medium.com/max/1600/1*bBy2LpIIvIieriGHU988VA.gif)
+![./media/74_5.gif](./media/74_5.gif)
 <br></br>
 
 하늘은 덜 푸르스름해 보이고, 만화 같은 잔디와 나무들은 PUBG 에서 볼 수 있는 나무와 훨씬 더 가까워 보입니다. 심지어 신경망은 화면 하단에 있는 상태표시창을 PUBG의 총과 탄약 표시기로 교체하는 것도 배웠습니다!
