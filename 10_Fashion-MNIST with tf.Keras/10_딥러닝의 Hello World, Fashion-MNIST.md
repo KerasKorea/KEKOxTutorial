@@ -1,4 +1,4 @@
-# 딥러닝의 Hello World, Fashion-MNIST(Fashion-MNIST with tf.Keras)
+# 딥러닝의 Hello World, Fashion-MNIST <br> (Fashion-MNIST with tf.Keras)
 
 [Fashion-MNIST with tf.Keras 원문 바로 가기](https://medium.com/tensorflow/hello-deep-learning-fashion-mnist-with-keras-50fcff8cd74a)
 
@@ -164,6 +164,5 @@ print('\n', 'Test accuracy:', score[1])
 <br>
 
 > 이 글은 2018 컨트리뷰톤에서 [Contribute to Keras](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다. <br>
-> Translator : [김수정](https://github.com/SooDevv)
-<br>
-> Translator email : soojung.dev@gmail.com
+> Translator : [김수정](https://github.com/SooDevv) <br>
+> Translator email : [soojung.dev@gmail.com](soojung.dev@gmail.com)
