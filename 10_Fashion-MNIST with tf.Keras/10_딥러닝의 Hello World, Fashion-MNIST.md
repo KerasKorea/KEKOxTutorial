@@ -2,7 +2,7 @@
 
 [Fashion-MNIST with tf.Keras 원문 바로 가기](https://medium.com/tensorflow/hello-deep-learning-fashion-mnist-with-keras-50fcff8cd74a)
 
-> 이 문서는 MNIST 데이터 셋을 대신해서 사용할 수 있는 Fashion-MNIST 데이터 셋을 사용한 튜토리얼 입니다. 딥러닝 입문자들은 tf.keras 를 사용하여 손쉽게 모델을 구현할 수 있습니다.
+> 이 문서는 MNIST 데이터 셋을 대신해서 사용할 수 있는 Fashion-MNIST 데이터 셋을 사용한 튜토리얼 입니다. <br>딥러닝 입문자들은 tf.keras 를 사용하여 손쉽게 모델을 구현할 수 있습니다.
 
 * 케라스
 * Fashoin-MNIST
