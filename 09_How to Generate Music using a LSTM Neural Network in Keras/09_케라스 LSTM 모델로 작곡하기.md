@@ -422,5 +422,7 @@ Figure 4: LSTM 네트워크로 만들어진 음악의 예
 * [Droput](http://blog.naver.com/PostView.nhn?blogId=laonple&logNo=220542170499)
 
 > 이 글은 2018 컨트리뷰톤에서 [`Contribute to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.
+>
 > Translator: [박정현](https://github.com/parkjh688), [송문혁](https://github.com/mike2ox)
+>
 > Translator email : <parkjh688@gmail.com>, <firefinger07@gmail.com>
