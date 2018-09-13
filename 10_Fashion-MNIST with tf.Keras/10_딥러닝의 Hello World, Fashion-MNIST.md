@@ -162,7 +162,8 @@ print('\n', 'Test accuracy:', score[1])
 ![](../media/10_4.png)
 
 <br>
+
 > 이 글은 2018 컨트리뷰톤에서 [Contribute to Keras](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다. <br>
-> Translator : 김수정
+> Translator : [김수정](https://github.com/SooDevv)
 <br>
 > Translator email : soojung.dev@gmail.com
