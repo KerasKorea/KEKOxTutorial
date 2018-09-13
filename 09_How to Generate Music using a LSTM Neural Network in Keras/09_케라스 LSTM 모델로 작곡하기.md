@@ -394,7 +394,7 @@ midi_stream.write('midi', fp='test_output.mid')
 ![figure4](https://cdn-images-1.medium.com/max/2000/1*tzfrAkHCbGjBXA5ZOthjrw.png)
 Figure 4: LSTM 네트워크로 만들어진 음악의 예
 
-이 비교적 얕은 네트워크에서의 결과는 임베드 1의 예 음악에서 들을 수 있듯이 여전히 매우 인상적이다. [여기](https://soundcloud.com/sigur-ur-sk-li/neuralnet-music-1) 임베드 1을 들어볼 수 있습니다.
+이 비교적 얕은 네트워크에서의 결과는 임베드 1의 예 음악에서 들을 수 있듯이 여전히 매우 인상적입니다. [여기](https://soundcloud.com/sigur-ur-sk-li/neuralnet-music-1) 임베드 1을 들어볼 수 있습니다.
 
 ### Future Work
 우리는 간단한 LSTM 네트워크와 352 개의 클래스를 사용하여 놀라운 결과와 아름다운 멜로디를 만드는 것을 성공했습니다. 하지만 개선할 수 있는 몇 가지가 있습니다.
