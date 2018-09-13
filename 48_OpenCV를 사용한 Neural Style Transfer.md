@@ -39,7 +39,7 @@
 ### Neural Style Transfer 란 무엇일까?
 <br></br>
 ![Figure 1](https://www.pyimagesearch.com/wp-content/uploads/2018/08/neural_style_transfer_example.jpg)
-<center>figure1:OpenCV 를 사용한 Neural Style Transfer 의 예. content 이미지 (왼쪽). Style 이미지 (중앙). 스타일화 된 결과(Stylized output) (오른쪽). </center>
+<center>Figure1: OpenCV 를 사용한 Neural Style Transfer 의 예. content 이미지 (왼쪽). Style 이미지 (중앙). 스타일화 된 결과(Stylized output) (오른쪽). </center>
 
 <br></br>
 
@@ -48,7 +48,7 @@ Neural Style Transfer 는 다음의 프로세스입니다:
 1. 어떤 한 이미지의 스타일을 가져온다.
 2. 그리고 그 스타일을 다른 이미지에 적용한다.
 
-Neural Style Transfer 의 프로세스는 **Figure1** 에서 확인할 수 있습니다. **왼쪽** 사진은 우리의 content 이미지입니다. 독일의 Black Forest 의 산 저상에서 맥주를 즐기고 있는 나의 모습입니다.
+Neural Style Transfer 의 프로세스는 **Figure1** 에서 확인할 수 있습니다. Figure1 의 **왼쪽** 사진은 우리의 content 이미지입니다. 독일의 Black Forest 의 산 저상에서 맥주를 즐기고 있는 나의 모습입니다.
 
 **중앙** 에 위치한 사진은 우리의 스타일 이미지입니다. [빈센트 반 고흐](https://en.wikipedia.org/wiki/Vincent_van_Gogh)의 유명한 그림인 별이 빛나는 밤이죠.
 
@@ -295,6 +295,8 @@ end = time.time()
 >
 > <center><img src='https://www.pyimagesearch.com/wp-content/uploads/2017/11/blob_from_images_mean_subtraction.jpg'></center>
 >
+> Figure3 : Mean subtraction
+>
 > <br></br>
 >
 > Mean subtraction 을 산하기 위해서 input 이미지로 사용할 이미지의 R(Red), G(Green), B(Blue) 채널의 평균값을 각각 구합니다.
@@ -383,6 +385,7 @@ $ python neural_style_transfer.py --image images/giraffe.jpg \
 
 <center><img src='https://www.pyimagesearch.com/wp-content/uploads/2018/08/neural_style_transfer_output02.jpg'>
 
+Figure4 : Result 1
 <br></br>
 
 다른 이미지로 style transfer 된 결과 이미지를 얻고 싶다면 커맨드의 이미지 path와 와 모델 path 를 변경해 보세요.
@@ -391,9 +394,13 @@ $ python neural_style_transfer.py --image images/giraffe.jpg \
 
 ![](https://www.pyimagesearch.com/wp-content/uploads/2018/08/neural_style_transfer_output03.jpg)
 
+Figure5 : Result 2
 <br></br>
 
-![](https://www.pyimagesearch.com/wp-content/uploads/2018/08/neural_style_transfer_output04.jpg)</center>
+![](https://www.pyimagesearch.com/wp-content/uploads/2018/08/neural_style_transfer_output04.jpg)
+
+Figure6 : Result 3
+</center>
 
 위의 세 개의 예제처럼, 우리는 딥러닝 예술작품을 만들었습니다! 터미널 출력에서 출력 이미지를 계산하는 데 경과된 시간이 표시됩니다. 각 CNN 모델은 약간 다르므로 각 모델에 대해 서로 다른 타이밍을 예상해야 합니다.
 
@@ -590,6 +597,7 @@ vs.stop()
 
 <center><img  src ='https://s3-us-west-2.amazonaws.com/static.pyimagesearch.com/opencv-neural-style/neural_style_transfer_animation.gif'></center>
 
+<br></br>
 
 보시는 바와 같이, 한 번의 키 누름 버튼을 사용하여 Neural Style Transfer 모델을 순환(반복)하기 쉽습니다.
 
