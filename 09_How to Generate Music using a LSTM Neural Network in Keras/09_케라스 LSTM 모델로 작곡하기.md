@@ -28,7 +28,7 @@
 [Music21](http://web.mit.edu/music21/)은 컴퓨터를 활용하는 음악학에 사용되는 Python 툴킷입니다. 우리가 음악 이론의 기초를 가르치고, 음악 예시를 만들고, 음악을 공부할 수 있게 해줍니다. 이 툴킷은 MIDI 파일의 음악 표기법을 습득할 수 있는 간단한 인터페이스를 제공합니다. 또한 노트 및 코드(chord) 객체를 만들어 쉽게 MIDI 파일을 만들 수 있습니다.
 
 이 튜토리얼에서 우리는 Music21 을 데이터 세트의 콘텐츠를 추출하고, 음악 표기법으로부터 인공 신경망을 통해 결과값을 얻는데 사용할 것입니다.
-트
+
 > 이 문서에서는 Anaconda 패키지를 사용하여 가상환경을 만들어서 사용했고, Anaconda 를 사용하면 music21 설치할 필요가 없습니다.
 >
 > Anaconda 가상환경에서 music21 을 설치하려고 한다면 아래와 같이 이미 설치되어 있다는 메세지가 나올 것입니다.
@@ -421,8 +421,6 @@ Figure 4: LSTM 네트워크로 만들어진 음악의 예
 * [music21](http://web.mit.edu/music21/)
 * [Droput](http://blog.naver.com/PostView.nhn?blogId=laonple&logNo=220542170499)
 
-> 이 글은 2018 컨트리뷰톤에서 [`Contribute to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.
->
-> Translator: [박정현](https://github.com/parkjh688), [송문혁](https://github.com/mike2ox)
->
+> 이 글은 2018 컨트리뷰톤에서 [`Contribute to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.  
+> Translator: [박정현](https://github.com/parkjh688), [송문혁](https://github.com/mike2ox)  
 > Translator email : <parkjh688@gmail.com>, <firefinger07@gmail.com>
