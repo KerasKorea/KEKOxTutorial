@@ -11,7 +11,12 @@
 ### introduction
 Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에 대한 적용 탐색을 할 것 입니다.
 
+<br></br>
+
 ![74_4.gif](./media/74_4.gif)
+
+<br></br>
+
 신경망은 PUBG 의 시각적 스타일로 Fortnite 를 재창조하려고 시도합니다.
 
 <br></br>
@@ -23,7 +28,8 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 
 <br></br>
 ![Fortnite_and_PUBG](https://cdn-images-1.medium.com/max/1600/1*LNAjmkCJ_yuFiK_syedONw.jpeg)
-카툰같은 비주얼의 Fortnite (왼쪽) 와 조금 더 현실 같은 비주얼의 PUBG (오른쪽)
+
+Figure1 : 카툰같은 비주얼의 Fortnite (왼쪽) 와 조금 더 현실 같은 비주얼의 PUBG (오른쪽)
 
 
 <br></br>
@@ -37,20 +43,28 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 > `CycleGAN` 의 논문 제목은 [`Unpaired Image-to-Image Translation using Cycle-Consistent Adversarial Networks
 `](https://arxiv.org/pdf/1703.10593.pdf) 입니다. 논문의 제목에서 알 수 있듯이 CycleGAN 은 **Unpaired Data** 데이터를 사용합니다.
 >
-> 아래는 Unpaired 데이터를 사용하는 이유를 설명하기 위한 이미지입니다. 왼쪽은 `Pix2Pix` 에 필요한 `Paired Data`, 오른쪽은 `CycleGAN` 에서 사용하는 `Unpaired Data` 입니다. Pix2Pix 모델에서 신발 윤곽선에 맞는 신발 이미지를 생성할 때는 왼쪽 그림처럼 (신발 윤곽, 완전한 신발이미지) 가 쌍으로(pair,  ![](https://latex.codecogs.com/gif.latex?%7B%5C%7Bx_i%2Cy_i%7D%5C%7D_%7Bi%3D1%7D%5EN) )로 필요합니다.
+> 아래의 Figure2 는 Unpaired 데이터를 사용하는 이유를 설명하기 위한 이미지입니다. 왼쪽은 `Pix2Pix` 에 필요한 `Paired Data`, 오른쪽은 `CycleGAN` 에서 사용하는 `Unpaired Data` 입니다. Pix2Pix 모델에서 신발 윤곽선에 맞는 신발 이미지를 생성할 때는 왼쪽 그림처럼 (신발 윤곽, 완전한 신발이미지) 가 쌍으로(pair,  ![](https://latex.codecogs.com/gif.latex?%7B%5C%7Bx_i%2Cy_i%7D%5C%7D_%7Bi%3D1%7D%5EN) )로 필요합니다.
 >
 > ![74_0.png](./media/74_0.png)
 >
-> 하지만 paired data 를 얻는 것은 어렵고 비용이 많이 들 수 있습니다. 또한 아래의 이미지같이 말 형태를 놔두고 얼룩말로 무늬만 넣어줄 때, paired data 처럼 똑같은 포즈를 가진 얼룩말을 구하는 것은 쉽지 않습니다.
+> Figure2 : Pix2Pix의 학습 데이터, CycleGAN의 학습 데이터
+>
+> <br></br>
+> 하지만 paired data 를 얻는 것은 어렵고 비용이 많이 들 수 있습니다. 또한 Figure3 같이 말 형태를 놔두고 얼룩말로 무늬만 넣어줄 때, paired data 처럼 똑같은 포즈를 가진 얼룩말을 구하는 것은 쉽지 않습니다.
 >
 > ![74_1.png](./media/74_1.png)
 >
+> Figure3 : CycleGAN의 결과 1
+>
+> <br></br>
 > 이런 문제가 있기 때문에 CycleGAN 은 Unpaired Data 를 이용해서 학습하는 방법을 소개합니다.
 
 
 <br></br>
 
 ![original_github](https://cdn-images-1.medium.com/max/1200/1*-w1y7RK4Gq0WXdxaqIl0eQ.jpeg)
+Figure4 : CycleGAN의 결과 2
+
 원본 Github implementation 과 그에 따른 결과는 [여기](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix)서 볼 수 있습니다.
 
 <br></br>
@@ -67,6 +81,7 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 > **<U>CycleGAN 의 목표는 두 개의 도메인 X 와 Y 사이의 mapping function 을 학습하는 것입니다.**</U>
 >
 > ![74_2.png](./media/74_2.png)
+> Figure5: CycleGAN 모델
 >
 > CycleGAN model 은 위 이미지와 같이 G : X → Y and F : Y → X 해주는 두 개의 mapping function 이 있고, F(Y) 를 판별하는 Dx and G(X) 를 판별하는 Dy 가 있습니다.
 >
@@ -77,10 +92,11 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 >  ![](https://latex.codecogs.com/gif.latex?L_%7BGAN%7D%28G%2C%20D_Y%2C%20X%2C%20Y%29%20%3D%20%5Cmathbb%7BE%7D_%7By%5Csim%20p_%7Bdata%28y%29%7D%7D%5BlogD_Y%28y%29%5D%20&plus;%20%5Cmathbb%7BE%7D_%7Bx%5Csim%20p_%7Bdata%28x%29%7D%7D%5Blog%281-D_Y%28G%28x%29%29%29%5D)
 >
 > **Cycle consistency loss**
-> Adversarial training 으로 각각 대상 도메인 Y와 X로 동일하게 분포된 출력을 생성하는 mapping G와 F를 배울 수 있지만, large capacity 에서는 네트워크는 동일한 입력 이미지 세트를 대상 도메인에서 이미지의 임의 허용에 맵핑할 수 있으며, 학습된 맵핑 중 하나라도 목표 위반과 일치하는 출력 분포를 유도할 수 있습니다. 이 문제가 위에서 말했던 모순입니다. 따라서 input ![](https://latex.codecogs.com/gif.latex?x_i) 를 우리가 원하는 ![](https://latex.codecogs.com/gif.latex?y_i) 에 맵핑할 수 있다고 보장할 수는 없기 때문에 `Cyvle consistency` 를 사용합니다.
+> Adversarial training 으로 각각 대상 도메인 Y와 X로 동일하게 분포된 출력을 생성하는 mapping G와 F를 배울 수 있지만, large capacity 에서는 네트워크는 동일한 입력 이미지 세트를 대상 도메인에서 이미지의 임의 허용에 맵핑할 수 있으며, 학습된 맵핑 중 하나라도 목표 위반과 일치하는 출력 분포를 유도할 수 있습니다. 이 문제가 위에서 말했던 모순입니다. 따라서 input ![](https://latex.codecogs.com/gif.latex?x_i) 를 우리가 원하는 ![](https://latex.codecogs.com/gif.latex?y_i) 에 맵핑할 수 있다고 보장할 수는 없기 때문에 `Cycle consistency` 를 사용합니다.
 >
 > ![74_3.png](./media/74_3.png)
->  (b) forward cycle-consistency loss: x → G(x) → F (G(x)) ≈ x, and (c) backward cycle-consistency loss: y → F (y) → G(F (y)) ≈ y
+> Figure6 : CycleGAN 과 Cycle consistency
+> (b) forward cycle-consistency loss: x → G(x) → F (G(x)) ≈ x, and (c) backward cycle-consistency loss: y → F (y) → G(F (y)) ≈ y
 >
 > X 가 G 를 거쳐서 G(X) 가 되고 다시 F 를 거쳐 F(G(X)) 가 된 값이 X 가 되어야하고, 똑같이 Y 가 F 를 거쳐서 F(Y) 가 되고 다시 G 를 거쳐서 G(F(Y)) 가 된 값이 Y가 되야한다는 이야기입니다.
 > 한 바퀴를 돌아도 다시 내 자신이 되어야 합니다.
