@@ -228,14 +228,14 @@ model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
 Embedding 계층을 통해서 정수형 토큰을 포함시킬 수 있습니다. 구현은 아래와 같습니다: 
 
 ```python
-# 입력 시퀀스 정의와 처리.
+# 입력 시퀀스 정의와 처리
 encoder_inputs = Input(shape=(None,))
 x = Embedding(num_encoder_tokens, latent_dim)(encoder_inputs)
 x, state_h, state_c = LSTM(latent_dim,
                            return_state=True)(x)
 encoder_states = [state_h, state_c]
 
-# `encoder_states`를 초기 상태로 사용해 decoder를 설정.
+# `encoder_states`를 초기 상태로 사용해 decoder를 설정
 decoder_inputs = Input(shape=(None,))
 x = Embedding(num_decoder_tokens, latent_dim)(decoder_inputs)
 x = LSTM(latent_dim, return_sequences=True)(x, initial_state=encoder_states)
@@ -308,6 +308,6 @@ model.fit([encoder_input_data, decoder_input_data], decoder_target_data,
 
 만약 추가적인 의문점이 있다면, [Twitter](https://twitter.com/fchollet)로 연락해주세요.
 
-> 이 글은 2018 컨트리뷰톤에서 [`Contributue to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.
-> Translator : [mike2ox](https://github.com/mike2ox) (Moonhyeok Song)
+> 이 글은 2018 컨트리뷰톤에서 [`Contributue to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.  
+> Translator : [mike2ox](https://github.com/mike2ox) (Moonhyeok Song)  
 > Translator Email : <firefinger07@gmail.com>
