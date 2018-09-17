@@ -1,6 +1,7 @@
 ## OpenCV를 사용한 Neural Style Transfer(Neural Style Transfer with OpenCV)
 [원문 링크](https://www.pyimagesearch.com/2018/08/27/neural-style-transfer-with-opencv/)
-> 이 문서는 Neural Style Transfer 를 하는 방법을 `Keras`, `OpenCV` 를 이용해서 보여줍니다. 많은 예제들이 content 이미지에 style 이미지의 style 을 합치지만, 이 튜토리얼에서는 `OpenCV` 를 사용해서 content 이미지 뿐만 아니라 실시간으로 촬영되는 비디오에도 style 이미지의 style 을 합칩니다. 원작자의 튜토리얼에 대한 부가설명은 `인용구` 를 이용해서 표현할 것입니다.
+> 이 문서는 Keras와 OpenCV를 이용해 Neural Style Transfer 하는 방법을 보여줍니다. 많은 예제들이 content 이미지에 style 이미지의 style을 합치지만, 이 튜토리얼에서는 OpenCV를 사용해 이미지 뿐만 아니라 실시간으로 촬영되는 비디오에도 style 이미지의 style을 합칩니다.  
+> 번역자의 부가설명은 `인용구`를 이용해 구분했습니다.
 
 * 케라스
 * Neural Style Transfer
@@ -12,57 +13,55 @@
 <br></br>
 
 ### Introduction
-이 튜토리얼에서, 당신은 Neural Style Transfer 를 OpenCV, 파이썬, 딥러닝을 이용해서 이미지 뿐만 아니라 실시간으로 촬영되는 비디오에도 적용해볼 수 있을거에요. 튜토리얼이 끝날 때 쯤, 당신은 Neural Style Transfer 를 이용한 아주 아름다운 작품을 만들 수 있을 겁니다.
+이 튜토리얼을 통해 OpenCV, 파이썬, 딥러닝을 이용해 Neural Style Transfer를 이미지 뿐만 아니라 실시간으로 촬영되는 비디오에 적용하는 방법을 익힐 수 있습니다. 튜토리얼이 끝날 때 쯤, 당신은 Neural Style Transfer를 이용해 아주 아름다운 작품을 만들 수 있을 겁니다.
 
-오리지널 Neural Style Transfer 알고리즘은 2015년에 Gatys 와 몇몇에 의해 그들의 논문인 [`A Neural Algorithm of Artistic Style`](https://arxiv.org/abs/1508.06576) 소개되었습니다.
+오리지널 Neural Style Transfer 알고리즘은 2015년에 Gatys와 몇몇에 의해 그들의 논문인 [`A Neural Algorithm of Artistic Style`](https://arxiv.org/abs/1508.06576) 소개되었습니다.
 
-2016 년에 Johnson 과 몇몇이 실시간 [Perceptual Losses for Real-Time Style Transfer and Super-Resolution](https://cs.stanford.edu/people/jcjohns/eccv16/)(Style Trasfer 및 Super-Resolution 를 위한 perceptual 손실)을 발표했는데, 이는 perceptual 손실을 사용하는 Super-Resolution 문제를 Neural Style Transfer 에 적용한 것입니다.
-결과는  Gatys 등이 발표했던 Neural Style Transfer 알고리즘 방법보다 최대 3배 정도 빠르다는 것입니다(그러나 몇 가지 단점이 있으며, 이 가이드에서 나중에 논의할 예정입니다).
+2016 년에 Johnson과 몇몇이 실시간 [Perceptual Losses for Real-Time Style Transfer and Super-Resolution](https://cs.stanford.edu/people/jcjohns/eccv16/)(Style Trasfer 및 Super-Resolution를 위한 perceptual 손실)을 발표했는데, perceptual 손실을 사용해 Super-Resolution 문제를 Neural Style Transfer에 적용했습니다.
+그 결과, Gatys 등이 발표했던 Neural Style Transfer 알고리즘 방법보다 최대 3배 정도 빨랐습니다(그러나 몇 가지 단점이 있으며, 이 튜토리얼 후반부에 논의할 예정입니다).
 
-이 포스트의 마지막엔 당신은 Neural Style Transfer 알고리즘을 당신의 이미지와 비디오 스트림에 어떻게 적용하는지 알 수 있을 것입니다.
+이 튜토리얼을 따라가다보면 마지막에 Neural Style Transfer 알고리즘을 당신의 이미지와 비디오 스트림에 어떻게 적용하는지 알 수 있을 것입니다.
 
 [Nueral Style Transfer with OpenCV 데모 영상](https://youtu.be/DRpydtvjGdE)
 
-> 위의 데모 영상은 이 튜토리얼이 끝난 후에 우리가 어떤 것을 배우게 되었는지에 대해 잘 보여주는 영상입니다. 한 번 보시는 것을 추천합니다!
-오늘 가이드의 나머지 부분에서는 `OpenCV` 및 Python 을 사용하여 자신의 예술 작품을 생성하기 위해 신경 스타일 전송 알고리즘을 적용하는 방법을 시연합니다.
+> 위 데모 영상은 이 튜토리얼에서 우리가 어떤 것을 배우게 되었는지에 대해 잘 보여주는 영상입니다. 한 번 보시는 것을 추천합니다!
 
-오늘 가이드의 나머지 부분에서는 `OpenCV`, Python 을 사용하여 자신의 예술 작품을 생성하기 위해 Neural Style Transfer 알고리즘을 적용하는 방법을 시연합니다.
 
-제가 오늘 여기서 논의하는 방법은 CPU에서 거의 실시간으로 실행될 수 있으며 GPU에서 완전히 실시간 성능을 얻을 수 있습니다.
+이 튜토리얼에서 OpenCV와 Python으로 Neural Style Transfer 알고리즘을 적용해 자신만의 예술 작품을 생성하는 방법을 시연합니다.
 
-우리는 Neural Style Transfer 에 대해서 그것이 무엇이고 어떻게 작동하는지를 포함하는 간단한 논의를 시작할 것입니다.
+여기서 논의하는 방법은 CPU를 활용하면 거의 실시간으로 실행할 수 있으며, GPU를 활용하면 완전히 실시간 성능을 얻을 수 있습니다.
 
-여기서부터 우리는 `OpenCV`, Python 을 이용하여 실제로 Neural Style Transfer 를 적용할 것입니다.
+먼저, Neural Style Transfer이 무엇이고, 어떻게 작동하는지를 포함하는 간단한 설명을 시작하겠습니다.
 
 <br></br><br></br>
 
 ### Neural Style Transfer 란 무엇일까?
 <br></br>
 ![Figure 1](https://www.pyimagesearch.com/wp-content/uploads/2018/08/neural_style_transfer_example.jpg)
-<center>Figure1: OpenCV 를 사용한 Neural Style Transfer 의 예. content 이미지 (왼쪽). Style 이미지 (중앙). 스타일화 된 결과(Stylized output) (오른쪽). </center>
+<center>Figure1: OpenCV를 사용한 Neural Style Transfer의 예. content 이미지 (왼쪽). Style 이미지 (중앙). 스타일화 된 결과(Stylized output) (오른쪽). </center>
 
 <br></br>
 
-Neural Style Transfer 는 다음의 프로세스입니다:
+Neural Style Transfer 프로세스:
 
-1. 어떤 한 이미지의 스타일을 가져온다.
+1. 어떤 이미지의 스타일을 가져온다.
 2. 그리고 그 스타일을 다른 이미지에 적용한다.
 
-Neural Style Transfer 의 프로세스는 **Figure1** 에서 확인할 수 있습니다. Figure1 의 **왼쪽** 사진은 우리의 content 이미지입니다. 독일의 Black Forest 의 산 저상에서 맥주를 즐기고 있는 나의 모습입니다.
+Neural Style Transfer의 프로세스는 **Figure1**에서 확인할 수 있습니다. Figure1의 **왼쪽** 사진은 content 이미지입니다. 독일의 Black Forest 의 산 정상에서 맥주를 즐기고 있는 제 모습입니다.
 
-**중앙** 에 위치한 사진은 우리의 스타일 이미지입니다. [빈센트 반 고흐](https://en.wikipedia.org/wiki/Vincent_van_Gogh)의 유명한 그림인 별이 빛나는 밤이죠.
+**중앙**에 위치한 사진은 스타일 이미지입니다. [빈센트 반 고흐](https://en.wikipedia.org/wiki/Vincent_van_Gogh)의 유명한 그림인 *별이 빛나는 밤*이죠.
 
-그리고 **오른쪽** 은 반 고흐의 별이 빛나는 밤의 스타일을 content 이미지인 내 사진에 적용한 결과입니다. 어떻게 언덕, 숲, 나, 그리고 심지어 맥주의 내용까지 보존했는지 보세요. 저것들을 보존하면서도 별의 빛나는 밤의 스타일을 적용되었습니다. 마치 반 고흐가 그의 뛰어난 페인트 스트로크를 산 위에서의 경치에 바친 것 같습니다!
+그리고 **오른쪽** 사진은 반 고흐의 별이 빛나는 밤의 스타일을 content 이미지에 적용한 결과입니다. 언덕, 숲, 사람, 그리고 심지어 맥주까지 어떻게 보존되었는지 살펴보세요. 모든 것을 유지하면서 별의 빛나는 밤의 스타일을 적용되었습니다. 마치 반 고흐가 그의 뛰어난 페인트 스트로크를 산 위의 경치에 바친 것 같습니다!
 
-그래서 질문은 흠.. 우리가 Neural Style Transfer 를 하는 뉴럴 네트워크를 어떻게 정의할까요?
+그래서 질문은 흠.. 어떻게 뉴럴 네트워크(Neural Network)가 Neural Style Transfer를 수행하도록 정의할 수 있을까요?
 
 가능한 일이긴 한걸까요?
 
-물론 가능합니다! 그리고 우리는 다음 섹션에서 Neural Style Transfer 가 어떻게 가능한지에 대해 토론할 것입니다.
+물론 가능합니다! 바로 다음 섹션에서 어떻게 Neural Style Transfer가 가능한지 토론할 것입니다.
 
 <br></br><br></br>
 
-### Neural Style Transfer 는 어떻게 동작할까?
+### Neural Style Transfer는 어떻게 동작할까?
 <br></br>
 <img  src='https://www.pyimagesearch.com/wp-content/uploads/2018/08/neural_style_transfer_gatys.jpg'>
 
