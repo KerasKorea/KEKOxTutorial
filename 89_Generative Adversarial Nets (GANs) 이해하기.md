@@ -261,7 +261,7 @@ if __name__ == '__main__':
 
 <br></br>
 > 이 글은 2018 컨트리뷰톤에서 [`Contribute to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.  
-
+>
 > Translator: [박정현](https://github.com/parkjh688)
-
+>
 > Translator email : <parkjh688@gmail.com>
