@@ -32,18 +32,18 @@ GAN이 무엇인지 이해하는 가장 쉬운 방법은 다음과 어떤 것에
 
 따라서 가짜 와인 위조범의 목적은 진품과 구별이 안 되는 와인을 만드는 것이고, 가게 주인의 목표는 와인이 진짜인지 아닌지 정확하게 알아내는 것이 됩니다.
 
-<U>**위조범과 위조를 구분해내려는 자의 경쟁이 `GANs` 의 기본 아이디어가 됩니다.**</U>
+<U>**위조범과 위조를 구분해내려는 자의 경쟁이 `GANs`의 기본 아이디어가 됩니다.**</U>
 
 <br></br>
 
-### Components of a Generative Adversarial Network (GANs 의 구성요소)
-위의 예제를 이용하여, 우리는 `GANs` 의 아키텍처를 그려볼 수 있습니다.
+### Components of a Generative Adversarial Network (GANs의 구성요소)
+위의 예제를 이용하여, 우리는 `GANs`의 아키텍처를 그려볼 수 있습니다.
 
 ![89_2.png](media/89_2.png)
 
-여기에 GANs 의 주요 구성요소가 있습니다: `Generator(생성자)` 와 `Discriminator(식별자)` 입니다.
+여기에 GANs의 주요 구성요소가 있습니다: `Generator(생성자)` 와 `Discriminator(식별자)` 입니다.
 
-위의 예제에서 와인이 진짜인지 가짜인지 식별하는 가게 주인이 바로 `Discriminator` 의 예이고, 주로 어떤 이미지가 진짜인지 아닌지에 대한 확률을 주는 [Convolutional Neural Networks](https://www.datacamp.com/community/tutorials/convolutional-neural-networks-python) (GANs 은 주로 이미지 쪽에서 많이 쓰이기 때문에) 를 사용합니다.
+위의 예제에서 와인이 진짜인지 가짜인지 식별하는 가게 주인이 바로 `Discriminator` 의 예이고, 주로 어떤 이미지가 진짜인지 아닌지에 대한 확률을 주는 [Convolutional Neural Networks](https://www.datacamp.com/community/tutorials/convolutional-neural-networks-python) (GANs은 주로 이미지 쪽에서 많이 쓰이기 때문에) 를 사용합니다.
 
 가짜 와인 위조범은 `Generator` 이고, 이 네트워크 역시 일반적으로 Convolutional Neural Network 를 사용합니다. ([deconvolutional layer](https://blog.openai.com/generative-models/) 와 함께). 이 네트워크는 노이즈 벡터를 가져와서 이미지를 출력합니다. `Generative 네트워크` 를 훈련할 때, `Discriminator` 가 생성된 이미지를 실제 이미지와 구분하는 데 어려움을 겪도록 이미지에서 개선/변경 영역을 학습합니다.
 
@@ -53,7 +53,7 @@ GAN이 무엇인지 이해하는 가장 쉬운 방법은 다음과 어떤 것에
 
 ### A Simple Generative Adversarial Network with Keras (케라스로 만드는 간단한 Generative Adversarial Network)
 
-이제 `GANs` 이 무엇이고 그 주요 구성 요소가 무엇인지 이해하셨으니, 아주 간단한 코드를 만들 수 있습니다. `Keras` 를 사용하고 이 Python 라이브러리에 익숙하지 않은 경우 계속하기 전에 이 [튜토리얼](https://www.datacamp.com/community/tutorials/deep-learning-python) 을 읽어야 합니다. 본 튜토리얼은 [여기](https://github.com/Zackory/Keras-MNIST-GAN/blob/master/mnist_gan.py) 에서 개발된 `GAN` 을 기반으로 합니다.
+이제 `GANs`이 무엇이고 그 주요 구성 요소가 무엇인지 이해하셨으니, 아주 간단한 코드를 만들 수 있습니다. `Keras` 를 사용하고 이 Python 라이브러리에 익숙하지 않은 경우 계속하기 전에 이 [튜토리얼](https://www.datacamp.com/community/tutorials/deep-learning-python) 을 읽어야 합니다. 본 튜토리얼은 [여기](https://github.com/Zackory/Keras-MNIST-GAN/blob/master/mnist_gan.py) 에서 개발된 `GAN`을 기반으로 합니다.
 
 가장 먼저 해야될 일은 `pip` 을 이용해서 필요한 패키지들을 다운 받는 것입니다:
 
@@ -258,3 +258,8 @@ if __name__ == '__main__':
 ### Conclusion (결과)
 
 축하합니다. 이 튜토리얼을 마치셨습니다. `GAN(Generative Adversarial Networks)` 의 기본을 직관적으로 배웠습니다. 또한 `Keras` 라이브러리의 도움을 받아 첫 번째 모델을 구현했습니다. Python 을 사용한 심층 학습에 대해 자세히 알아보려면 DataCamp의 Deep Learning을 Python 과정으로 수강해보세요.
+
+<br></br>
+> 이 글은 2018 컨트리뷰톤에서 [`Contribute to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.  
+> Translator: [박정현](https://github.com/parkjh688)
+> Translator email : <parkjh688@gmail.com>
