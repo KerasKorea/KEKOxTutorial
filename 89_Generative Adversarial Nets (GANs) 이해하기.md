@@ -259,6 +259,7 @@ if __name__ == '__main__':
 
 축하합니다. 이 튜토리얼을 마치셨습니다. `GAN(Generative Adversarial Networks)` 의 기본을 직관적으로 배웠습니다. 또한 `Keras` 라이브러리의 도움을 받아 첫 번째 모델을 구현했습니다. Python 을 사용한 심층 학습에 대해 자세히 알아보려면 DataCamp의 Deep Learning을 Python 과정으로 수강해보세요.
 
+<br></br>
 > 이 글은 2018 컨트리뷰톤에서 [`Contribute to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.  
 > Translator: [박정현](https://github.com/parkjh688)
 > Translator email : <parkjh688@gmail.com>
