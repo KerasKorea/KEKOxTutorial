@@ -1,4 +1,11 @@
 '''Example of VAE on MNIST dataset using CNN
+CNN을 활용하여 MNIST 데이터 세트기반의 VAE 예제
+
+VAE는 모듈러(modular) 설계를 가집니다. 인코더(encoder), 디코더(decoder) 그리고 VAE(다양한 오토인코더(auto encoder))는
+가중치를 공유하는 3가지 모델입니다. VAE 모델을 학습시키고,
+인코더는 latent 벡터들을 생성하는데 사용됩니다.
+디코더는 평균이 0이고 편차가 1인 가우시안 분포로 부터 latent vector를 샘플링함으로서
+MNIST digits를 생성하는데 사용됩니다.
 
 The VAE has a modular design. The encoder, decoder and VAE
 are 3 models that share weights. After training the VAE model,
@@ -6,7 +13,8 @@ the encoder can be used to  generate latent vectors.
 The decoder can be used to generate MNIST digits by sampling the
 latent vector from a Gaussian distribution with mean=0 and std=1.
 
-# Reference
+
+# 참고 문헌
 
 [1] Kingma, Diederik P., and Max Welling.
 "Auto-encoding variational bayes."
@@ -33,15 +41,22 @@ import os
 
 
 # reparameterization trick
+# 재(re)-매개변수화 기법
+# Q(z|X)에서 샘플링하지 않고 N(0,I)에서 샘플링(eps)합니다.
+# 그때 Z는 z_mean + sqrt(var)*eps
 # instead of sampling from Q(z|X), sample eps = N(0,I)
 # then z = z_mean + sqrt(var)*eps
 def sampling(args):
     """Reparameterization trick by sampling fr an isotropic unit Gaussian.
-
+    # TODO : 재(re)-매개변수화 기법 : isotropic 단일 가우시안에서 샘플링합니다.
     # Arguments:
+    # 설명:
+        args (텐서) : Q(z|X)의 분산의 log취한 값과 평균
         args (tensor): mean and log of variance of Q(z|X)
 
     # Returns:
+    # 반환:
+        z (텐서) : 샘플링된 latent 벡터
         z (tensor): sampled latent vector
     """
 
@@ -49,6 +64,7 @@ def sampling(args):
     batch = K.shape(z_mean)[0]
     dim = K.int_shape(z_mean)[1]
     # by default, random_normal has mean=0 and std=1.0
+    # 고정적으로, random_normal은 평균 0, 표준편차 1.0을 가진다.
     epsilon = K.random_normal(shape=(batch, dim))
     return z_mean + K.exp(0.5 * z_log_var) * epsilon
 
