@@ -20,7 +20,7 @@ Note: 모든 예제 코드는 2017년 3월 14일에 Keras 2.0 API에 업데이�
 
 <img src="https://blog.keras.io/img/ae/autoencoder_schema.jpg">
 
-**"Autoencoding"**은 데이터 압축 알고리즘으로 … 
+**"Autoencoding"** 은 데이터 압축 알고리즘으로 압축 함수와 압축해제 함수는 다음과 같은 세가지 특징을 갖습니다: 1) date-specific, 2) 손실, 3) learned automatically from examples. 
 
 또한 autoencoder 라는 용어가 사용되는 대부분의 경우, 압축과 압축해제 함수는 신경망으로 구현됩니다. 
 
@@ -40,7 +40,56 @@ Note: 모든 예제 코드는 2017년 3월 14일에 Keras 2.0 API에 업데이�
 
  간단! 또한 이 실습 예제의 오토인코더를 시작하기 위해 이러한 단어들을 이해할 필요가 없습니다. 
 
-## Are they good at data compression? 
+
+
+## 오토인코더는 데이터 압축에 좋을까요?
+
+ 일반적으로는 그렇지 않습니다. 사진 압축에서 JPEG와 같은 기본 알고리즘보다 나은 작업을 수행하는 오토인코더를 개발하는 것은 꽤 어렵습니다. 일반적으로 JPEG와 같은 성능을 달성할 수 있는 유일한 방법은 사진을 매우 특정한 유형의 사진으로 제한하는 것입니다. 오토인코더가 data-specific 하다는 점 때문에 오토인코더는 실제 데이터 압축 문제에 적용하기에 비실용적입니다. 따라서 오토인코더는 훈련된 것과 비슷한 데이터에서만 사용될 수 있고 오토인코더를 일반적인 데이터에 대해 사용하기 위해서는 많은 훈련 데이터가 필요합니다. 하지만 미래에는 바뀔 수도 있습니다, 누가 알겠어요?
+
+
+
+## 오토인코더는 어디에 좋을까요? 
+
+ 오토인코더는 실제 응용에서는 거의 사용되지 않습니다. 2012년 오토인코더는 deep convolutional neural network [1] , 그러나 이는 ?
+
+ 
+
+오늘날 오토인코더의 두 가지 흥미로운 실제 응용분야는 data denosing 과 데이터 시각화를 위한 차원 축소입니다. 적절한 dimensionality와 sparsity contraints를 사용하면, 오토인코더는 PCA나 다른 기법들보다 더 흥미로운 data projection을 배울 수 있습니다. 
+
+
+
+특히 2차원 시각화에 대하여, t-SNE는 거의 최고의 알고리즘입니다. 하지만 이는 상대적으로 낮은 차원의 데이터를 요구합니다. 따라서 높은 차원의 데이터에서 유사(similarity) 관계를 시각화하는 좋은 전략은 먼저 오토인코더를 사용하여 데이터를 낮은 차원으로 압축합니다. 그리고나서 압축된 데이터를 t-SNE를 사용하여 2차원 평면으로 매핑합니다. 이미 케라스의 휼륭한 parametric implementation이 Kyle McDonald에 의해 개발되어있고 [github](https://github.com/kylemcdonald/Parametric-t-SNE/blob/master/Parametric%20t-SNE%20(Keras).ipynb) 에서 볼 수 있습니다. 그 밖에도, [scikit-learn](http://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html) 에도 간단하고 실용적이게 구현되어 있습니다. 
+
+
+
+## 그렇다면 오토 인코더는 무엇이 중요할까요?
+
+Their main claim to fame comes from being featured in many introductory machine learning classes available online. As a result, a lot of newcomers to the field absolutely love autoencoders and can't get enough of them. This is the reason why this tutorial exists! (??)
+
+
+
+오토인코더가 수많은 연구와 집중을 끌어들이는 이유는 오토인코더가 unsupervised learning(비지도학습)의 문제를 풀어낼 잠재적인 수단으로 오랜동안 생각되어왔기 때문입니다. 즉, 오토인코더는 
+
+
+
+## 매우 간단한 오토인코더를 만들어봅시당 
+
+간단한 것에서 시작합시다. 
+
+```python
+from keras.layers import Input, Dense
+from keras.models import Model
+
+# 
+```
+
+
+
+
+
+
+
+[1]: dfdfd
 
 
 
