@@ -1,17 +1,25 @@
-'''Neural doodle with Keras
+'''케라스로 뉴럴 낙서하기
 
-# Script Usage
+# 스크립트 사용법
 
 ## Arguments
+## 입력값들
 ```
 --nlabels:              # of regions (colors) in mask images
---style-image:          image to learn style from
---style-mask:           semantic labels for style image
---target-mask:          semantic labels for target image (your doodle)
---content-image:        optional image to learn content from
---target-image-prefix:  path prefix for generated target images
-```
+                        마스크(mask) 이미지에서 색상의 수(구분을 위한)
+--style-image:          image to learn style from 
 
+--style-mask:           semantic labels for style image
+                        스타일 이미지의 의미있는 레이블
+--target-mask:          semantic labels for target image (your doodle)
+                        당신의 낙서인 목표 이미지의 의미있는 레이블 
+--content-image:        optional image to learn content from
+                        학습시키고 싶은 컨텐츠가 있는 이미지(선택사항)
+--target-image-prefix:  path prefix for generated target images
+                        생성된 목표 이미지를 저장하기 위한 경로 설정
+```
+## 예제 1: 스타일용 이미지, 마스크 그리고 목표 이미지의 마스크를 사용한 낙서
+## 아래는 예제 1을 실행하기 위한 실행 코드입니다.
 ## Example 1: doodle using a style image, style mask
 and target mask.
 ```
@@ -22,6 +30,9 @@ python neural_doodle.py --nlabels 4 --style-image Monet/style.png \
 
 ## Example 2: doodle using a style image, style mask,
 target mask and an optional content image.
+## 예제 2: 스타일용 이미지, 마스크, 목표 이미지의 마스크
+## 그리고 선택사항인 컨텐츠 이미지를 사용한 낙서
+## 아래는 예제 2을 실행하기 위한 실행 코드입니다.  
 ```
 python neural_doodle.py --nlabels 4 --style-image Renoir/style.png \
 --style-mask Renoir/style_mask.png --target-mask Renoir/target_mask.png \
@@ -29,7 +40,7 @@ python neural_doodle.py --nlabels 4 --style-image Renoir/style.png \
 --target-image-prefix generated/renoir
 ```
 
-# References
+# 참고사항
 
 - [Dmitry Ulyanov's blog on fast-neural-doodle]
     (http://dmitryulyanov.github.io/feed-forward-neural-doodle/)
