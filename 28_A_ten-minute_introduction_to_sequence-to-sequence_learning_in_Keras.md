@@ -25,7 +25,7 @@ sequence-to-sequence(Seq2Seq) 학습은 한 도메인(예: 영어 문장)에서 
 #### 자명한(명확한) 사례 : 입력과 출력 시퀀스 길이가 같을 때
 입력과 출력 시퀀스 길이가 같을 경우, 케라스 Long Short-Term Memory(LSTM)이나 GRU 계층(혹은 다수의 계층) 같은 모델들을 간단하게 구현할 수 있습니다. [예제 스크립트](https://github.com/fchollet/keras/blob/master/examples/addition_rnn.py)에선 어떻게 RNN으로 문자열로 인코딩된 숫자들에 대한 덧셈 연산을 학습할 수 있는지 보여주고 있습니다.
 
-![The trivial case](media/28_0.png)
+![The trivial case](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/28_0.png)
 
 이 방법의 주의점은 주어진 `input[...t]`으로 `target[...t]`을 생성 가능하다고 가정하는 것입니다. 일부 경우(예: 숫자된 문자열 추가)에선 정상적으로 작동하지만, 대부분의 경우에는 작동하지 않습니다. 일반적으론, 목표 시퀀스를 생성하기 위해 전체 입력 시퀀스 정보가 필요합니다.
 
@@ -38,7 +38,7 @@ sequence-to-sequence(Seq2Seq) 학습은 한 도메인(예: 영어 문장)에서 
 > offset 의 예: 문자 A의 배열이 'abcdef'를 가질 때, 'c'가 A 시작점에서 2의 offset을 지님
 
 
-![seq2seq-teacher-forcing](media/28_1.png)
+![seq2seq-teacher-forcing](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/28_1.png)
 
 추론 방식(즉: 알 수 없는 입력 시퀀스를 해석하려고 할 때)에선 약간 다른 처리를 거치게 됩니다.
 
@@ -49,7 +49,7 @@ sequence-to-sequence(Seq2Seq) 학습은 한 도메인(예: 영어 문장)에서 
 - 5) 목표 시퀀스에 샘플링된 문자를 붙입니다.
 - 6) 시퀀스 종료 문자를 생성하거나 끝 문자에 도달할 때까지 앞의 과정을 반복합니다.
 
-![seq2seq-inference](media/28_2.png)
+![seq2seq-inference](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/28_2.png)
 
 이같은 과정은 *"teacher forcing" 없이* Seq2Seq를 학습시킬 때 쓰일 수도 있습니다. (decoder의 예측치들을 decoder에 다시 기재함으로써)
 
