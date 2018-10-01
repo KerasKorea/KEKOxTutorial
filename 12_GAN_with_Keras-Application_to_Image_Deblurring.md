@@ -8,25 +8,48 @@
 * Tutorial
 
 
-![deblur](https://cdn-images-1.medium.com/max/2000/1*WFQmmhJM8HMD0D5Ax4vROw.jpeg)
+![deblur](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_1.jpeg)
 
-2014년, 이안 굿펠로우가 **GAN**을 소개했었습니다. 이 글에선 **케라스로 설계한 GAN으로 이미지 흐림 제거**를 실행하는데 초점을 두고 있습니다.
+2014년, 이안 굿펠로우가 **GAN**을 소개했습니다. 이 글에선 **케라스로 설계한 GAN으로 이미지 흐림 제거**를 실행하는데 초점을 두고 있습니다.
 
 본 글에 대한 [원본 논문](https://arxiv.org/pdf/1711.07064.pdf)과 그에 대한 [파이토치 코드](https://github.com/KupynOrest/DeblurGAN/)를 보시기 바랍니다. 본 글의 모든 케라스 코드들은 [이곳](https://github.com/RaphaelMeudec/deblur-gan)에서 이용하실 수 있으십니다.
 
 
 ### GAN 빠르게 복습하기
-GAN에서, 두 개의 네트워크가 각각 견제하면서 학습을 합니다. 생성자(generator)는 진짜같은 가짜 입력값을 생성해서 식별자(discriminator)를 속입니다. 식별자는 입력값이 진짜인지 가짜인지 말해줍니다.
+GAN에서, 두 개의 신경망 각각 견제하면서 학습을 합니다. 생성자(generator)는 진짜같은 가짜 입력값을 생성해서 식별자(discriminator)를 속입니다. 식별자는 입력값이 진짜인지 가짜인지 말해줍니다.
 
-![GAN Training Process](https://cdn-images-1.medium.com/max/1000/1*N4oqJsGmH-KZg3Vqrm_uYw.jpeg)  
+![GAN Training Process](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_2.jpeg)  
 GAN Training Process - [source](https://www.kdnuggets.com/2017/01/generative-adversarial-networks-hot-topic-machine-learning.html)
+
+학습단계에서 3가지 집고 넘어가야할 부분이 있습니다.
+- 생성자를 **노이즈(noise)기반의 가짜 입력값 생성**하는데 사용하세요.
+- **식별자를 진짜 입력값과 가짜 입력값 둘 다 학습**시키세요.
+- **전체 모델을 학습 시키세요** : 그 모델은 생산자와 연결된 식별자로 설계되어 있습니다.
+
+위 3가지 부분 동안 식별자의 가중치(weights)들을 프리즈(freeze) 시켜줍니다.
+
+두 신경망이 연결된 이유는 생산자의 결과값에 대한 피드백이 불가능 하기 때문입니다. 고로, **유일한 측정 방법은 생성된 결과들을 식별자가 얼마나 받아들이는 데에 있습니다.**
+
+이는 GAN 구조를 간단하게 보여줍니다. 만약 쉽게 느껴지지 않는다면, [이 글](https://towardsdatascience.com/gan-by-example-using-keras-on-tensorflow-backend-1a6d515a60d0)을 참조하세요.
 
 
 ### 데이터
+이안 굿펠러는 처음에 MNIST 데이터를 생성하는데 GAN 모델을 적용했습니다. 이 글에선, 이미지의 흐린부분을 제거하기 위해 GAN을 사용할 겁니다.
+
+데이터 세트는 **GOPRO**를 사용할 겁니다. [가벼운 버전](https://drive.google.com/file/d/1H0PIXvJH4c40pk7ou6nAwoxuR4Qh_Sa2/view?usp=sharing)(9GB) 혹은 [전체 버전](https://drive.google.com/file/d/1SlURvdQsokgsoyTosAaELc4zRjQz9T2U/view?usp=sharing)(35GB)를 다운받을 수 있습니다. 여기엔 인위적으로 흐릿한 다양한 거리의 풍경 이미지가 있습니다. 데이터 세트는 씬(scene)별로 하위 폴더로 나뉘어져 있습니다.
+
+처음에 두 폴더 A(흐릿한), B(선명한)로 이미지들을 분배합니다. A와 B의 구조는 원래 [pix2pix](https://phillipi.github.io/pix2pix/)에 해당됩니다. 해당 작업을 위해 [이곳](https://github.com/RaphaelMeudec/deblur-gan/blob/master/organize_gopro_dataset.py)에 스크립트를 만들어 놨습니다. 사용 방법은 README에 나와있습니다!
+
 
 ### 모델
+학습 과정은 동일합니다. 먼저, 신경망 구조를 확인해 봅시다!
 
 #### 생성자
+
+![DeblurGAN generator nets](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_3.png)
+DeblurGAN 생성자 신경망의 구조입니다 - [Source](https://arxiv.org/pdf/1711.07064.pdf)
+
+핵심은 원본 이미지의 업샘플링(upsampling)에 적용되는 9개의 ResNet 블럭(block)들 입니다.
 
 ```python
 from keras.layers import Input, Conv2D, Activation, BatchNormalization
@@ -35,13 +58,17 @@ from keras.layers.core import Dropout
 
 def res_block(input, filters, kernel_size=(3,3), strides=(1,1), use_dropout=False):
     """
-    Instanciate a Keras Resnet Block using sequential API.
-    :param input: Input tensor
-    :param filters: Number of filters to use
-    :param kernel_size: Shape of the kernel for the convolution
-    :param strides: Shape of the strides for the convolution
-    :param use_dropout: Boolean value to determine the use of dropout
-    :return: Keras Model
+    순차적인 API 사용해 케라스 Resnet 블럭을 인스턴스(Instace)해줍니다.
+    
+    :매개변수
+      - input: 입력 텐서(tensor)
+      - filters: 사용하려는 필터 수
+      - kernel_size: 컨볼루션(convolution)을 위한 커널(kernel) 형태
+      - strides: 컨볼루션을 위한 스트라이드(strides) 형태
+      - use_dropout: 드롭아웃(dropout) 사용 여부를 결정하는 bool값
+    
+    :반환
+      - 케라스 모델
     """
     x = ReflectionPadding2D((1,1))(input)
     x = Conv2D(filters=filters,
@@ -59,11 +86,13 @@ def res_block(input, filters, kernel_size=(3,3), strides=(1,1), use_dropout=Fals
                 strides=strides,)(x)
     x = BatchNormalization()(x)
 
-    # Two convolution layers followed by a direct connection between input and output
+    # 입력과 출력 사이에 직접 연결하는 두 개의 컨볼루션 레이어(layer)
     merged = Add()([input, x])
     return merged
 ```
 > 위 코드는 [res_block.py](https://gist.github.com/RaphaelMeudec/ee723dbb0ad429bc73f7641b61043765#file-res_block-py)에서 보실수 있으십니다.
+
+ResNet 레이어는 기본적으로 최종 출력을 만드는 입력과 출력이 포함된 콘볼루션 레이어입니다.
 
 ```python
 from keras.layers import Input, Activation, Add
@@ -83,8 +112,8 @@ n_blocks_gen = 9
 
 
 def generator_model():
-    """Build generator architecture."""
-    # Current version : ResNet block
+    """생성자 구조를 생성합니다."""
+    # 현재 버전 : ResNet 블럭
     inputs = Input(shape=image_shape)
 
     x = ReflectionPadding2D((3, 3))(inputs)
@@ -92,7 +121,7 @@ def generator_model():
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
 
-    # Increase filter number
+    # 필터 수를 증가시킵니다.
     n_downsampling = 2
     for i in range(n_downsampling):
         mult = 2**i
@@ -100,12 +129,12 @@ def generator_model():
         x = BatchNormalization()(x)
         x = Activation('relu')(x)
 
-    # Apply 9 ResNet blocks
+    # 9개의 ResNet 블럭을 적용시킵니다.
     mult = 2**n_downsampling
     for i in range(n_blocks_gen):
         x = res_block(x, ngf*mult, use_dropout=True)
 
-    # Decrease filter number to 3 (RGB)
+    # 필터 수를 3(RGB)로 줄입니다.
     for i in range(n_downsampling):
         mult = 2**(n_downsampling - i)
         x = Conv2DTranspose(filters=int(ngf * mult / 2), kernel_size=(3,3), strides=2, padding='same')(x)
@@ -116,7 +145,7 @@ def generator_model():
     x = Conv2D(filters=output_nc, kernel_size=(7,7), padding='valid')(x)
     x = Activation('tanh')(x)
 
-    # Add direct connection from input to output and recenter to [-1, 1]
+    # 입력에서 출력으로 직접 연결되도록 하고 [-1, 1]로 중심을 바꿉니다.
     outputs = Add()([x, inputs])
     outputs = Lambda(lambda z: z/2)(outputs)
 
@@ -124,6 +153,10 @@ def generator_model():
     return model
 ```
 > 위 코드는 [generator.py](https://gist.github.com/RaphaelMeudec/39b85509f9d8f41caffaf83525adced8#file-generator-py)에서 보실 수 있으십니다.
+
+계획대로, 9개의 ResNet 블럭들은 입력 이미지의 업샘플링된 버전에 적용됩니다. 입력 부위에서 출력까지 레이어들을 연결시켜주고 정규화된 출력이 되도록 2로 나눠줍니다.
+
+이제까지 생성자에 대해 다뤘습니다. 이제 식별자의 구조를 확인해 보겠습니다.
 
 #### 식별자
 ```python
