@@ -159,6 +159,9 @@ def generator_model():
 이제까지 생성자에 대해 다뤘습니다. 이제 식별자의 구조를 확인해 보겠습니다.
 
 #### 식별자
+
+식별자의 목표는 입력 이미지가 인위적으로 생성되었는지 확인하는 것입니다. 그러므로, 식별자의 구조는 컨볼루션이고 단일값으로 출력됩니다.
+
 ```python
 from keras.layers import Input
 from keras.layers.advanced_activations import LeakyReLU
@@ -173,7 +176,7 @@ input_shape_discriminator = (256, 256, output_nc)
 
 
 def discriminator_model():
-    """Build discriminator architecture."""
+    """식별자 구조를 생성합니다."""
     n_layers, use_sigmoid = 3, False
     inputs = Input(shape=input_shape_discriminator)
 
@@ -205,6 +208,8 @@ def discriminator_model():
 ```
 > 위 코드는 [discriminator.py](https://gist.github.com/RaphaelMeudec/d1a37d2543c3b223cf16643b5bd06cc2#file-discriminator-py)에서 보실 수 있으십니다.
 
+마지막 단계는 전체 모델을 생생해 줍니다. 이번 GAN의 특징은 입력값이 실제 이미지이고 노이즈가 아닌 점입니다. 그러므로, 우리는 생성자의 출력값에 대한 직접적인 피드백을 갖습니다.
+
 ```python
 from keras.layers import Input
 from keras.models import Model
@@ -218,9 +223,15 @@ def generator_containing_discriminator_multiple_outputs(generator, discriminator
 ```
 > 위 코드는 [gan.py](https://gist.github.com/RaphaelMeudec/15d1dde98739a2a22fd6bb2c4de5d17b#file-gan-py)에서 보실 수 있으십니다.
 
+어떻게 두 손실값을 이용해 이 특징들을 최대한 활용하는지 봅시다.
+
 ### 학습
 
-#### 손실들
+#### 손실값들
+
+생성자의 마지막과 전체 모델의 마지막, 두 단계에서 손실값들을 추출합니다.
+
+첫번째 손실값은 생성자의 출력값에 대해 직접적으로 계산된 판단 손실값(perceptual loss)입니다. 이 손실값은 GAN 모델이 흐릿한 작업에 초점을 맞춰져 있습니다. 이는 VGG16의 첫번째 컨볼루션의 결과와 비교합니다.
 
 ```python
 import keras.backend as K
@@ -236,6 +247,8 @@ def perceptual_loss(y_true, y_pred):
     return K.mean(K.square(loss_model(y_true) - loss_model(y_pred)))
 ```
 > 위 코드는 [perceptual_loss.py](https://gist.github.com/RaphaelMeudec/18c560ff875cfbe32cc0ff38d3374f1b#file-perceptual_loss-py)에서 보실 수 있으십니다.
+
+두번째 손실값은 전체 모델의 출력값에 대해 수행되는 와서슈타인 손실값(wasserstein loss)입니다. 이는 두 이미지간의 차이의 평균을 가져옵니다. GAN의 컨버전스(convergence)를 개선시킨 것으로도 알려져 있습니다.
 
 ```python
 import keras.backend as K
@@ -314,6 +327,22 @@ for epoch in range(epoch_num):
 #### 작업 환경
 
 ### 이미지 흐림 제거 결과
+![street_1](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_4.png)
+왼쪽부터 오른쪽으로 : 원본, 흐린 이미지, GAN 출력값
+
+
+![street_2](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_5.png)
+왼쪽 : GOPRO 테스트 이미지, 오른쪽 : GAN 출력값
+
+
+![street_3](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_6.png)
+왼쪽 : GOPRO 테스트 이미지, 오른쪽 : GAN 출력값
+
+
+![street_4](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_7.png)
+왼쪽 : GOPRO 테스트 이미지, 오른쪽 : GAN 출력값
+
+
 
 ### 참고문서
 * [NIPS 2016 : 생성적 적대적 신경망](https://channel9.msdn.com/Events/Neural-Information-Processing-Systems-Conference/Neural-Information-Processing-Systems-Conference-NIPS-2016/Generative-Adversarial-Networks) by 이안 굿펠로우
