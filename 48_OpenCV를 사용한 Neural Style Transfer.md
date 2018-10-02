@@ -22,7 +22,7 @@
 
 이 튜토리얼을 따라가다보면 마지막에 Neural Style Transfer 알고리즘을 당신의 이미지와 비디오 스트림에 어떻게 적용하는지 알 수 있을 것입니다.
 
-[Nueral Style Transfer with OpenCV 데모 영상](https://youtu.be/DRpydtvjGdE)
+[Neural Style Transfer with OpenCV 데모 영상](https://youtu.be/DRpydtvjGdE)
 
 > 위 데모 영상은 이 튜토리얼에서 우리가 어떤 것을 배우게 되었는지에 대해 잘 보여주는 영상입니다. 한 번 보시는 것을 추천합니다!
 
