@@ -16,7 +16,7 @@ Neural style transfer는 컨텐츠 이미지, 스타일 참조용 이미지(마�
 라는 작품과 거북이 이미지가 있습니다.:
 
 ![Image of Green Sea Turtle and The Great Wave Off Kanagawa](media/15_1.png)
-녹색 바다 거북이 (P. Lindgren, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Green_Sea_Turtle_grazing_seagrass.jpg)) 
+녹색 바다 거북이 (P. Lindgren, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Green_Sea_Turtle_grazing_seagrass.jpg))
 
 Hokusai 이미지에서 파도의 질감과 스타일을 거북이 이미지에 추가한다면 어떻게 보일까요? 마치 이것처럼 보일까요?
 
@@ -27,20 +27,20 @@ Hokusai 이미지에서 파도의 질감과 스타일을 거북이 이미지에 
 neural style transfer의 원리는 2가지 다른 함수를 정의하는 것으로 하나는 **어떻게 두 이미지의 컨텐츠가 차이나는지 설명**하고(Lcontent), 다른 하나는 **두 이미지의 스타일의 차이를 설명**합니다(Lstyle). 그런 다음, 3가지 이미지(원하는 스타일 이미지, 원하는 콘텐츠 이미지, 입력 이미지(콘텐츠 이미지로 초기화된)를 줌으로써 입력 이미지를 변환해 콘텐츠 이미지와 스타일의 차이를 최소화 합니다.
 
 요약하자면, 기본 입력 이미지, 일치시키고 싶은 컨텐츠 이미지와 스타일 이미지를 선택합니다. 컨텐츠와 스타일간 차이를 역전파(backpropagation)로 최소화함으로써 기본 입력 이미지를 변환 합니다. 다시말해, 컨텐츠 이미지의 컨텐츠와 스타일 이미지의 스타일과 일치하는 이미지를 생성합니다.
-  
 
-#### 습득하게 될 특정 개념들 : 
+
+#### 습득하게 될 특정 개념들 :
 튜로리얼 중에서, 실전 경험을 쌓고 하단의 개념들에 대한 직관력이 생길 것입니다.
 
 - **Eager Execution** : 작업을 즉시 평가하는 텐서플로우의 필수 프로그래밍 환경을 사용
 - [Eager execution](https://www.tensorflow.org/guide/eager)에 대해 자세히 알아보기.
 - [실제로 해보기](https://www.tensorflow.org/tutorials) ([Colaboratory](http://colab.research.google.com/)에서 대부분의 튜토리얼을 진행할 수 있습니다)
-- **model 정의를 위한 [실용 API](https://keras.io/getting-started/functional-api-guide/)를 사용** : 실용 API를 사용해 필요한 중간 활성화에 접근할 수 있도록 model 일부를 구성합니다. 
+- **model 정의를 위한 [실용 API](https://keras.io/getting-started/functional-api-guide/)를 사용** : 실용 API를 사용해 필요한 중간 활성화에 접근할 수 있도록 model 일부를 구성합니다.
 - **선행학습한 model의 특징 맵 활용** : 선행학습한 model과 해당 특징 맵을 사용하는 방법을 배웁니다.
 - **맞춤형 학습 루프를 생성** : 입력 매개변수에 대해 주어진 손실을 최소화하기 위해 최적화 도구를 어떻게 설정할지 알아봅니다.
 
 
-#### Style fransfer를 수행하는 일반적인 과정 : 
+#### Style fransfer를 수행하는 일반적인 과정 :
 
 1. 데이터 시각화
 2. 데이터에 대한 기본 선행 처리/준비
@@ -65,8 +65,8 @@ neural style transfer의 원리는 2가지 다른 함수를 정의하는 것으�
 ```python
   tf.enable_eager_execution()
   print("Eager execution: {}".format(tf.executing_eagerly()))
- 
-  Here are the content and style images we will use: 
+
+  Here are the content and style images we will use:
   plt.figure(figsize=(10,10))
 
   content = load_img(content_path).astype('uint8')
@@ -92,19 +92,19 @@ neural style transfer의 원리는 2가지 다른 함수를 정의하는 것으�
 
 **왜 중간 레이어인가?**
 
-학습된 이미지 분류 신경망의 중간 레이어 출력값들이 스타일과 컨텐츠 표현을 정의하도록 하는지 궁금할 겁니다. 높은 단계에서, 이 현상은 신경망이 (신경망이 학습해온)이미지 분류를 하기 위해서는 반드시 이미지를 이해해야 하는 사실로 설명될 수 있습니다. 이는 원본 이미지를 입력 픽셀(pixel)로 사용하고 원본 이미지 픽셀을 이미지 내 피쳐들의 복잡한 이해형태로 변형하는 방식으로 내부 표현을 설계합니다. 이는 CNN(convolution neural network)가 얼마자 잘 일반화될 수 있는 이유이기도 합니다. CNN은 배경이나 다른 노이즈들에 영향을 받지 않는 클래스 내에 존재하는 불변성(invariances)을 포착하고 피쳐들을 정의할 수 있습니다. 그러므로, 원본 이미지가 입력되고 분류 레이블(label)이 출력되는 구간 어딘가에서 model은 복잡한 피쳐 추출기로서 작동합니다. 따라서 중간 레이어에 접근함으로써 입력 이미지의 컨텐츠와 스타일을 설명할 수 있습니다.
+학습된 이미지 분류 신경망의 중간 레이어 출력값들이 스타일과 컨텐츠 표현을 정의하도록 하는지 궁금할 겁니다. 높은 단계에서, 이 현상은 신경망이 (신경망이 학습해온)이미지 분류를 하기 위해서는 반드시 이미지를 이해해야 하는 사실로 설명될 수 있습니다. 이는 원본 이미지를 입력 픽셀(pixel)로 사용하고 원본 이미지 픽셀을 이미지 내 피쳐들의 복잡한 이해형태로 변형하는 방식으로 내부 표현을 설계합니다. 이는 CNN(convolution neural network)이 얼마나 잘 일반화될 수 있는지에 대한 이유이기도 합니다. CNN은 배경이나 다른 노이즈들에 영향을 받지 않는 클래스 내에 존재하는 불변성(invariances)을 포착하고 피쳐들을 정의할 수 있습니다. 그러므로, 원본 이미지가 입력되고 분류 레이블(label)이 출력되는 구간 어딘가에서 model은 복잡한 피쳐 추출기로서 작동합니다. 따라서 중간 레이어에 접근함으로써 입력 이미지의 컨텐츠와 스타일을 설명할 수 있습니다.
 
 특히 신경망에서 다음과 같은 중간 레이어를 추출합니다.
 
 ```python
   # 피쳐맵을 추출하려는 컨텐츠 레이어
-  content_layers = ['block5_conv2'] 
+  content_layers = ['block5_conv2']
 
   # 관심있는 스타일 레이어들
   style_layers = ['block1_conv1',
                   'block2_conv1',
-                  'block3_conv1', 
-                  'block4_conv1', 
+                  'block3_conv1',
+                  'block4_conv1',
                   'block5_conv1'
                   ]
 
@@ -126,12 +126,12 @@ neural style transfer의 원리는 2가지 다른 함수를 정의하는 것으�
 ```python
 def get_model():
   """ 중간 레이어에 접근할 수 있는 모델을 생성
-  
+
     이 함수는 VGG19를 로드하고 중간 레이어에 접근할 수 있습니다.
     이런 레이어들을 사용해 입력 이미지를 가져오고 VGG 모델의 중간 레이어에서 출력값을 반환하는 새로운 model을 만듭니다.
-  
+
   반환 :
-    이미지 입력값과 스타일과 컨텐츠 중간 레이어의 결과값을 이용하는 케라스 model을 반환합니다. 
+    이미지 입력값과 스타일과 컨텐츠 중간 레이어의 결과값을 이용하는 케라스 model을 반환합니다.
 
   """
   # `imagenet`으로 미리 학습된 VGG모델을 로드합니다.
@@ -170,6 +170,43 @@ def get_model():
 > [content_loss.py](https://gist.github.com/raymond-yuan/bfa389a77341b4f643c8e0ac8a21b6e1#file-content_loss-py)를 통해 확인할 수 있습니다.
 
 **스타일 손실관련 :**
+
+컴퓨팅 스타일 손실은 약간 더 어렵지만, 동일한 원칙을 따릅니다. 이번에는 네트워크에 기본 입력 이미지와 스타일 이미지를 입력으로 사용합니다. 그러나 기본 입력 이미지와 스타일 이미지의 중간 출력을 비교하는 대신, 두 출력의 Gram 매트릭스를 비교합니다.
+
+수학적으로, 기본 입력 이미지 x 와 스타일 이미지 a 의 스타일 손실을 스타일 표현(Gram 매트릭스) 사이의 거리로 설명합니다. 또한 우리는 이미지의 스타일 표현을, 다른 필터를 거친 이미지의 결과값의 상관관계(correlation) 이라고 설명합니다.
+Gram 매트릭스를 Gˡ 로 표현하고, Gˡᵢⱼ 는 l 번째 레이어에서 피쳐맵 i, j 의 내적입니다.
+
+기본 입력 이미지를 위한 스타일을 생성하려면, 컨텐츠 이미지에서 기울기 하강(Gradient Descent)을 수행하여 원래 이미지의 스타일 표현과 일치하는 이미지로 변환합니다. 스타일 이미지의 피쳐 상관관계(correlation) 맵과 입력 이미지 사이의 평균 제곱 거리(MSE)를 최소화함으로써 이 작업을 수행합니다. 총 스타일 손실에 대한 각 계층의 기여는 아래와 같습니다.
+
+![레이어 스타일 손실 함수](media/15_11.png)
+
+여기서 Gˡᵢⱼ 와 Aˡᵢⱼ 는 각각 l 계층의 입력 이미지 x 의 스타일 이미지 a 의 스타일을 나타냅니다. Nl 은 피쳐맵의 수를 설명하며, 각 크기는 Ml=height∗width 입니다. 그러므로, 모든 계층에서의 총 스타일 손실은 아래와 같습니다.
+
+![총 스타일 손실 함수](media/15_12.png)
+
+여기서 우리는 wl 로 부터 각 층의 손실에 대한 기여도를 어느 정도 가늠할 수 있습니다. 우리의 경우, 각 레이어의 weight 를 동일하게 설정할 것입니다.
+
+![총 스타일 손실 함수](media/15_13.png)
+
+스타일 손실을 구하는 코드는 아래와 같습니다.
+
+```python
+def gram_matrix(input_tensor):
+  # We make the image channels first
+  channels = int(input_tensor.shape[-1])
+  a = tf.reshape(input_tensor, [-1, channels])
+  n = tf.shape(a)[0]
+  gram = tf.matmul(a, a, transpose_a=True)
+  return gram / tf.cast(n, tf.float32)
+
+def get_style_loss(base_style, gram_target):
+  """Expects two images of dimension h, w, c"""
+  # height, width, num filters of each layer
+  height, width, channels = base_style.get_shape().as_list()
+  gram_style = gram_matrix(base_style)
+
+  return tf.reduce_mean(tf.square(gram_style - gram_target))
+```
 
 #### 기울기 하강(Gradient Descent) 실행
 
