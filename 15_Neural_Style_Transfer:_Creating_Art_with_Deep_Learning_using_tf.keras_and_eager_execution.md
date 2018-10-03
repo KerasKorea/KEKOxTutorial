@@ -159,7 +159,7 @@ def get_model():
 
 ![콘텐츠 손실 함수](media/15_10.png)
 
-이러한 콘텐츠 손실을 최소화하기 위해 일반 방식으로 역전파(backpropagation)을 수행합니다. 따라서 특정 레이어(content_layer에 정의된)에서 원본 컨텐츠 이미지로 유사한 반응을 생성할 때까지 초기 이미지를 변화시킵니다.
+이러한 콘텐츠 손실을 최소화하기 위해 일반 방식으로 역전파(backpropagation)를 수행합니다. 따라서 특정 레이어(content_layer에 정의된)에서 원본 컨텐츠 이미지로 유사한 반응을 생성할 때까지 초기 이미지를 변화시킵니다.
 
 이건 꽤나 단순하게 구현될 수 있습니다. 다시 말해, 입력 이미지인 x와 컨텐츠 이미지인 p를 전달받는 신경망의 L 레이어에서 피쳐 맵을 입력으로 받도록하고 콘텐츠 거리(손실)을 반환합니다.
 
@@ -210,24 +210,242 @@ def get_style_loss(base_style, gram_target):
 
 #### 기울기 하강(Gradient Descent) 실행
 
+기울기 하강/역전파(backpropagation)가 익숙하지 않거나 재교육이 필요한 경우 이 [리소스](https://developers.google.com/machine-learning/crash-course/reducing-loss/gradient-descent)를 확실히 확인해주세요.
+
+우리는 손실을 최소화하기 위해서 Adam Optimizer를 사용할 것입니다. 우리는 손실을 최소화하도록 반복적으로 출력 이미지를 업데이트할 것입니다. 우리는 네트워크와 관련된 가중치를 업데이트하지 않고, 대신 손실을 최소화하기 위해 입력 이미지를 훈련시킵니다. 이를 위해서는 손실과 기울기를 어떻게 계산해야 하는지 알아야 합니다. L-BFGS 최적화 도구를 사용하는 것이 좋습니다. 이 알고리즘에 익숙하다면 사용하는 것을 추천하지만 이 튜토리얼에서 사용하지 않을 것 입니다. 이 튜토리얼의 주된 동기는 eager execution 으로 모범 사례를 설명하는 것이기 때문입니다. Adam을 사용하면 맞춤식 교육 루프를 통해 Autograd/gradient tape 기능을 시연할 수 있기 때문에 Adam Optimizer 를 사용할 것입니다.
+
 #### 손실과 기울기 계산하기
 
+컨텐츠 및 스타일 이미지를 로드하는 기능을 할 작은 함수를 정의하여 네트워크에 이미지들을 입력으로 주고, 우리의 모델에서 컨텐츠 및 스타일 피쳐 표현을 출력할 것입니다.
+
+```python
+def get_feature_representations(model, content_path, style_path):
+  """Helper 함수 : 콘텐츠 이미지와 스타일 이미지의 피쳐를 계산합니다.
+
+  이 함수는 path에 존재하는 콘텐츠 이미지와 스타일 이미지를 로드하고 전처리 합니다. 그것을 네트워크의 입력으로 주고, 중간 레이어의 출력(피쳐맵)을 얻습니다.
+
+  Arguments:
+    model: 우리가 사용할 모델
+    content_path: 콘텐츠 이미지의 path
+    style_path: 스타일 이미지의 path
+
+  Returns:
+    스타일 이미지와 콘텐츠 이미지의 피쳐맵을 리턴합니다.
+  """
+  # 이미지를 로드합니다
+  content_image = load_and_process_img(content_path)
+  style_image = load_and_process_img(style_path)
+
+  # 콘텐츠 이미지와 스타일 이미지의 배치(batch)를 계산합니다.
+  stack_images = np.concatenate([style_image, content_image], axis=0)
+  model_outputs = model(stack_images)
+
+  # 우리가 사용할 모델로부터 스타일 이미지와 콘텐츠 이미지의 피쳐맵을 얻습니다.
+  style_features = [style_layer[0] for style_layer in model_outputs[:num_style_layers]]
+  content_features = [content_layer[1] for content_layer in model_outputs[num_style_layers:]]
+  return style_features, content_features
+```
+
+여기서 우리는 tf.GradientTape 를 사용하여 기울기를 계산합니다. 추후 기울기 계산을 위한 추적 작업을 통해 이용 가능한 자동 기울기 하강 계산을 할 수 있습니다. tf.GradientTape forward pass 를 하는 동안 연산을 기록하기 때문  backwards pass 를 위해 우리의 입력 이미지와 관련하여 손실 함수의 기울기를 계산할 수 있습니다.
+
+```python
+def compute_loss(model, loss_weights, init_image, gram_style_features, content_features):
+  """이 함수는 손실을 계산합니다.
+
+  Arguments:
+    model: 중간 레이어에 대한 접근을 하는 모델
+    loss_weights: 각 손실 함수에 대한 가중치(weight) - (style weight, content weight, and total variation weight)
+    init_image: 기본 이미지. 이 이미지는 최적화 프로세스를 통해 업데이트 됩니다. 우리는 우리가 계산하고 있는 손실에 대한 기울기들을 이 이미지에 적용합니다.
+    gram_style_features: 스타일 이미지의 미리 계산된 그램 매트릭스 입니다.
+    content_features: 콘텐츠 이미지의 미리 계산된 그램 매트릭스 입니다.
+
+  Returns:
+    total 손실, 스타일 손실, 콘텐츠 손실, total variational loss 을 리턴합니다.
+  """
+  style_weight, content_weight, total_variation_weight = loss_weights
+
+  # 우리의 모델에 스타일 표현과 콘텐츠 이미지를 입력으로 줍니다.
+  # 우리의 모델은 다른 함수처럼 부를 수 있습니다!
+  model_outputs = model(init_image)
+
+  style_output_features = model_outputs[:num_style_layers]
+  content_output_features = model_outputs[num_style_layers:]
+
+  style_score = 0
+  content_score = 0
+
+  # 모든 계층에서 스타일 손실을 누적합니다.
+  # 여기서, 우리는 위에서 설명한 것과 같이 모든 레이어에 대한 같은 가중치(weight)를 사용합니다.
+  weight_per_style_layer = 1.0 / float(num_style_layers)
+  for target_style, comb_style in zip(gram_style_features, style_output_features):
+    style_score += weight_per_style_layer * get_style_loss(comb_style[0], target_style)
+
+  # 모든 계층에서 콘텐츠 손실을 누적합니다.
+  weight_per_content_layer = 1.0 / float(num_content_layers)
+  for target_content, comb_content in zip(content_features, content_output_features):
+    content_score += weight_per_content_layer* get_content_loss(comb_content[0], target_content)
+
+  style_score *= style_weight
+  content_score *= content_weight
+  total_variation_score = total_variation_weight * total_variation_loss(init_image)
+
+  # total 손실을 얻습니다.
+  loss = style_score + content_score + total_variation_score
+  return loss, style_score, content_score, total_variation_score
+```
+
+그 다음에 기울기를 계산하는 것은 아주 쉽습니다:
+
+```python
+def compute_grads(cfg):
+  with tf.GradientTape() as tape:
+    all_loss = compute_loss(**cfg)
+  # 입력 이미지에 대한 기울기 계산
+  total_loss = all_loss[0]
+  return tape.gradient(total_loss, cfg['init_image']), all_loss
+```
+
 #### Style fransfer 절차를 실행, 적용
+
+그리고 style transfer 를 수행합니다:
+
+```python
+def run_style_transfer(content_path,
+                       style_path,
+                       num_iterations=1000,
+                       content_weight=1e3,
+                       style_weight = 1e-2):
+  display_num = 100
+  # 우리는 우리가 사용하는 모델을 학습시킬 필요가 없기 때문에
+  # layer.trainable 을 False 로 지정합니다.
+  model = get_model()
+  for layer in model.layers:
+    layer.trainable = False
+
+  # 중간 레이어로부터 스타일 피쳐와 콘텐츠 피쳐에 대한 표현을 얻습니다.
+  style_features, content_features = get_feature_representations(model, content_path, style_path)
+  gram_style_features = [gram_matrix(style_feature) for style_feature in style_features]
+
+  # 초기 이미지를 세팅합니다.
+  init_image = load_and_process_img(content_path)
+  init_image = tfe.Variable(init_image, dtype=tf.float32)
+  # Optimizer 를 설정합니다.
+  opt = tf.train.AdamOptimizer(learning_rate=10.0)
+
+  # style transfer 과정에서 이미지를 보여주기 위한 변수
+  iter_count = 1
+
+  # 우리의 결과 중 가장 좋은 결과를 저장하기 위한 변수
+  best_loss, best_img = float('inf'), None
+
+  # config 를 설정합니다.
+  loss_weights = (style_weight, content_weight)
+  cfg = {
+      'model': model,
+      'loss_weights': loss_weights,
+      'init_image': init_image,
+      'gram_style_features': gram_style_features,
+      'content_features': content_features
+  }
+
+  # 이미지 보여주기
+  plt.figure(figsize=(15, 15))
+  num_rows = (num_iterations / display_num) // 5
+  start_time = time.time()
+  global_start = time.time()
+
+  norm_means = np.array([103.939, 116.779, 123.68])
+  min_vals = -norm_means
+  max_vals = 255 - norm_means   
+  for i in range(num_iterations):
+    grads, all_loss = compute_grads(cfg)
+    loss, style_score, content_score = all_loss
+    # grads, _ = tf.clip_by_global_norm(grads, 5.0)
+    opt.apply_gradients([(grads, init_image)])
+    clipped = tf.clip_by_value(init_image, min_vals, max_vals)
+    init_image.assign(clipped)
+    end_time = time.time()
+
+    if loss < best_loss:
+      # 결과가 좋은 손실 값과 이미지로 업데이트 합니다.
+      best_loss = loss
+      best_img = init_image.numpy()
+
+      if i % display_num == 0:
+        print('Iteration: {}'.format(i))        
+        print('Total loss: {:.4e}, '
+              'style loss: {:.4e}, '
+              'content loss: {:.4e}, '
+              'time: {:.4f}s'.format(loss, style_score, content_score, time.time() - start_time))
+        start_time = time.time()
+
+        # style transfer 과정의 이미지를 보여줍니다.
+        if iter_count > num_rows * 5: continue
+        plt.subplot(num_rows, 5, iter_count)
+        # numpy 상수 배열을 사용하기 위해 .numpy() 함수를 사용합니다.
+        plot_img = init_image.numpy()
+        plot_img = deprocess_img(plot_img)
+        plt.imshow(plot_img)
+        plt.title('Iteration {}'.format(i + 1))
+
+        iter_count += 1
+    print('Total time: {:.4f}s'.format(time.time() - global_start))
+
+    return best_img, best_loss
+```
+
+And that’s it!
+이게 전부입니다!
+
+이제는 거북이 이미지와 Hokusai 의 Greate Wave off Kanagawa 라는 작품에 style transfer 를 해봅시다:
+
+```python
+best, best_loss = run_style_transfer(content_path,
+                                     style_path,
+                                     verbose=True,
+                                     show_intermediates=True)
+```                                  
 
 ![학습 과정 간의 변화](media/15_4.png)
 
 ![신경 스타일 결과물](media/15_5.png)
 
+시간의 흐름에 따른 style transfer 과정의 학습 결과 사진들을 확인해보세요:
+
 ![변화 과정](media/15_6.gif)
+
+여기에 다른 이미지들에 대한 neural style transfer 에 대한 예제들이 존재합니다. 확인해보세요!
 
 ![고흐 스타일 적용](media/15_7.png)
 ![칸딘스키 스타일 적용](media/15_8.png)
 ![허블 적용](media/15_9.png)
 
+이제는 당신이 원하는 이미지로 style transfer 를 실험해보세요!
+
 ### 주요 요점들
 
-#### (이 글에서) 얻을 수 있는 것은:
+* 우리는 여러 가지 다른 손실 함수를 구축하고, 이러한 손실을 최소화하고 입력 이미지를 변환하기 위해 역전파(backpropagation)를 사용했습니다.
 
+* 이를 위해 **미리 학습된 모델(pretrained model)** 을 로드하고 이미지의 내용과 스타일을 설명하는 학습된 피쳐 맵을 사용했습니다.
+
+* 우리의 주된 손실 기능은 주로 이러한 다른 표현의 관점에서 거리를 계산하는 것이었습니다.
+
+* 우리는 style transfer 를 위해 맞춤형 모델과 **eager excution** 을 사용하였습니다.
+
+* 우리는 우리의 맞춤형 모델을 functional API로 만들었습니다.
+
+* Eager execution 은 natural 파이썬을 통해 tensors 를 동적으로 실행할 수 있게 해주었습니다.
+
+* 우리는 tensors 를 직접 조작하여 tensors 를 쉽게 디버깅하고 작업할 수 있었습니다.
+
+우리는 tf.radient를 사용하여 optimizers 업데이트 규칙을 적용하여 반복적으로 우리의 이미지를 업데이트 했습니다. Optimizers 는 우리의 입력 이미지와 관련하여 주어진 손실을 최소화해주었습니다.
+#### (이 글에서) 얻을 수 있는 것은:
 
 ### 참고문서
 * [A Neural Algorithm of Artistic Style](https://arxiv.org/abs/1508.06576)
+
+> 이 글은 2018 컨트리뷰톤에서 Contribute to Keras 프로젝트로 진행했습니다.
+>
+> Translator: 송문혁, 박정현
+>
+> Translator email : firefinger07@gmail.com, parkjh688@gmail.com
