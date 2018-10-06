@@ -221,6 +221,40 @@ autoencoder = Model(input_img, decoded)
 
 
 
+## Deep autoencoder
+
+이제 더이상 인코더나 디코더 같은 단일 layer에 제한을 가질 필요가 없습니다. 이제 다음과 같은 layer의 스택을 사용합시다. 
+
+```python
+input_img = Input(shape=(784,))
+encoded = Dense(128, activation='relu')(input_img)
+encoded = Dense(64, activation='relu')(encoded)
+encoded = Dense(32, activation='relu')(encoded)
+
+decoded = Dense(64, activation='relu')(encoded)
+decoded = Dense(128, activation='relu')(decoded)
+decoded = Dense(784, activation='sigmoid')(decoded)
+```
+
+다음과 같이 시도해보세요:
+
+```python
+autoencoder = Model(input_img, decoded)
+autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
+
+autoencoder.fit(x_train, x_train,
+                epochs=100,
+                batch_size=256,
+                shuffle=True,
+                validation_data=(x_test, x_test))
+```
+
+100세대(epochs) 이후, train/test loss는 ~0.097까지 도달합니다. 이전 모델보다 조금 더 나아졌죠. 재구성된 숫자 또한 더 나아보입니다. 
+
+<img src="https://blog.keras.io/img/ae/deep_ae_32.png">
+
+
+
 [1]: dfdfd
 
 [2]: dfd
