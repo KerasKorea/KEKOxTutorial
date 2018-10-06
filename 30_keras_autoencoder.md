@@ -255,6 +255,129 @@ autoencoder.fit(x_train, x_train,
 
 
 
+## Convolutional autoencoder
+
+우리가 사용하는 입력은 이미지이기 때문에, convolutional neural networks(convnet)을 인코더/디코더로 사용하는 것이 가능합니다. 실제로, 이미지에 적용되는 오토인코더는 항상 convolutional autoencoder입니다. 왜냐하면 성능이 더 좋기 때문이죠. 
+
+
+
+한 번 구현해 봅시다. 인코더는 Conv2D와 MaxPooling2D layer의 층으로 구성되고, 디코더는 Conv2D와 UpSampling2D layer의 층으로 구성됩니다. 
+
+```python
+from keras.layers import Input, Dense, Conv2D, MaxPooling2D, UpSampling2D
+from keras.models import Model
+from keras import backend as K
+
+input_img = Input(shape=(28, 28, 1))  # adapt this if using `channels_first` image data format
+
+x = Conv2D(16, (3, 3), activation='relu', padding='same')(input_img)
+x = MaxPooling2D((2, 2), padding='same')(x)
+x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
+x = MaxPooling2D((2, 2), padding='same')(x)
+x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
+encoded = MaxPooling2D((2, 2), padding='same')(x)
+
+# at this point the representation is (4, 4, 8) i.e. 128-dimensional
+
+x = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
+x = UpSampling2D((2, 2))(x)
+x = Conv2D(8, (3, 3), activation='relu', padding='same')(x)
+x = UpSampling2D((2, 2))(x)
+x = Conv2D(16, (3, 3), activation='relu')(x)
+x = UpSampling2D((2, 2))(x)
+decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(x)
+
+autoencoder = Model(input_img, decoded)
+autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
+```
+
+훈련을 위해서, 원본 MNIST 숫자의 shape (samples, 3, 28, 28)을 사용하고, 픽셀 값만 0~1로 정규화하도록 하겠습니다. 
+
+```python
+from keras.datasets import mnist
+import numpy as np
+
+(x_train, _), (x_test, _) = mnist.load_data()
+
+x_train = x_train.astype('float32') / 255.
+x_test = x_test.astype('float32') / 255.
+x_train = np.reshape(x_train, (len(x_train), 28, 28, 1))  # adapt this if using `channels_first` image data format
+x_test = np.reshape(x_test, (len(x_test), 28, 28, 1))  # adapt this if using `channels_first` image data format
+```
+
+50세대(epochs) 동안 훈련시키죠. 모델 훈련 과정을 시각화하여 설명하기 위해, Tensorflow 백엔드와 TensworBoard 콜백을 사용할 것입니다. 
+
+
+
+먼저, 터미널을 열고 /tmp/autoencoder에 저장된 로그를 읽는 서버인 TensorBoard를 시작합시다. 
+
+```bash
+tensorboard --logdir=/tmp/autoencoder
+```
+
+이제 모델을 훈련시킵시다. callback 리스트에서 TensorBoard callboack 인스턴스를 전달합니다. 매 세대(epoch) 이후, 이 콜백은 TensorBoard 서버에서 읽을 수 있는 /tmp/autoencoder에 로그를 씁니다. 
+
+```python
+from keras.callbacks import TensorBoard
+
+autoencoder.fit(x_train, x_train,
+                epochs=50,
+                batch_size=128,
+                shuffle=True,
+                validation_data=(x_test, x_test),
+                callbacks=[TensorBoard(log_dir='/tmp/autoencoder')])
+```
+
+TensorBoard 웹 인터페이스(http://0.0.0.0:6006)에서 훈련 과정을 모니터링할 수 있습니다. 
+
+<img src="https://blog.keras.io/img/ae/tb_curves.png">
+
+이 모델은 0.094의 손실 값으로 수렴합니다. 이는 명백히 이전 모델보다 나아졌지요(this is in large part due to the higher entropic capacity of the encoded representation, 128 dimensions vs. 32 previously). 재구성된 숫자를 한 번 봅시다. 
+
+```python
+decoded_imgs = autoencoder.predict(x_test)
+
+n = 10
+plt.figure(figsize=(20, 4))
+for i in range(n):
+    # display original
+    ax = plt.subplot(2, n, i)
+    plt.imshow(x_test[i].reshape(28, 28))
+    plt.gray()
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+
+    # display reconstruction
+    ax = plt.subplot(2, n, i + n)
+    plt.imshow(decoded_imgs[i].reshape(28, 28))
+    plt.gray()
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+plt.show()
+```
+
+<img src="https://blog.keras.io/img/ae/deep_conv_ae_128.png">
+
+또한, 128차원의 인코딩된 표현으로도 볼 수 있습니다. 이 표현은 8x4x4이기 때문에 그레이스케일 이미지에서 나타내기 위해 4x32로 reshape해야합니다. 
+
+```python
+n = 10
+plt.figure(figsize=(20, 8))
+for i in range(n):
+    ax = plt.subplot(1, n, i)
+    plt.imshow(encoded_imgs[i].reshape(4, 4 * 8).T)
+    plt.gray()
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+plt.show()
+```
+
+<img src="https://blog.keras.io/img/ae/encoded_representations.png">
+
+## Applicatoin to image denosing
+
+
+
 [1]: dfdfd
 
 [2]: dfd
