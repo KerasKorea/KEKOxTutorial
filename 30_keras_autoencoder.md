@@ -24,7 +24,7 @@ Note: 모든 예제 코드는 2017년 3월 14일에 Keras 2.0 API에 업데이�
 
 1) autoencoder는 date-specific 합니다. 오토인코더는 이제껏 훈련된 데이터와 비슷한 데이터로만 압축될 수 있습니다. 예를 들어 말하자면, 오토인코더는 MPEG-2 Audio Layer III (MP3) 압축 알고리즘과는 다릅니다. MP3 알고리즘은 일반적으로 소리에 관한 압축이지만 특정한 종류의 소리에 관한 것은 아닙니다. 얼굴 사진에 대해 학습된 오토인코더는 나무의 사진을 압축하는 데에는 좋은 성능을 내지 못하는데 그 이유는 오토인코더가 배우는 특징은 얼굴 특유의 것이기 때문입니다. 
 
-2) autoencoder는 손실이 있습니다. 즉, 압축 해제된 결과물은 원본 보다 안좋아집니다 (ex. MP3, JPEG 압축). 이는 손실없는 산술 압축과는 다릅니다. 
+2) autoencoder는 손실이 있습니다. 즉, 압축 해제된 결과물은 원본 보다 좋지 않습니다. (ex. MP3, JPEG 압축). 이는 손실없는 산술 압축과는 다릅니다. 
 
 3)  autoencoder는 예제 데이터로부터 자동적으로 학습하는데 이는 유용한 성질입니다: 데이터로부터 자동적으로 학습한다는 의미는 특정 종류의 입력값에 대해 잘 작동하는 특별한 형태의 알고리즘을 쉽게 훈련시킬 수 있다는 말입니다. 이는 새로운 공학적 방법 필요 없이 단지 데이터를 적절히 훈련시키면 됩니다. 
 
@@ -118,7 +118,7 @@ decoder = Model(encoded_input, decoder_layer(encoded_input))
 
 
 
-먼저, 픽셀 당 바이너리 크로스엔트로피 손실을 사용하도록 모델을 구성하고, Adadelta 최적화를 사용합니다. 
+먼저, 픽셀 당 바이너리 크로스엔트로피 손실을 사용하도록 모델을 구성하고, optimizer로 Adadelta를 사용합시다. 
 
 ```python
 autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
@@ -190,6 +190,36 @@ plt.show()
 아래에 결과가 있습니다. 위의 줄은 원래의 숫자이고 아랫 줄은 재구성된 숫자입니다. 지금 사용한 간단한 접근 방법으로 꽤 많은 비트 손실이 있었다는 것을 알 수 있습니다. 
 
 <img src="https://blog.keras.io/img/ae/basic_ae_32.png">
+
+
+
+## Adding a sparsity constraint on the encoded representations
+
+이전 예제에서, 표현(representation)은 은닉층의 크기(32)에만 제약을 받았습니다. 이러한 상황에서, 전형적으로 발생하는 일은 은닉층이 PCA(principal component analysis) 의 근사값을 학습한다는 것입니다. 표현을 더 간결하게 제한하는 다른 방법은 숨겨진 표현의 활동에 sparsity를 부여하는 것입니다. 이는 주어진 시간에 더 적은 유닛이 "실행"될 수 있도록 합니다. Keras에서는 activity_regularizer를 Dense layer에 추가하여 수행할 수 있습니다. 
+
+```python
+from keras import regularizers
+
+encoding_dim = 32
+
+input_img = Input(shape=(784,))
+# L1 activity regularizer를 Dense layer에 추가 
+encoded = Dense(encoding_dim, activation='relu',
+                activity_regularizer=regularizers.l1(10e-5))(input_img)
+decoded = Dense(784, activation='sigmoid')(encoded)
+
+autoencoder = Model(input_img, decoded)
+```
+
+우리 모델을 100세대(epochs) 동안 훈련시킵시다. 모델은 0.11의 train loss와 0.10의 test loss로 끝납니다. 이 둘의 차이가 발생하는 이유는 대부분 훈련 중 손실에 추가되는 정규화때문입니다. 
+
+새로운 결과를 보시죠. 
+
+<img src="https://blog.keras.io/img/ae/sparse_ae_32.png">
+
+이전 모델과 거의 비슷해보입니다. 유일한 차이라면 인코딩된 표현의 sparsity입니다. encoded_imgs.mean()은 10,000개의 테스트 이미지에서 3.33의 값을 얻었지만, 이전 모델에서는 7.30이었습니다. 따라서, 우리의 모델은 두 배 더 sparser한 인코딩 된 표현을 만들어냈습니다. 
+
+
 
 [1]: dfdfd
 
