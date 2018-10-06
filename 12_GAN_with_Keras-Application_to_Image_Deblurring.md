@@ -259,23 +259,24 @@ def wasserstein_loss(y_true, y_pred):
 > 위 코드는 [wasserstein_loss.py](https://gist.github.com/RaphaelMeudec/4fa6a6fe8fb341a1c410c5e2dad087de#file-wasserstein_loss-py)에서 보실 수 있으십니다.
 
 #### 학습 과정
+첫 번째로 데이터를 불러오고 모든 모델을 초기화합니다. 데이터를 불러오기 위해 따로 만든 함수를 사용하고 아담 최적화 함수(Adam optimazer)를 추가해 줍니다. 식별자가 학습이 되는걸 방지하기 위해 케라스내 학습 옵션을 설정해 줍니다.
 
 ```python
-# Load dataset
+# 데이터를 불러옵니다.
 data = load_images('./images/train', n_images)
 y_train, x_train = data['B'], data['A']
 
-# Initialize models
+# 모델을 초기화합니다.
 g = generator_model()
 d = discriminator_model()
 d_on_g = generator_containing_discriminator_multiple_outputs(g, d)
 
-# Initialize optimizers
+# 아담 최적화 함수를 초기화 해줍니다.
 g_opt = Adam(lr=1E-4, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
 d_opt = Adam(lr=1E-4, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
 d_on_g_opt = Adam(lr=1E-4, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
 
-# Compile models
+# 모델을 컴파일(compile)해줍니다.
 d.trainable = True
 d.compile(optimizer=d_opt, loss=wasserstein_loss)
 d.trainable = False
@@ -286,12 +287,14 @@ d.trainable = True
 ```
 > 위 코드는 [gan_training_initialization.py](https://gist.github.com/RaphaelMeudec/1c0ed2dbdef394d2ab854d63161487d9#file-gan_training_initialization-py)에서 보실 수 있으십니다.
 
+그리고, 설정한 에폭(epoch)만큼 실행하면서 데이터 세트를 나눠서 배치(batch)에 분배합니다.
+
 ```python
 for epoch in range(epoch_num):
   print('epoch: {}/{}'.format(epoch, epoch_num))
   print('batches: {}'.format(x_train.shape[0] / batch_size))
 
-  # Randomize images into batches
+  # 이미지를 임의로 섞어서 배치에 분배합니다.
   permutated_indexes = np.random.permutation(x_train.shape[0])
 
   for index in range(int(x_train.shape[0] / batch_size)):
@@ -300,6 +303,8 @@ for epoch in range(epoch_num):
       image_full_batch = y_train[batch_indexes]
 ```
 > 위 코드는 [gan_training_batches.py](https://gist.github.com/RaphaelMeudec/68b997ba5dfb3abf66f74fd67baa4e3d#file-gan_training_batches-py)에서 보실 수 있으십니다.
+
+마지막으로, 두 개의 손실 함수를 기반으로 식별자와 생성자를 성공적으로 학습시킵니다. 생성자를 통해 가짜 입력값을 생성합니다. 식별자가 진짜와 가짜를 식별하도록 훈련시키고, 전체 모델을 학습시킵니다.
 
 ```python
 for epoch in range(epoch_num):
@@ -323,28 +328,34 @@ for epoch in range(epoch_num):
 ```
 > 위 코드는 [gan_training_fit.py](https://gist.github.com/RaphaelMeudec/c9c07f61981dda4d4ff742e020b6c4ba#file-gan_training_fit-py)를 통해 보실 수 있으십니다.
 
+반복 구간의 확실한 이해를 위해 [Github](https://www.github.com/raphaelmeudec/deblur-gan)를 참조하십시오.
+
 
 #### 작업 환경
+
+본 글을 위해 Deep Learning AMI(3.0)과 같이 [AWS 인스턴스](https://aws.amazon.com/fr/ec2/instance-types/p2/)(p2.xlarge)를 사용했습니다. 학습 시간은 [GOPRO](https://drive.google.com/file/d/1H0PIXvJH4c40pk7ou6nAwoxuR4Qh_Sa2/view?usp=sharing)의 가벼운 버전에서 대략 5시간(에폭 50회)이 걸렸습니다.
 
 ### 이미지 흐림 제거 결과
 ![street_1](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_4.png)
 왼쪽부터 오른쪽으로 : 원본, 흐린 이미지, GAN 출력값
 
+위 결과는 본 글의 케라스 Deblur GAN의 결과입니다. 짙은 흐림이 있음에도 신경망이 흐린 부분을 줄이고 이미지를 좀 더 선명하게 형성했습니다. 자동차 불빛과 나뭇가지들이 선명해졌습니다.
 
 ![street_2](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_5.png)
 왼쪽 : GOPRO 테스트 이미지, 오른쪽 : GAN 출력값
 
+한계점은 손실함수로 VGG를 사용하면 나타나는 패턴으로 위 이미지 상단에 나타나는 패턴입니다.
 
 ![street_3](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_6.png)
 왼쪽 : GOPRO 테스트 이미지, 오른쪽 : GAN 출력값
 
+만약 컴퓨터 비전에 흥미가 있다면, [케라스를 사용한 컨텐츠 기반의 이미지 검색]을 한번 보십시오. 아래는 GAN관련 참조 목록입니다.
 
 ![street_4](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_7.png)
 왼쪽 : GOPRO 테스트 이미지, 오른쪽 : GAN 출력값
 
 
-
-### 참고문서
+### GAN 참고 자료
 * [NIPS 2016 : 생성적 적대적 신경망](https://channel9.msdn.com/Events/Neural-Information-Processing-Systems-Conference/Neural-Information-Processing-Systems-Conference-NIPS-2016/Generative-Adversarial-Networks) by 이안 굿펠로우
 * [ICCV 2017 : GAN 튜토리얼](https://sites.google.com/view/iccv-2017-gans/schedule)
 * [케라스를 이용해 GAN 구현](https://github.com/eriklindernoren/Keras-GAN) by [에릭 린더-노렌](http://www.eriklindernoren.se/)
@@ -352,3 +363,7 @@ for epoch in range(epoch_num):
 * [진짜 놀라운 GAN](https://github.com/nightrome/really-awesome-gan) by [호거 캐서](http://www.it-caesar.com/)
 
 저자 : 당신이 이 글(케라스로 설계한 GAN으로 이미지 흐림 제거)을 즐겼으면 합니다! 밑에 팔로우 버튼 잊지마세요!
+
+> 이 글은 2018 컨트리뷰톤에서 [`Contributue to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.  
+> Translator : [mike2ox](https://github.com/mike2ox) (Moonhyeok Song)  
+> Translator Email : <firefinger07@gmail.com>
