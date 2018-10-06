@@ -42,7 +42,7 @@ Note: 모든 예제 코드는 2017년 3월 14일에 Keras 2.0 API에 업데이�
 
 ## 오토인코더는 데이터 압축에 좋을까요?
 
-일반적으로는 그렇지 않습니다. 사진 압축에서 JPEG와 같은 기본 알고리즘보다 나은 작업을 수행하는 오토인코더를 개발하는 것은 꽤 어렵습니다. 일반적으로 JPEG와 같은 성능을 달성할 수 있는 유일한 방법은 사진을 매우 특정한 유형의 사진으로 제한하는 것입니다. 오토인코더가 data-specific 하다는 점 때문에 오토인코더는 실제 데이터 압축 문제에 적용하기에 비실용적입니다. 따라서 오토인코더는 훈련된 것과 비슷한 데이터에서만 사용될 수 있고 오토인코더를 일반적인 데이터에 대해 사용하기 위해서는 많은 훈련 데이터가 필요합니다. 하지만 미래에는 바뀔 수도 있습니다, 누가 알겠어요?
+일반적으로는 그렇지 않습니다. 사진 압축에서 JPEG와 같은 기본 알고리즘보다 나은 작업을 수행하는 오토인코더를 개발하는 것은 꽤 어렵습니다. 일반적으로 JPEG와 같은 성능을 달성할 수 있는 유일한 방법은 사진을 매우 특정한 유형의 사진으로 제한하는 것입니다. 오토인코더가 data-specific 하다는 점 때문에 오토인코더는 실제 데이터 압축 문제에 적용하기에 비실용적입니다. 따라서 오토인코더는 훈련된 것과 비슷한 데이터에서만 사용될 수 있고 오토인코더를 일반적인 데이터에 대해 사용하기 위해서는 많은 훈련 데이터가 필요합니다. 하지만 미래에는 바뀔 수도 있습니다, 모르는 일이지요.
 
 
 
@@ -374,11 +374,91 @@ plt.show()
 
 <img src="https://blog.keras.io/img/ae/encoded_representations.png">
 
-## Applicatoin to image denosing
+## Application to image denosing
+
+이제 우리의 convoultional autoencoder를 이미지 디노이징 문제에 적용해봅시다. 매우 간단합니다: 노이지(noisy)한 숫자 이미지를 클린(clean)한 숫자 이미지로 매핑하는 오토인코더를 훈련시키면 됩니다. 
+
+아래는 합성 노이즈가 있는 숫자를 생성하는 방법입니다. 가우스 노이즈 행렬을 적용하여 이미지를 0과 1사이에서 잘라내면 됩니다. 
+
+```python
+from keras.datasets import mnist
+import numpy as np
+
+(x_train, _), (x_test, _) = mnist.load_data()
+
+x_train = x_train.astype('float32') / 255.
+x_test = x_test.astype('float32') / 255.
+x_train = np.reshape(x_train, (len(x_train), 28, 28, 1))  # adapt this if using `channels_first` image data format
+x_test = np.reshape(x_test, (len(x_test), 28, 28, 1))  # adapt this if using `channels_first` image data format
+
+noise_factor = 0.5
+x_train_noisy = x_train + noise_factor * np.random.normal(loc=0.0, scale=1.0, size=x_train.shape) 
+x_test_noisy = x_test + noise_factor * np.random.normal(loc=0.0, scale=1.0, size=x_test.shape) 
+
+x_train_noisy = np.clip(x_train_noisy, 0., 1.)
+x_test_noisy = np.clip(x_test_noisy, 0., 1.)
+```
+
+노이즈가 있는 숫자는 다음과 같습니다. 
+
+```python
+n = 10
+plt.figure(figsize=(20, 2))
+for i in range(n):
+    ax = plt.subplot(1, n, i)
+    plt.imshow(x_test_noisy[i].reshape(28, 28))
+    plt.gray()
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+plt.show()
+```
+
+<img src="https://blog.keras.io/img/ae/noisy_digits.png">
+
+자세히 들여다보면 어떤 숫자인지 알 수 있겠지만 힘들겠죠. 오토인코더는 어떻게 원래 숫자로 복원하는 법을 배울 수 있었을까요? 알아봅시다. 
+
+이전의 convolutional 오토인코더와 비교했을 때, 재구성된 이미지의 질을 향상시키려면, 약간 다른 모델을 사용하여 layer 당 더 많은 필터를 사용합니다. 
+
+```python
+input_img = Input(shape=(28, 28, 1))  # adapt this if using `channels_first` image data format
+
+x = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
+x = MaxPooling2D((2, 2), padding='same')(x)
+x = Conv2D(32, (3, 3), activation='relu', padding='same')(x)
+encoded = MaxPooling2D((2, 2), padding='same')(x)
+
+# at this point the representation is (7, 7, 32)
+
+x = Conv2D(32, (3, 3), activation='relu', padding='same')(encoded)
+x = UpSampling2D((2, 2))(x)
+x = Conv2D(32, (3, 3), activation='relu', padding='same')(x)
+x = UpSampling2D((2, 2))(x)
+decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(x)
+
+autoencoder = Model(input_img, decoded)
+autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
+```
+
+100 세대(epoch)동안 훈련시켜보죠.
+
+```python
+autoencoder.fit(x_train_noisy, x_train,
+                epochs=100,
+                batch_size=128,
+                shuffle=True,
+                validation_data=(x_test_noisy, x_test),
+                callbacks=[TensorBoard(log_dir='/tmp/tb', histogram_freq=0, write_graph=False)])
+```
+
+이제 결과를 봅시다. 위에는, 네트워크에게 준 노이즈가 있는 숫자입니다. 그리고 밑의 이미지는 네트워크가 재구성한 숫자들이죠. 
+
+<img src="https://blog.keras.io/img/ae/denoised_digits.png">
+
+만족할만한 결과입니다. 이 과정을 더 큰 convnet으로 확장하고 싶다면, 문서 디노이징이나 오디오 디노이징 모델 구축을 시작할 수 있습니다. [Kaggle이 당신의 시작을 위한 데이터셋을 가지고 있어요!](https://www.kaggle.com/c/denoising-dirty-documents)
 
 
 
-[1]: dfdfd
+[1]: http://www.jmlr.org/papers/volume11/erhan10a/erhan10a.pdf	"Why does unsupervised pre-training help deep learning?"
 
 [2]: dfd
 
