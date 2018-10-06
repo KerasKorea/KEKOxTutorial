@@ -456,6 +456,30 @@ autoencoder.fit(x_train_noisy, x_train,
 
 만족할만한 결과입니다. 이 과정을 더 큰 convnet으로 확장하고 싶다면, 문서 디노이징이나 오디오 디노이징 모델 구축을 시작할 수 있습니다. [Kaggle이 당신의 시작을 위한 데이터셋을 가지고 있어요!](https://www.kaggle.com/c/denoising-dirty-documents)
 
+## Sequence-to-sequence autoencoder
+
+벡터나 2D 이미지가 아닌 입력값이 연속적이라면, 인코더와 디코더를 시간 구조를 잡을 수 있는 모델을 사용하고 싶을 것입니다. LSTM같은 것 말이죠. LSTM 기반의 오토인코더를 만드려면, 먼저 LSTM 인코더를 사용하여 입력 시퀀스를 전체 시퀀스에 대한 정보가 들어있는 단일 벡터로 변환하고, 그 벡터를 n번 반복합니다(n은 출력 시퀀스의 timestep의 수입니다). 그리고 이 일정한 시퀀스를 타겟 시퀀스로 바꾸기 위해 LSTM 디코더를 실행합니다. 
+
+여기서 데이터에 대해 설명하지는 않겠습니다. 이는 독자의 미래 관심사에 대한 에제 코드일 뿐이니까요.
+
+```python
+from keras.layers import Input, LSTM, RepeatVector
+from keras.models import Model
+
+inputs = Input(shape=(timesteps, input_dim))
+encoded = LSTM(latent_dim)(inputs)
+
+decoded = RepeatVector(timesteps)(encoded)
+decoded = LSTM(input_dim, return_sequences=True)(decoded)
+
+sequence_autoencoder = Model(inputs, decoded)
+encoder = Model(inputs, encoded)
+```
+
+
+
+## Variational autoencoder(VAE)
+
 
 
 [1]: http://www.jmlr.org/papers/volume11/erhan10a/erhan10a.pdf	"Why does unsupervised pre-training help deep learning?"
