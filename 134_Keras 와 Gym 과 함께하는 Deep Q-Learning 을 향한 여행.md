@@ -1,6 +1,6 @@
 ## Keras 와 Gym 과 함께하는 Deep Q-Learning 을 향한 여행 🛫(My Journey Into Deep Q-Learning with Keras and Gym
 [원문 링크](https://medium.com/@gtnjuvin/my-journey-into-deep-q-learning-with-keras-and-gym-3e779cc12762)
-> 이 튜토리얼은
+> 이 튜토리얼은 Deep Q-Learning 으로 CartPole 이라는 게임을 학습시키는 것에 대한 것입니다. 기본적인 내용을 차근차근 다루니 Deep Reinforcement Learning 초보자에게 좋을 것이라고 생각합니다.
 
 * Keras
 * Deep Reinforcement Learning
