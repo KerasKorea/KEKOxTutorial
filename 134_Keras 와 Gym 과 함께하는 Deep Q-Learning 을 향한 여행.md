@@ -9,7 +9,7 @@
 
 ### Introduction
 ![CartPole Game](./media/133_1.gif)
-*CartPole 게임*
+*figure1 : CartPole 게임*
 
 <br></br>
 
@@ -38,7 +38,7 @@
 <br></br>
 
 ![강화학습](./media/134_2.png)
-*figure1 : 강화학습이란?*
+*figure2 : 강화학습이란?*
 
 <br></br>
 <br></br>
@@ -49,7 +49,7 @@
 <br></br>
 
 ![deepmind_logo](./media/134_3.jpeg)
-*figure2 : DeepMind 로고*
+*figure3 : DeepMind 로고*
 
 <br></br>
 
@@ -61,7 +61,7 @@
 
 Deep Q Network 알고리즘에서 신경망은 환경을 기반으로 최고의 동작을 수행하는 데 사용됩니다(일반적으로 "State"라고 합니다).
 
-우리는 **Q function** 이라 불리는 function을 가지고, 이 funtion은 State를 기반으로 잠재적인 보상을 추정하는 데 사용됩니다. 우리는 그것을 Q(State, Action)라고 부릅니다. 여기서 Q는 `State` 및 `Action`을 기준으로 예상되는 미래 값을 계산하는 function 입니다.
+우리는 **Q 함수** 이라 불리는 함수을 가지고, 이 funtion은 State를 기반으로 잠재적인 보상을 추정하는 데 사용됩니다. 우리는 그것을 Q(State, Action)라고 부릅니다. 여기서 Q는 `State` 및 `Action`을 기준으로 예상되는 미래 값을 계산하는 함수 입니다.
 
 <br></br>
 <br></br>
@@ -93,7 +93,7 @@ next_state, reward, done, info = env.step(action)
 ### 단순 신경망을 사용하기 위한 Keras 사용 (Using Keras To Implement a Simple Neural Network)
 
 ![케라스자랑](./media/134_4.jpeg)
-*figure3 : 인기 많은 TensorFlow, CNTK or Theano 처럼 Keras.io 는 high-level 의 신경망 API 입니다.*
+*figure4 : 인기 많은 TensorFlow, CNTK or Theano 처럼 Keras.io 는 high-level 의 신경망 API 입니다.*
 
 이 글은 **딥러닝** 이나 **신경망** 에 관한 것이 아닙니다. 따라서 **신경망** 은 입력을 출력에 맵핑하는 블랙 박스 알고리즘으로 간주할 것입니다.
 
@@ -102,7 +102,7 @@ next_state, reward, done, info = env.step(action)
 <br></br>
 
 ![신경망](./media/134_5.png)
-*figure4 : 3개의 입력, 1개의 히든 레이어, 2개의 출력*
+*figure5 : 3개의 입력, 1개의 히든 레이어, 2개의 출력*
 
 <br></br>
 
@@ -164,7 +164,7 @@ prediction = model.predict(state)
 ### Deep Q Network 만들기 (Deep Q Network Implementation)
 
 ![Deep Q Network](./media/134_6.png)
-*figure5 : Deep Q Network*
+*figure6 : Deep Q Network*
 
 <br></br>
 
@@ -195,7 +195,7 @@ CartPole의 경우 점수가 없습니다. 그 보상은 그 선수가 얼마나
 ### 1# 어떻게 우리는 더 오래 생존하기 위해 이러한 직관을 논리적으로 표현할까? (How do we logically represent this intuition to survive longer?)
 
 ![Q-learning의_수학적_표현](./media/134_7.png)
-*Q-learning의 수학적 표현*
+*figure7: Q-learning의 수학적 표현*
 
 <br></br>
 
@@ -226,7 +226,7 @@ target = reward + gamma * np.amax(model.predict(next_state))
 
 학습 과정에서 가장 중요한 단계 중 하나는 과거에 우리가 무엇을 했는지를 그리고 그 보상이 어떻게 그 행동에 속하는지 기억하는 것이다. 따라서 이전 경험과 관찰의 목록이 필요합니다.
 
-우리는 우리의 경험을 `memory`라 불리는 배열에 저장하고, state, action, 보상, 그리고 next state를 배열 `memory`에 추가할 `remember()` function을 만들 것이다.
+우리는 우리의 경험을 `memory`라 불리는 배열에 저장하고, state, action, 보상, 그리고 next state를 배열 `memory`에 추가할 `remember()` 함수을 만들 것이다.
 
 ```Python
 memory.append((state, action, reward, next_state, done))
@@ -249,3 +249,164 @@ def remember(self, state, action, reward, next_state, done):
 ```Python
 sample_batch = random.sample(self.memory, sample_batch_size)
 ```
+
+<br></br>
+
+에이전트가 오랫동안 잘 수행되도록 하려면 즉각적인 보상뿐만 아니라 앞으로 받게 될 보상도 고려해야 합니다.
+
+그것을 실행하기 위해서 우리는 `gamma`를 사용할 것입니다. 이러한 방식으로, 우리의 DQN agent는 주어진 State에서 discounted future reward를 최대화하는 법을 배울 것입니다
+
+```Python
+def replay(self, batch_size):
+        sample_batch = random.sample(self.memory, sample_batch_size)
+        for state, action, reward, next_state, done in sample_batch:
+            target = reward
+            if not done:
+              target = reward + self.gamma * np.amax(self.brain.predict(next_state)[0])
+            target_f = self.brain.predict(state)
+            target_f[0][action] = target
+            self.brain.fit(state, target_f, epochs=1, verbose=0)
+        if self.exploration_rate > self.exploration_min:
+            self.exploration_rate *= self.exploration_decay
+```
+
+<br></br>
+<br></br>
+
+### 4# Act
+
+우리의 에이전트는 처음에는 'exploration rate'(또는 'epsilon')라고 불리는 일정 퍼센티지의 조치를 무작위로 선택할 것입니다. 처음에는 DQN 에이전트가 패턴을 검색하기 전에 다른 시도들을 하는 것이 좋습니다.
+
+DQN 에이전트가 충분한 경험을 가지고 있으면 에이전트는 현재 state를 기준으로 보상 값을 예측합니다. 그것은 가장 높은 보상을 줄 조치를 선택할 것입니다.
+
+`np.argmax()`는 act_values[0]에서 두 요소 사이의 가장 높은 값의 지수를 반환하는 함수입니다. 예를 들어, 각 숫자는 조치 0과 1을 선택하는 보상을 나타내는 [0.21, 0.42]와 같이 보일 수 있습니다. 이 경우 1이 반환됩니다.
+
+```Python
+def act(self, state):
+        if np.random.rand() <= self.exploration_rate:
+            return random.randrange(self.action_size)
+        act_values = self.brain.predict(state)
+        return np.argmax(act_values[0])
+```
+
+<br></br>
+<br></br>
+
+### Let’s code!
+#### 0# DQL Agent
+
+```Python
+class Agent():
+    def __init__(self, state_size, action_size):
+        self.weight_backup      = "cartpole_weight.h5"
+        self.state_size         = state_size
+        self.action_size        = action_size
+        self.memory             = deque(maxlen=2000)
+        self.learning_rate      = 0.001
+        self.gamma              = 0.95
+        self.exploration_rate   = 1.0
+        self.exploration_min    = 0.01
+        self.exploration_decay  = 0.995
+        self.brain              = self._build_model()
+def _build_model(self):
+        # Neural Net for Deep-Q learning Model
+        model = Sequential()
+        model.add(Dense(24, input_dim=self.state_size, activation='relu'))
+        model.add(Dense(24, activation='relu'))
+        model.add(Dense(self.action_size, activation='linear'))
+        model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
+if os.path.isfile(self.weight_backup):
+            model.load_weights(self.weight_backup)
+            self.exploration_rate = self.exploration_min
+        return model
+def save_model(self):
+            self.brain.save(self.weight_backup)
+def act(self, state):
+        if np.random.rand() <= self.exploration_rate:
+            return random.randrange(self.action_size)
+        act_values = self.brain.predict(state)
+        return np.argmax(act_values[0])
+def remember(self, state, action, reward, next_state, done):
+        self.memory.append((state, action, reward, next_state, done))
+def replay(self, sample_batch_size):
+        if len(self.memory) < sample_batch_size:
+            return
+        sample_batch = random.sample(self.memory, sample_batch_size)
+        for state, action, reward, next_state, done in sample_batch:
+            target = reward
+            if not done:
+              target = reward + self.gamma * np.amax(self.brain.predict(next_state)[0])
+            target_f = self.brain.predict(state)
+            target_f[0][action] = target
+            self.brain.fit(state, target_f, epochs=1, verbose=0)
+        if self.exploration_rate > self.exploration_min:
+            self.exploration_rate *= self.exploration_decay
+```
+
+<br></br>
+
+#### 1# main() function
+
+```Python
+class CartPole:
+    def __init__(self):
+        self.sample_batch_size = 32
+        self.episodes          = 10000
+        self.env               = gym.make('CartPole-v1')
+self.state_size        = self.env.observation_space.shape[0]
+        self.action_size       = self.env.action_space.n
+        self.agent             = Agent(self.state_size, self.action_size)
+def run(self):
+        try:
+            for index_episode in range(self.episodes):
+                state = self.env.reset()
+                state = np.reshape(state, [1, self.state_size])
+                done = False
+                index = 0
+                while not done:
+#                    self.env.render()
+                     action = self.agent.act(state)
+                     next_state, reward, done, _ = self.env.step(action)
+                     next_state = np.reshape(next_state, [1, self.state_size])
+                     self.agent.remember(state, action, reward, next_state, done)
+                     state = next_state
+                     index += 1
+                print("Episode {}# Score: {}".format(index_episode, index + 1))
+                self.agent.replay(self.sample_batch_size)
+        finally:
+            self.agent.save_model()
+if __name__ == "__main__":
+    cartpole = CartPole()
+    cartpole.run()
+```
+
+<br></br>
+
+### Training time!
+
+우리는 스크립트를 시작할 수 있습니다. Gym OpenAI는 최대 점수를 501점으로 제한합니다.
+
+그리고 처음에 우리의 DQL 에이전트는 임의로 행동함으로써 탐색한다는 것을 기억하십시오. 표시된 점수를 통해 진행 상황을 볼 수 있습니다.
+
+![진행사항1](./media/134_8.png)
+*figure8 : 진행사항*
+
+<br></br>
+
+학습 단계에서는 여러 단계를 거칩니다.
+
+1. 폴의 균형을 잡는 것.
+2. 경계 유지.
+3. 경계를 벗어나려고 하는 동안 막대기를 떨어뜨리지 않는 것.
+
+수백 편(5분)의 에피소드를 진행한 후(게임을 하는 것을 에피소드라고 위에서 이야기 하였습니다 🙂), 점수를 극대화하기 위해 균형을 맞추는 법을 배우기 시작합니다.
+
+![진행사항2](./media/134_9.png)
+*figue9 : 늘어난 점수*
+
+<br></br>
+
+바로 이겁니다, 우리는 숙련된 CartPole 플레이어를 만들었어요! 👍 👍
+
+![학습중인 CartPole](./media/134_10.gif)
+*figure10 : 학습중인 CartPole*
