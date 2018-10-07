@@ -115,4 +115,137 @@ next_state, reward, done, info = env.step(action)
 <br></br>
 <br></br>
 
-### 0# Initialization
+### 0# 모델 만들기 (Initialization)
+
+```Python
+# Deep Q Learning 을 위한 신경망 만들기
+# Sequential() 은 레이어를 쌓아줍니다.
+model = Sequential()
+# ‘Dense’ 는 신경망의 기본 form 입니다.
+# State 의 입력 사이즈는 size(4) 이고, 히든 레이어는 24개의 노드로 이루어집니다.
+model.add(Dense(24, input_dim=self.state_size, activation=’relu’))
+# 24개의 노드를 가진 히든 레이어
+model.add(Dense(24, activation=’relu’))
+# 출력 레이어 : 2개의 노드 (left, right)
+model.add(Dense(self.action_size, activation=’linear’))
+# 정보를 토대로 모델을 만듭니다.
+model.compile(loss=’mse’, optimizer=Adam(lr=self.learning_rate))
+```
+
+<br></br>
+<br></br>
+
+### 1# 신경망 학습 (Training of our neural network)
+
+우리의 신경망을 이해하고 예측하기 위해서, 우리는 모델에 데이터를 입력으로 줘야합니다.
+
+이를 위해 **Keras** 는 입력 및 출력 쌍을 모델에 공급하는 method `fit()`을 제공합니다. 그런 다음 모델은 이러한 데이터를 기반으로 학습되고 입력을 기준으로 출력을 추정합니다.
+
+이 학습 과정은 **신경망** 이 `state` 로부터 보상을 예측할 수 있게 합니다.
+
+```Python
+model.fit(state, reward_value, epochs=1, verbose=0)
+```
+
+<br></br>
+<br></br>
+
+### 2# 예측하기 (Prediction)
+
+이제 모델은 학습 후, 처음 보는 데이터 로부터의 출력(결과)을 예측할 수 있습니다. 모형에서 `predict()` 함수를 호출하면 모델은 훈련된 데이터를 기반으로 현재 state의 보상을 예측합니다.
+
+```python
+prediction = model.predict(state)
+```
+
+<br></br>
+<br></br>
+
+### Deep Q Network 만들기 (Deep Q Network Implementation)
+
+![Deep Q Network](./media/134_6.png)
+*figure5 : Deep Q Network*
+
+<br></br>
+
+게임에서 보상은 성과와 관련이 있습니다. 그것은 종종 숫자, 즉 점수와 관련이 있습니다.
+
+CartPole의 경우 점수가 없습니다. 그 보상은 그 선수가 얼마나 오래 살아남느냐에 기초합니다. Cart를 AND로 화면 안에 보관합니다. 생존은 숫자만큼 "실제"가 아니기 때문에 *직관* 은 중요한 역할을 합니다: 기둥이 오른쪽으로 밀리는 상황을 상상해보세요. 플레이어는 오른쪽 버튼이나 왼쪽 버튼을 누릅니다. 더 오래 생존하려면 오른쪽 버튼을 눌러야 합니다. DQN에서 직접 번역하면 오른쪽 버튼을 누르는 것에 대한 보상이 왼쪽 버튼을 누르는 것보다 더 높다는 것입니다.
+
+**DQN 알고리즘** 에는 *기억* 과 *재생* 이라는 두 가지 매우 중요한 method도 있습니다. 둘 다 아주 간단한 개념이고 우리가 인간으로서 어떻게 사는지 더 잘 설명할 수 있습니다: 여러분은 각각의 행동을 한 후에 무엇을 했는지 기억하고, 충분한 요소를 가지고 있을 때 여러분은 마음 속에 상황을 재현하려고 합니다. 그리고 그것은 항상 "그렇게 했어야 했는데"로 끝납니다.
+
+<br></br>
+<br></br>
+
+### 0# Global Parameters
+
+* `Learning_rate` - 이는 신경 네트워크가 대상과 각 반복에서 예측 사이의 손실로부터 얼마나 많은 것을 학습하는지 나타냅니다.
+
+* `gamma` : 향후 줄어들 보상을 계산하는 데 사용됩니다.
+
+* `exploration_rate` : 초기에 에이전트 경험이 부족하면 작업을 임의로 선택할 수 있으며 에이전트가 더 많은 경험을 쌓으면 어떤 조치를 취해야 할지 결정할 수 있습니다.
+
+* `exploration_decay` : 우리는 그것이 게임을 하는 데 점점 더 좋아지면서 탐색의 수를 줄이고 싶습니다.
+
+* `episodes` : 우리가 에이전트에게 훈련을 시키기 위해 얼마나 많은 게임을 하기를 원하는 지를 보여줍니다.
+
+<br></br>
+<br></br>
+
+### 1# 어떻게 우리는 더 오래 생존하기 위해 이러한 직관을 논리적으로 표현할까? (How do we logically represent this intuition to survive longer?)
+
+![Q-learning의_수학적_표현](./media/134_7.png)
+*Q-learning의 수학적 표현*
+
+<br></br>
+
+손실은 예측이 실제 목표에서 얼마나 멀리 떨어져 있는지를 나타내는 값입니다. 예를 들어, 모델의 예측은 오른쪽 버튼을 눌러 더 많은 보상을 얻을 수 있을 때 왼쪽 버튼을 누르는 것이 더 많은 손실을 나타낸다는 것을 나타낼 수 있습니다.
+
+우리의 목표는 손실을 줄이는 것이고, 손실은 실제 값과 예측 값 사이의 갭입니다.
+
+우리는 먼저 무작위로 Action을 선택하고 보상을 관찰합니다. 이것은 또한 새로운 State를 만들 것입니다.
+
+Keras는 우리의 가장 어려운 일을 맡을 것입니다. 이 공식에서는 목표값만 계산하면 됩니다.
+
+```python
+# import numpy as np
+# amax 는 축을 따라 배열의 최대값 또는 최대값을 반환합니다.
+target = reward + gamma * np.amax(model.predict(next_state))
+```
+
+<br></br>
+
+`fit()` 함수의 경우, **Keras** 는 신경망 출력에서 대상을 빼서 제곱을 계산합니다. 그런 다음 신경 네트워크를 초기화할 때 정의한 learning rate를 적용합니다.
+
+이 기능은 우리의 예측과 목표 사이의 차이를 학습 비율로 감소시킵니다. 업데이트 프로세스를 반복하면서 Q-값의 근사치가 실제 Q-값에 수렴됩니다. 즉, 손실이 감소하고 점수가 높아집니다.
+
+<br></br>
+<br></br>
+
+### 2# Remember
+
+학습 과정에서 가장 중요한 단계 중 하나는 과거에 우리가 무엇을 했는지를 그리고 그 보상이 어떻게 그 행동에 속하는지 기억하는 것이다. 따라서 이전 경험과 관찰의 목록이 필요합니다.
+
+우리는 우리의 경험을 `memory`라 불리는 배열에 저장하고, state, action, 보상, 그리고 next state를 배열 `memory`에 추가할 `remember()` function을 만들 것이다.
+
+```Python
+memory.append((state, action, reward, next_state, done))
+```
+
+그리고 remember() 함수는 단순히 state, action 및 보상을 메모리에 저장합니다.
+
+```Python
+def remember(self, state, action, reward, next_state, done):
+        self.memory.append((state, action, reward, next_state, done))
+```
+
+<br></br>
+<br></br>
+
+### 3# Replay
+
+이제 우리는 과거 경험이 배열에 있고, 이것으로 **신경망** 을 훈련시킬 수 있습니다. `replay()`을 만듭시다. 우리는 우리의 모든 기억을 한번에 이용할 수 없습ㄴ니다. 그것은 너무 많은 자원을 필요로 할 것이기 때문입니다. 따라서 샘플(`sample_batch_size`, 여기서 32로 설정)을 몇 개만 취하고 무작위로 선택하겠습니다.
+
+```Python
+sample_batch = random.sample(self.memory, sample_batch_size)
+```
