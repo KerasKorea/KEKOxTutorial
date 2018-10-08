@@ -38,6 +38,8 @@ model.summary()
 참고로 원본 샘플의 드롭 아웃은 주석 처리했는데 그 이유는 나중에 설명하겠습니다.
 > MNIST데이터 셋의 이미지 크기는 28X28인 2차원입니다. 이를 완전 연결 레이어에 적용시키기 위해선 1X784인 1차원으로 리사이징 해야합니다.
 
+
+
 ### Training the model
 학습 과정은 주피터 노트북에서 확인할 수 있습니다. [케라스 샘플](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/Keras%20Sample.ipynb)
 <br>
@@ -66,19 +68,19 @@ open("app/src/main/assets/nmist_mlp.tflite", "wb").write(tflite_model)
 
 Keras모델을 입력 텐서로 감싸고, 출력 텐서를 구해야 합니다. 우리는 이 텐서들을 ML Kit의 입력과 출력으로 사용합니다.
 
-<br>```freeze_session``` 전에, 입력 텐서로 ```(1, 784)```벡터의 TensorFlow의 ```placeholder```를 정의하였습니다. 그리고 나서 Keras로 만든 ```model```을 가지고 입력 텐서를 인자값으로 넣어줍니다. 결과 값은 ```output_tensor```입니다.
+<br>`freeze_session` 전에, 입력 텐서로 `(1, 784)`벡터의 TensorFlow의 `placeholder`를 정의하였습니다. 그리고 나서 Keras로 만든 `model`을 가지고 입력 텐서를 인자값으로 넣어줍니다. 결과 값은 `output_tensor`입니다.
 
-<br>두번째로, ```freeze_session```을 호출합니다. 이것은 링크로 걸어놓은 나의 예전 글에 나와있습니다. 하지만 이번에는 Keras 뒷단으로 부터 TensorFlow세션을 반환하는 ```K.get_session()```을 호출합니다.
+<br>두번째로, `freeze_session`을 호출합니다. 이것은 링크로 걸어놓은 나의 예전 글에 나와있습니다. 하지만 이번에는 Keras 뒷단으로 부터 TensorFlow세션을 반환하는 `K.get_session()`을 호출합니다.
 
-<br>마지막으로, 방금 만든 입력과 출력 텐서를 ```toco_convert```메소드에 전달하고, 변수를 고정시켜서 모델을 ```tflite```파일에 저장합니다.
+<br>마지막으로, 방금 만든 입력과 출력 텐서를 `toco_convert`메소드에 전달하고, 변수를 고정시켜서 모델을 ```tflite```파일에 저장합니다.
 
-<br>그러나, 원래 모델은 잠시동안 **TF Lite가 지원하지 않는**```Dropout```을 사용하였습니다. 저는 원래의 모델을 내보내는 과정에서 문제가 생겼었는데, 드롭아웃 레이어를 제거하니깐 해결되었습니다. 저는 TensorFlow의 다음 버전에서 이 문제가 해결되길 기대합니다.
+<br>그러나, 원래 모델은 잠시동안 **TF Lite가 지원하지 않는**`Dropout`을 사용하였습니다. 저는 원래의 모델을 내보내는 과정에서 문제가 생겼었는데, 드롭아웃 레이어를 제거하니깐 해결되었습니다. 저는 TensorFlow의 다음 버전에서 이 문제가 해결되길 기대합니다.
 
 <br>
 ### Running on a Google Colab
 이 과정을 [Jupyter Notebook](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/Keras%20Sample.ipynb)을 통해 똑같이 구현할 수 있습니다. [Google Colab](https://colab.research.google.com/)에서 을 통해  GPU 가속을 사용하여 무료로 사용해보세요. 방법은 [notebook](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/Keras%20Sample.ipynb)을 다운로드하고 Google Colab에서 열면 됩니다.
 <br>
-만약 Google Colab에서 만든 모델을 내보내고 싶다면, 내보내기 단계에서 파일 경로를 변경하고 ```files.download```를 호출하면 됩니다. 그러면 브라우저에서 파일 다운로드가 시작됩니다.
+만약 Google Colab에서 만든 모델을 내보내고 싶다면, 내보내기 단계에서 파일 경로를 변경하고 `files.download`를 호출하면 됩니다. 그러면 브라우저에서 파일 다운로드가 시작됩니다.
 <br>
 
 ```
@@ -89,7 +91,76 @@ files.download('nmist_mlp.tflite')
 ```
 <br>
 ### Running the exported model on Android
+우리의 모델이 실제로 작동하는지 보기위해서 Android Studio로 뛰어 가보겠습니다.
+<p>
+이 모델이 실행되는 액티비티는 <u>[MnistActivity.kt](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/app/src/main/java/work/beltran/mlkitsample/MnistActivity.kt)</u> 에서 열 수 있습니다.
+<p>
+```
+// 입력 : 1x784 텐서
+val inputDims = intArrayOf(1, 784)
+// 출력 : 1x10 텐서
+val outputDims = intArrayOf(1, 10)
+```
+<p>
+이를 테스트하기 위해 손으로 숫자 3을 써서 색상을 뒤집어 회색 스케일 비트 맵으로 변환했습니다.
+> 색상을 뒤집은 이유는 MNIST 데이터 셋의 이미지들이 검은색 배경에 흰색 손 글씨 숫자가 써있기 때문입니다.
 
+![](./media/106_3.png)
+<p>
+두번째, 비트맵을 받고 하나의 0과 1 사이의 실수 배열로 변환하는 과정이 필요합니다.
+<p>
+```
+// ML Kit Input
+val inp = arrayOf(FloatArray(784) { 0f })
+
+// Read our Bitmap
+val bitmap = BitmapFactory.decodeStream(assets.open("three.bmp"))
+
+// Read pixels
+val intValues = IntArray(784)
+bitmap.getPixels(intValues, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+
+intValues.forEachIndexed { index, i ->
+    // Take one color channel, convert it to float, and divide it by 265 to obtain a [0, 1] value
+    val f = (i and 0xFF).toFloat()
+    inp[0][index] = f / 256
+}
+
+// Pass the inputs
+val inputs = FirebaseModelInputs.Builder().add(inp).build()
+```
+<p>
+이제 우리는 입력을 가지고 모델을 실행할 시간입니다.
+<p>
+```
+interpreter.run(inputs, dataOptions)
+    .continueWith { task ->
+         val output = task.result.getOutput<Array<FloatArray>>(0)
+    }
+```
+<p>
+출력 배열을 확인했을 때, 다음과 같은 결과를 얻었습니다.
+<p>
+```
+7.771087E-15,
+3.1033683E-13,
+1.7879811E-9,
+0.9999988,
+3.5368996E-16,
+5.594893E-7,
+8.98838E-16,
+3.1935377E-12,
+5.8121117E-7,
+3.0227494E-9
+```
+<p>
+보이는 것처럼, 우리는 출력 배열의 3번째 위치하고 있는 0.999의 값을 얻었습니다. 이것은 **숫자3의 카테고리와 일치합니다!** 우리의 모델은 Android에서 작동합니다!
+> 배열의 위치는 0부터 시작하기 때문에 순서대로 0, 1, 2, 3이여서 3번째 위치라고 표현합니다.
+
+<br>
+**이 시리즈가 TensorFlow, Keras 및 ML Kit가 어떻게 함께 작동하는지 이해하는데 도움이 되었기를 바랍니다.** 추가 도움이 필요하다면 도와 드리겠습니다! 저는 모바일 및 머신러닝에서 프리랜서 기회를 찾고 있습니다. 저의 정보입니다. <u>http://beltran.work/with-me/</u>
+
+<br>
 ### 참고문서
 * [참고 사이트 1]()
 * [참고 사이트 2]()
