@@ -74,9 +74,20 @@ Keras모델을 입력 텐서로 감싸고, 출력 텐서를 구해야 합니다.
 
 <br>그러나, 원래 모델은 잠시동안 **TF Lite가 지원하지 않는**```Dropout```을 사용하였습니다. 저는 원래의 모델을 내보내는 과정에서 문제가 생겼었는데, 드롭아웃 레이어를 제거하니깐 해결되었습니다. 저는 TensorFlow의 다음 버전에서 이 문제가 해결되길 기대합니다.
 
+<br>
 ### Running on a Google Colab
+이 과정을 [Jupyter Notebook](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/Keras%20Sample.ipynb)을 통해 똑같이 구현할 수 있습니다. [Google Colab](https://colab.research.google.com/)에서 을 통해  GPU 가속을 사용하여 무료로 사용해보세요. 방법은 [notebook](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/Keras%20Sample.ipynb)을 다운로드하고 Google Colab에서 열면 됩니다.
+<br>
+만약 Google Colab에서 만든 모델을 내보내고 싶다면, 내보내기 단계에서 파일 경로를 변경하고 ```files.download```를 호출하면 됩니다. 그러면 브라우저에서 파일 다운로드가 시작됩니다.
+<br>
 
-
+```
+from google.colab import files
+...
+open("nmist_mlp.tflite", "wb").write(tflite_model)
+files.download('nmist_mlp.tflite')
+```
+<br>
 ### Running the exported model on Android
 
 ### 참고문서
