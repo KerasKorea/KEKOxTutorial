@@ -1,27 +1,40 @@
 ## Keras와 ML Kit을 활용한 손 글씨 숫자 인식하기(feat.Android)
 [From Keras to ML Kit 원문 바로가기](https://proandroiddev.com/from-keras-to-ml-kit-eeaf578a01df)
-> 문서 간략 소개
+> 이 튜토리얼의 목적은 Keras모델을 안드로이드에 올려서 모바일 머신러닝을 구현함에 있습니다.
 
-* 케라스
+* Keras
 * ML Kit
 * TensorFlow Lite
 * Android
 
+<br>
 ### From Keras to ML Kit
-> 간략 소개
+> Keras모델을 생성하고, 학습시키며, 내보내며(export), ML Kit에서 실행시키는 일련의 과정에 대한 튜토리얼입니다.
 
+<p>
+이 튜토리얼은 제가 쓴 ML Kit 시리즈 중 에 한 예시입니다.
+<p>
+<u>[TensorFlow 모델 ML Kit 으로 export하기기](https://proandroiddev.com/exporting-tensorflow-models-to-ml-kit-bce13b914f31)</u>는 여러분이 Python 코드로 작성한 모델을 export하기 쉽게 작성한 튜토리얼입니다. 이 튜토리얼에서는 온라인에서 볼 수 있는 다른 예시들보다 설치, 과정들이 많지 않습니다.
 
+<p>
+<u>[커스텀한 TensorFlow 모델들 ML Kit에 올리기: 입력과 출력 이해하기](https://proandroiddev.com/custom-tensorflow-models-on-ml-kit-understanding-input-and-output-ca0b2c27be5f)</u>는 ML Kit을 사용하여 export시킨 모델을 안드로이드 앱에 로드시켰습니다. 이 튜토리얼에서는 ML Kit 예제 코드를 자세히 살펴보고 적절한 입력 및 출력을 구성하는 방법을 알 수 있습니다.
+
+<p>
+오늘 저는 다음 질문에 답하려고 노력할 것입니다.
+
+<br>
 ### How can I use my Keras model with ML Kit?
-Keras는 텐서플로 위에서 작동할 수 있는 파이썬 기반의 신경망 라이브러리 오픈소스 입니다. 신경망을 쉽게 구현할 수 있는 라이브러리 입니다. TensorFlow와 완벽하게 호환되면서 TensorFlow의 세부사항을 추상화합니다. 신경망  공부를 시작하게 되면 더 많이 사용하게 될 것입니다.
+Keras는 TensorFlow 위에서 작동할 수 있는 파이썬 기반의 신경망 라이브러리 오픈소스 입니다. TensorFlow와 완벽하게 호환되면서 TensorFlow의 세부사항을 추상화합니다. 신경망 공부를 시작하게 되면 더 많이 사용하게 될 것입니다.
+
+<p>
+이 튜토리얼에서는 [Keras repository](https://github.com/keras-team/keras/blob/master/examples/mnist_mlp.py)에 있는 기본적인 예제를 저의 [Jupyter Notebook](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/Keras%20Sample.ipynb)을 통해 살펴볼 것 입니다.
 <br>
-이 튜토리얼에서는 [Keras repository](https://github.com/keras-team/keras/blob/master/examples/mnist_mlp.py)에 있는 기본적인 예를 제 [Jupyter Notebook](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/Keras%20Sample.ipynb)을 통해 살펴볼 것 입니다.
-<br>
-이번 예제에서 Keras 원작자는 MNIST 데이터 셋으로부터 손 글씨 숫자를 읽을 수 있는 모델을 만들었습니다. MNIST 데이터 셋은 머신 러닝에서 많이 사용되는 데이터 셋이며, 저는 이것을 이용하여 [myFace Generator 프로젝트](https://proandroiddev.com/deep-learning-nd-face-generator-fa92ddbb8c4a)를 진행했습니다.
+이번 예제에서 Keras 원작자는 MNIST 데이터 셋으로부터 손 글씨 숫자를 읽을 수 있는 모델을 만들었습니다. MNIST 데이터 셋은 머신 러닝에서 많이 사용되는 데이터 셋이며, 저는 이것을 이용하여 [myFace Generator 프로젝트](https://proandroiddev.com/deep-learning-nd-face-generator-fa92ddbb8c4a)를 진행했었습니다.
 <br>
 ![](./media/106_1.png)
 
 
-Keras로 모델을 생성하는 부분입니다.
+자세히 살펴봅시다. 아래의 코드는 Keras로 모델을 생성하는 부분입니다.
 ```
 model = Sequential()
 
@@ -38,8 +51,8 @@ model.summary()
 참고로 원본 샘플의 드롭 아웃은 주석 처리했는데 그 이유는 나중에 설명하겠습니다.
 > MNIST데이터 셋의 이미지 크기는 28X28인 2차원입니다. 이를 완전 연결 레이어에 적용시키기 위해선 1X784인 1차원으로 리사이징 해야합니다.
 
-
-
+---
+<br>
 ### Training the model
 학습 과정은 주피터 노트북에서 확인할 수 있습니다. [케라스 샘플](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/Keras%20Sample.ipynb)
 <br>
@@ -48,6 +61,8 @@ model.summary()
 ![](./media/106_2.png)
 
 이 모델의 정확도는 0.98이며 우수하지는 않습니다. 저는 오직 5에폭만 학습시켰고, 드롭 아웃 레이어를 뺏기 때문에 정확도가 원래의 예시에 비해 약간 떨어졌습니다.
+
+---
 
 ### Exporting a Keras model
 모델 훈련을 마친 후, Keras 모델을 TF Lite로 변환해야 합니다. [텐서플로 모델을 ML Kit으로 내보내기](https://proandroiddev.com/exporting-tensorflow-models-to-ml-kit-bce13b914f31)와 같은 과정이지만 추가적인 과정이 필요합니다. <br>
@@ -76,7 +91,9 @@ Keras모델을 입력 텐서로 감싸고, 출력 텐서를 구해야 합니다.
 
 <br>그러나, 원래 모델은 잠시동안 **TF Lite가 지원하지 않는**`Dropout`을 사용하였습니다. 저는 원래의 모델을 내보내는 과정에서 문제가 생겼었는데, 드롭아웃 레이어를 제거하니깐 해결되었습니다. 저는 TensorFlow의 다음 버전에서 이 문제가 해결되길 기대합니다.
 
-<br>
+---
+
+
 ### Running on a Google Colab
 이 과정을 [Jupyter Notebook](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/Keras%20Sample.ipynb)을 통해 똑같이 구현할 수 있습니다. [Google Colab](https://colab.research.google.com/)에서 을 통해  GPU 가속을 사용하여 무료로 사용해보세요. 방법은 [notebook](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/Keras%20Sample.ipynb)을 다운로드하고 Google Colab에서 열면 됩니다.
 <br>
@@ -89,7 +106,7 @@ from google.colab import files
 open("nmist_mlp.tflite", "wb").write(tflite_model)
 files.download('nmist_mlp.tflite')
 ```
-<br>
+---
 ### Running the exported model on Android
 우리의 모델이 실제로 작동하는지 보기위해서 Android Studio로 뛰어 가보겠습니다.
 <p>
