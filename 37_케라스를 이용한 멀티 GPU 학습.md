@@ -10,7 +10,8 @@
 
 ----
 
-When I first started using Keras I fell in love with the API. It’s simple and elegant, similar to scikit-learn. Yet it’s extremely powerful, capable of implementing and training state-of-the-art deep neural networks.
+저는 처음 케라스를 사용하기 시작했을 때 케라스의 API와 사랑에 빠지게 되었습니다. 
+케라스의 API는 scikit-learn처럼 간단하고 우아하지만, 동시에 최첨단의 모델들을 구현하고 학습시킬 수 있을 만큼 강력하기 때문입니다. 
 
 However, one of my biggest frustrations with Keras is that it could be a bit non-trivial to use in multi-GPU environments.
 
