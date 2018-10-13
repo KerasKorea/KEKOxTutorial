@@ -1,6 +1,6 @@
 ## Keras 와 Gym 과 함께하는 Deep Q-Learning 을 향한 여행 🛫(My Journey Into Deep Q-Learning with Keras and Gym
 [원문 링크](https://medium.com/@gtnjuvin/my-journey-into-deep-q-learning-with-keras-and-gym-3e779cc12762)
-> 이 튜토리얼은 Deep Q-Learning 으로 CartPole 이라는 게임을 학습시키는 것에 대한 것입니다. 기본적인 내용을 차근차근 다루니 Deep Reinforcement Learning 초보자에게 좋을 것이라고 생각합니다.
+> 이 튜토리얼은 Deep Q-Learning으로 CartPole이라는 게임을 학습시키는 것에 대한 것입니다. 기본적인 내용을 차근차근 다루니 Deep Reinforcement Learning 초보자에게 좋을 것이라고 생각합니다.
 
 * Keras
 * Deep Reinforcement Learning
@@ -22,7 +22,7 @@
 
 결국 우리는 100줄 미만의 코드로 스스로 학습하는 "AI"를 만들게 될 것입니다. 🤖
 
-또한 나는 독자들이 Deep Reinforcement Learning에 대한 사전 요구 조건을 갖추지 않아도 되도록 설명해 줄 것 입니다.
+또한 저는 독자들이 Deep Reinforcement Learning에 대한 사전 요구 조건을 갖추지 않아도 되도록 설명해 줄 것 입니다.
 
 이 튜토리얼에 있는 코드는 [*Github*](https://github.com/GaetanJUVIN/Deep_QLearning_CartPole)에서 가져왔습니다.
 
@@ -33,7 +33,7 @@
 
 강화학습(Reinforcement Learning)은 기계학습(Machine Learning)의 한 종류입니다. 이를 통해 환경(입력/출력)에서 상호 작용하여 학습하는 AI 에이전트(Agent)를 만들 수 있습니다. AI 에이전트는 [시행착오](https://en.wikipedia.org/wiki/Trial_and_error)를 통해 배울 것입니다. 많은 노력 끝에, 환경에서 성공할 수 있는 충분한 경험을 갖게 될 것입니다.
 
-이런 종류의 기계 학습은 인간의 학습 방식과 매우 유사합니다. 예를 들어, 이것은 우리가 걷는 법을 배울 때와 같습니다. 우리는 한 발을 다른 발 앞에 놓으려고 여러 번 시도하지만, 우리가 걷는 데 성공하는 것은 많은 실패와 관찰 후에만 가능합니다.
+이런 종류의 기계 학습은 인간의 학습 방식과 매우 유사합니다. 예를 들어, 이것은 우리가 걷는 법을 배울 때와 같습니다. 우리는 한 발을 다른 발 앞에 놓으려고 여러 번 시도하지만, 우리가 걷는 데 성공하기 까지는 많은 실패와 관찰 후에만 가능합니다.
 
 <br></br>
 
@@ -61,7 +61,7 @@
 
 Deep Q Network 알고리즘에서 신경망은 환경을 기반으로 최고의 동작을 수행하는 데 사용됩니다(일반적으로 "State"라고 합니다).
 
-우리는 **Q 함수** 이라 불리는 함수을 가지고, 이 funtion은 State를 기반으로 잠재적인 보상을 추정하는 데 사용됩니다. 우리는 그것을 Q(State, Action)라고 부릅니다. 여기서 Q는 `State` 및 `Action`을 기준으로 예상되는 미래 값을 계산하는 함수 입니다.
+우리는 **Q 함수** 라고 불리는 함수를 가지고 있고, 이 함수는 State를 기반으로 잠재적인 보상을 추정하는 데 사용됩니다. 우리는 그것을 Q(State, Action)라고 부릅니다. 즉, 여기서 Q는 `State` 및 `Action`을 기준으로 예상되는 미래 값을 계산하는 함수 입니다.
 
 <br></br>
 <br></br>
@@ -71,7 +71,7 @@ Deep Q Network 알고리즘에서 신경망은 환경을 기반으로 최고의 
 
 **CartPole** 의 목표는 움직이는 카트 위에 있는 폴의 균형을 맞추는 것입니다.
 
-나는 게임 시뮬레이터인 `OpenAI Gym`이라는 도구를 사용할 것입니다. 따라서 픽셀 정보를 제공하는 대신 사용 가능한 변수(State, 폴 각도, 카트 위치 등)를 제공합니다.
+저는 게임 시뮬레이터인 `OpenAI Gym`이라는 도구를 사용할 것입니다. 따라서 픽셀 정보를 제공하는 대신 사용 가능한 변수(State, 폴 각도, 카트 위치 등)를 제공합니다.
 
 게임과의 상호작용을 위해, 우리 에이전트는 카트에 0 또는 1의 일련의 동작을 수행하여 카트를 왼쪽이나 오른쪽으로 밀어서 옮길 수 있습니다.
 
@@ -106,7 +106,7 @@ next_state, reward, done, info = env.step(action)
 
 <br></br>
 
-우리가 이 포스트에서 사용할 **신경망** 은 figure4와 유사합니다. 그것은 4개의 정보를 받는 입력 레이어와 3개의 히든 레이어를 가질 것입니다. 그리고 게임 버튼이 2개(0과 1)이므로 출력 레이어에 노드가 2개 있을 것입니다.
+우리가 이 포스트에서 사용할 **신경망** 은 figure5와 유사합니다. 그것은 4개의 정보를 받는 입력 레이어와 3개의 히든 레이어를 가질 것입니다. 그리고 게임 버튼이 2개(0과 1)이므로 출력 레이어에 노드가 2개 있을 것입니다.
 
 **Keras** 는 Python으로 작성되었으며 TensorFlow, CNTK 또는 Theano의 위에서 실행할 수 있는 높은 수준의 신경 네트워크 API입니다. "이것은 빠른 실험을 가능하게 하는 것에 초점을 맞추어 개발되었습니다. 아이디어에서 최소의 지연으로 결과를 얻을 수 있는 것이 좋은 연구를 하는 열쇠입니다."
 
@@ -137,7 +137,7 @@ model.compile(loss=’mse’, optimizer=Adam(lr=self.learning_rate))
 
 ### 1# 신경망 학습 (Training of our neural network)
 
-우리의 신경망을 이해하고 예측하기 위해서, 우리는 모델에 데이터를 입력으로 줘야합니다.
+우리의 신경망을 이해하고 예측하기 위해서, 우리는 모델에 데이터를 입력으로 주어야합니다.
 
 이를 위해 **Keras** 는 입력 및 출력 쌍을 모델에 공급하는 method `fit()`을 제공합니다. 그런 다음 모델은 이러한 데이터를 기반으로 학습되고 입력을 기준으로 출력을 추정합니다.
 
@@ -152,7 +152,7 @@ model.fit(state, reward_value, epochs=1, verbose=0)
 
 ### 2# 예측하기 (Prediction)
 
-이제 모델은 학습 후, 처음 보는 데이터 로부터의 출력(결과)을 예측할 수 있습니다. 모형에서 `predict()` 함수를 호출하면 모델은 훈련된 데이터를 기반으로 현재 state의 보상을 예측합니다.
+이제 모델은 학습 후, 처음 보는 데이터 로부터의 출력(결과)을 예측할 수 있습니다. 모형에서 `predict()`함수를 호출하면 모델은 훈련된 데이터를 기반으로 현재 state의 보상을 예측합니다.
 
 ```python
 prediction = model.predict(state)
@@ -218,7 +218,7 @@ target = reward + gamma * np.amax(model.predict(next_state))
 
 <br></br>
 
-`fit()` 함수의 경우, **Keras** 는 신경망 출력에서 대상을 빼서 제곱을 계산합니다. 그런 다음 신경 네트워크를 초기화할 때 정의한 learning rate를 적용합니다.
+`fit()`함수의 경우, **Keras** 는 신경망 출력에서 대상을 빼서 제곱을 계산합니다. 그런 다음 신경 네트워크를 초기화할 때 정의한 learning rate를 적용합니다.
 
 이 기능은 우리의 예측과 목표 사이의 차이를 학습 비율로 감소시킵니다. 업데이트 프로세스를 반복하면서 Q-값의 근사치가 실제 Q-값에 수렴됩니다. 즉, 손실이 감소하고 점수가 높아집니다.
 
@@ -227,9 +227,9 @@ target = reward + gamma * np.amax(model.predict(next_state))
 
 ### 2# Remember
 
-학습 과정에서 가장 중요한 단계 중 하나는 과거에 우리가 무엇을 했는지를 그리고 그 보상이 어떻게 그 행동에 속하는지 기억하는 것이다. 따라서 이전 경험과 관찰의 목록이 필요합니다.
+학습 과정에서 가장 중요한 단계 중 하나는 과거에 우리가 무엇을 했는지를 그리고 그 보상이 어떻게 그 행동에 속하는지 기억하는 것입니다. 따라서 이전 경험과 관찰의 목록이 필요합니다.
 
-우리는 우리의 경험을 `memory`라 불리는 배열에 저장하고, state, action, 보상, 그리고 next state를 배열 `memory`에 추가할 `remember()` 함수을 만들 것이다.
+우리는 우리의 경험을 `memory`라 불리는 배열에 저장하고, state, action, 보상, 그리고 next state를 배열 `memory`에 추가할 `remember()`함수을 만들 것입니다.
 
 ```Python
 memory.append((state, action, reward, next_state, done))
@@ -247,7 +247,7 @@ def remember(self, state, action, reward, next_state, done):
 
 ### 3# Replay
 
-이제 우리는 과거 경험이 배열에 있고, 이것으로 **신경망** 을 훈련시킬 수 있습니다. `replay()`를 만듭시다. 우리는 우리의 모든 기억을 한번에 이용할 수 없습ㄴ니다. 그것은 너무 많은 자원을 필요로 할 것이기 때문입니다. 따라서 샘플(`sample_batch_size`, 여기서 32로 설정)을 몇 개만 취하고 무작위로 선택하겠습니다.
+이제 우리는 과거 경험이 배열에 있고, 이것으로 **신경망** 을 훈련시킬 수 있습니다. `replay()`를 만듭시다. 우리는 우리의 모든 기억을 한번에 이용할 수 없습니다. 그것은 너무 많은 자원을 필요로 할 것이기 때문입니다. 따라서 샘플(`sample_batch_size`, 여기서 32로 설정)을 몇 개만 취하고 무작위로 선택하겠습니다.
 
 ```Python
 sample_batch = random.sample(self.memory, sample_batch_size)
@@ -356,10 +356,10 @@ class CartPole:
         self.sample_batch_size = 32
         self.episodes          = 10000
         self.env               = gym.make('CartPole-v1')
-self.state_size        = self.env.observation_space.shape[0]
+        self.state_size        = self.env.observation_space.shape[0]
         self.action_size       = self.env.action_space.n
         self.agent             = Agent(self.state_size, self.action_size)
-def run(self):
+    def run(self):
         try:
             for index_episode in range(self.episodes):
                 state = self.env.reset()
@@ -378,6 +378,7 @@ def run(self):
                 self.agent.replay(self.sample_batch_size)
         finally:
             self.agent.save_model()
+
 if __name__ == "__main__":
     cartpole = CartPole()
     cartpole.run()
@@ -389,7 +390,7 @@ if __name__ == "__main__":
 
 우리는 스크립트를 시작할 수 있습니다. Gym OpenAI는 최대 점수를 501점으로 제한합니다.
 
-그리고 처음에 우리의 DQL 에이전트는 임의로 행동함으로써 탐색한다는 것을 기억하십시오. 표시된 점수를 통해 진행 상황을 볼 수 있습니다.
+그리고 처음에 우리의 DQL 에이전트는 임의로 행동함으로써 탐색한다는 것을 기억하세요. 표시된 점수를 통해 진행 상황을 볼 수 있습니다.
 
 ![진행사항1](./media/134_8.png)
 *figure8 : 진행사항*
