@@ -4,13 +4,14 @@
 
 * keras
 * eager execution
+* neural style
 * style transfer
 * convolution neural network
 
 ### 주요 개념 설명
-[이 글](https://colab.sandbox.google.com/github/tensorflow/models/blob/master/research/nst_blogpost/4_Neural_Style_Transfer_with_Eager_Execution.ipynb)을 통해 어떻게 딥러닝으로 다른 이미지의 스타일로 이미지를 재구성하는지 알아봅시다 (그대가 피카소 혹은 고흐처럼 그림을 그리길 원한다면). 이는 **Neural style transfer**로 알려져 있습니다. [예술 스타일의 신경 알고리즘](https://arxiv.org/abs/1508.06576) 이라는 Leon A. Gatys의 논문에 서술되 있습니다. 이 알고리즘은 훌륭한 읽을 거리이기에 반드시 확인을 해야합니다.
+[이 글](https://colab.sandbox.google.com/github/tensorflow/models/blob/master/research/nst_blogpost/4_Neural_Style_Transfer_with_Eager_Execution.ipynb)을 통해 어떻게 딥러닝으로 다른 이미지의 스타일로 이미지를 재구성하는지 알아봅시다 (그대가 피카소 혹은 고흐처럼 그림을 그리길 원한다면). 이는 **Neural Style Transfer**로 알려져 있습니다. [예술 스타일의 신경 알고리즘](https://arxiv.org/abs/1508.06576) 이라는 Leon A. Gatys의 논문에 서술되 있습니다. 이 알고리즘은 훌륭한 읽을 거리이기에 반드시 확인을 해야합니다.
 
-Neural style transfer는 컨텐츠 이미지, 스타일 참조용 이미지(마치 유명화가의 예술 작품같은) 그리고 스타일을 적용할 입력 이미지, 총 3가지 이미지를 가져와 "입력 이미지가 컨텐츠 이미지와 비슷하게 변환되도록" 각각을 혼합하는 데 사용되는 최적화 기술입니다.
+Neural Style Transfer는 컨텐츠 이미지, 스타일 참조용 이미지(예 : 유명화가의 예술 작품) 그리고 스타일을 적용할 입력 이미지, 총 3가지 이미지를 가져와 입력 이미지가 컨텐츠 이미지로 보일 뿐만 아니라, 스타일 이미지의 스타일이 "그려지도록" 각각을 혼합하는 데 사용되는 최적화 기술입니다.
 
 예를 들어, 밑에 Katsushika Hokusai의 *The Great Wave off kanagawa*
 라는 작품과 거북이 이미지가 있습니다.:
@@ -18,15 +19,15 @@ Neural style transfer는 컨텐츠 이미지, 스타일 참조용 이미지(마�
 ![Image of Green Sea Turtle and The Great Wave Off Kanagawa](media/15_1.png)
 녹색 바다 거북이 (P. Lindgren, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Green_Sea_Turtle_grazing_seagrass.jpg))
 
-Hokusai 이미지에서 파도의 질감과 스타일을 거북이 이미지에 추가한다면 어떻게 보일까요? 마치 이것처럼 보일까요?
+Hokusai 이미지에서 파도의 질감과 스타일을 거북이 이미지에 추가한다면 어떻게 보일까요? 마치 아래처럼 보일까요?
 
-![Neural style output image](media/15_2.png)
+![Neural Style output image](media/15_2.png)
 
-이건 마술, 아니면 그저 딥러닝일까요? 다행히도, 어떠한 마술도 들어가 있지 않습니다 : style transfer는 신경망 내부의 표현과 기능을 보여주는 재밌고 흥미로운 기술입니다.
+마술일까요, 아니면 단지 딥러닝일까요? 다행히도, 어떠한 마술도 들어가 있지 않습니다 : style transfer는 신경망 내부의 표현과 기능을 보여주는 재밌고 흥미로운 기술입니다.
 
-neural style transfer의 원리는 2가지 다른 함수를 정의하는 것으로 하나는 **어떻게 두 이미지의 컨텐츠가 차이나는지 설명**하고(Lcontent), 다른 하나는 **두 이미지의 스타일의 차이를 설명**합니다(Lstyle). 그런 다음, 3가지 이미지(원하는 스타일 이미지, 원하는 콘텐츠 이미지, 입력 이미지(콘텐츠 이미지로 초기화된)를 줌으로써 입력 이미지를 변환해 콘텐츠 이미지와 스타일의 차이를 최소화 합니다.
+Neural Style Transfer의 원리는 2가지 다른 함수를 정의하는 것으로 하나는 **어떻게 두 이미지의 컨텐츠가 차이나는지 설명**하고(Lcontent), 다른 하나는 **두 이미지의 스타일의 차이를 설명**합니다(Lstyle). 그런 다음, 3가지 이미지(원하는 스타일 이미지, 원하는 콘텐츠 이미지, 입력 이미지(콘텐츠 이미지로 초기화된)를 줌으로써 입력 이미지를 변환해 콘텐츠 이미지와 스타일의 차이를 최소화 합니다.
 
-요약하자면, 기본 입력 이미지, 일치시키고 싶은 컨텐츠 이미지와 스타일 이미지를 선택합니다. 컨텐츠와 스타일간 차이를 역전파(backpropagation)로 최소화함으로써 기본 입력 이미지를 변환 합니다. 다시말해, 컨텐츠 이미지의 컨텐츠와 스타일 이미지의 스타일과 일치하는 이미지를 생성합니다.
+요약하면, 기본 입력 이미지, 일치시키고 싶은 컨텐츠 이미지와 스타일 이미지를 선택합니다. 컨텐츠와 스타일간 차이를 역전파(backpropagation)로 최소화함으로써 기본 입력 이미지를 변환 합니다. 다시 말해, 컨텐츠 이미지의 컨텐츠와 스타일 이미지의 스타일과 일치하는 이미지를 생성합니다.
 
 
 #### 습득하게 될 특정 개념들 :
@@ -35,12 +36,12 @@ neural style transfer의 원리는 2가지 다른 함수를 정의하는 것으�
 - **Eager Execution** : 작업을 즉시 평가하는 텐서플로우의 필수 프로그래밍 환경을 사용
 - [Eager execution](https://www.tensorflow.org/guide/eager)에 대해 자세히 알아보기.
 - [실제로 해보기](https://www.tensorflow.org/tutorials) ([Colaboratory](http://colab.research.google.com/)에서 대부분의 튜토리얼을 진행할 수 있습니다)
-- **model 정의를 위한 [실용 API](https://keras.io/getting-started/functional-api-guide/)를 사용** : 실용 API를 사용해 필요한 중간 활성화에 접근할 수 있도록 model 일부를 구성합니다.
-- **선행학습한 model의 특징 맵 활용** : 선행학습한 model과 해당 특징 맵을 사용하는 방법을 배웁니다.
+- **model를 정의하기 위한 [실용 API](https://keras.io/getting-started/functional-api-guide/)를 사용** : 실용 API를 사용해 필수 중간 활성화에 접근할 수 있도록 model 일부를 구성합니다.
+- **선행학습한 model의 특징 맵 활용** : 선행학습한 model과 해당 특징 맵(map)을 사용하는 방법을 배웁니다.
 - **맞춤형 학습 루프를 생성** : 입력 매개변수에 대해 주어진 손실을 최소화하기 위해 최적화 도구를 어떻게 설정할지 알아봅니다.
 
 
-#### Style fransfer를 수행하는 일반적인 과정 :
+#### Style Transfer를 수행하는 일반적인 과정 :
 
 1. 데이터 시각화
 2. 데이터에 대한 기본 선행 처리/준비
@@ -48,19 +49,19 @@ neural style transfer의 원리는 2가지 다른 함수를 정의하는 것으�
 4. model 생성
 5. 손실 함수 최적화
 
-독자들에게 : 이 게시물은 기본적인 머신러닝 개념에 익숙한 중급 사용자들을 대상으로 합니다. 이 게시물을 최대한 활용하려면 다음을 하셔야 합니다.:
+독자들에게 : 이 글은 기본적인 머신러닝 개념에 익숙한 중급 사용자들을 대상으로 합니다. 이 글ㄹ을 최대한 활용하려면 다음을 하셔야 합니다.:
 - [Gatys 논문](https://arxiv.org/abs/1508.06576) 읽기 : 아래에서 설명하겠지만, 이 논문은 한층 더 이해할 수 있게 해줍니다.
 - [기울기 상승 이해하기](https://developers.google.com/machine-learning/crash-course/reducing-loss/gradient-descent)
 
 **예상 시간** : 60분
 
 **Code:**  
-이 게시물의 전체 코드는 [이곳](https://github.com/tensorflow/models/tree/master/research/nst_blogpost)에서 찾아볼 수 있습니다. 만약, 예제에 따라 단계졀로 진행하고 싶다면, [colab](https://colab.sandbox.google.com/github/tensorflow/models/blob/master/research/nst_blogpost/4_Neural_Style_Transfer_with_Eager_Execution.ipynb)에서 찾아볼 수 있습니다.
+이 글의 전체 코드는 [이곳](https://github.com/tensorflow/models/tree/master/research/nst_blogpost)에서 찾아볼 수 있습니다. 만약, 예제에 따라 단계별로 진행하고 싶다면, [colab](https://colab.sandbox.google.com/github/tensorflow/models/blob/master/research/nst_blogpost/4_Neural_Style_Transfer_with_Eager_Execution.ipynb)에서 찾아볼 수 있습니다.
 
 
 ### 구현
 
-먼저, [Eager excution](https://www.tensorflow.org/guide/eager)을 가능하도록 하는 것부터 시작합니다. Eager excution은 우리가 가장 명확하고 읽기 쉬운 방법으로 이 기술을 연구할 수 있도록 해줍니다.
+먼저, [Eager excution](https://www.tensorflow.org/guide/eager)이 가능하도록 설계하는 것부터 시작합니다. Eager excution은 우리가 가장 명확하고 읽기 쉬운 방법으로 Neural Style Transfer를 공부할 수 있게 해줍니다.
 
 ```python
   tf.enable_eager_execution()
@@ -92,7 +93,7 @@ neural style transfer의 원리는 2가지 다른 함수를 정의하는 것으�
 
 **왜 중간 레이어인가?**
 
-학습된 이미지 분류 신경망의 중간 레이어 출력값들이 스타일과 컨텐츠 표현을 정의하도록 하는지 궁금할 겁니다. 높은 단계에서, 이 현상은 신경망이 (신경망이 학습해온)이미지 분류를 하기 위해서는 반드시 이미지를 이해해야 하는 사실로 설명될 수 있습니다. 이는 원본 이미지를 입력 픽셀(pixel)로 사용하고 원본 이미지 픽셀을 이미지 내 피쳐들의 복잡한 이해형태로 변형하는 방식으로 내부 표현을 설계합니다. 이는 CNN(convolution neural network)이 얼마나 잘 일반화될 수 있는지에 대한 이유이기도 합니다. CNN은 배경이나 다른 노이즈들에 영향을 받지 않는 클래스 내에 존재하는 불변성(invariances)을 포착하고 피쳐들을 정의할 수 있습니다. 그러므로, 원본 이미지가 입력되고 분류 레이블(label)이 출력되는 구간 어딘가에서 model은 복잡한 피쳐 추출기로서 작동합니다. 따라서 중간 레이어에 접근함으로써 입력 이미지의 컨텐츠와 스타일을 설명할 수 있습니다.
+학습된 이미지 분류 신경망의 중간 레이어 출력값들이 스타일과 컨텐츠 표현을 정의하도록 하는지 궁금할 겁니다. 높은 단계에서, 이 현상은 신경망이 (신경망이 학습해온)이미지 분류를 하기 위해서는 반드시 이미지를 이해해야 하는 사실로 설명될 수 있습니다. 이는 원본 이미지를 입력 픽셀(pixel)로 사용하고 원본 이미지 픽셀을 이미지 내 피쳐들의 복잡한 이해형태로 변형하는 방식으로 내부 표현을 설계합니다. 이는 CNN(Convolution Neural Network)이 얼마나 잘 일반화될 수 있는지에 대한 이유이기도 합니다. CNN은 배경이나 다른 노이즈들에 영향을 받지 않는 클래스 내에 존재하는 불변성(invariances)을 포착하고 피쳐들을 정의할 수 있습니다. 그러므로, 원본 이미지가 입력되고 분류 레이블(label)이 출력되는 구간 어딘가에서 model은 복잡한 피쳐 추출기로서 작동합니다. 따라서 중간 레이어에 접근함으로써 입력 이미지의 컨텐츠와 스타일을 설명할 수 있습니다.
 
 특히 신경망에서 다음과 같은 중간 레이어를 추출합니다.
 
@@ -115,7 +116,7 @@ neural style transfer의 원리는 2가지 다른 함수를 정의하는 것으�
 
 #### model
 
-이번 글에선, [VGG19](https://keras.io/applications/#vgg19)를 로드하고 model에 입력 텐서를 제공합니다. 이렇게 하면 컨텐츠, 스타일 그리고 생성된 이미지의 피쳐맵(나중에 콘텐츠와 스타일을 표현함)을 추출할 수 있습니다.
+이번 글에선, [VGG19](https://keras.io/applications/#vgg19)를 불러와 model에 입력 텐서(tensor)를 제공합니다. 이렇게 하면 컨텐츠, 스타일 그리고 생성된 이미지의 피쳐맵(나중에 콘텐츠와 스타일을 표현함)을 추출할 수 있습니다.
 
 논문에서 제안했듯이 VGG19를 사용합니다. 게다가, Vgg19는 (ResNet, Inception과 비교해) 상대적으로 간단한 모델이기에 피쳐맵이 style transfer하기에 더 효과적입니다.
 
@@ -161,7 +162,7 @@ def get_model():
 
 이러한 콘텐츠 손실을 최소화하기 위해 일반 방식으로 역전파(backpropagation)를 수행합니다. 따라서 특정 레이어(content_layer에 정의된)에서 원본 컨텐츠 이미지로 유사한 반응을 생성할 때까지 초기 이미지를 변화시킵니다.
 
-이건 꽤나 단순하게 구현될 수 있습니다. 다시 말해, 입력 이미지인 x와 컨텐츠 이미지인 p를 전달받는 신경망의 L 레이어에서 피쳐 맵을 입력으로 받도록하고 콘텐츠 거리(손실)을 반환합니다.
+이건 꽤나 간단하게 구현될 수 있습니다. 다시 말해, 입력 이미지인 x와 컨텐츠 이미지인 p를 전달받는 신경망의 L 레이어에서 피쳐 맵을 입력으로 받도록하고 콘텐츠 거리(손실)을 반환합니다.
 
 ```python
   def get_content_loss(base_content, target):
@@ -171,9 +172,9 @@ def get_model():
 
 **스타일 손실관련 :**
 
-컴퓨팅 스타일 손실은 약간 더 어렵지만, 동일한 원칙을 따릅니다. 이번에는 네트워크에 기본 입력 이미지와 스타일 이미지를 입력으로 사용합니다. 그러나 기본 입력 이미지와 스타일 이미지의 중간 출력을 비교하는 대신, 두 출력의 Gram 매트릭스를 비교합니다.
+스타일 손실을 계산하는 건 약간 더 어렵지만, 동일한 원칙을 따릅니다. 이번에는 신경망에 기본 입력 이미지와 스타일 이미지를 입력으로 사용합니다. 그러나 기본 입력 이미지와 스타일 이미지의 중간 출력을 비교하는 대신, 두 출력의 Gram 매트릭스를 비교합니다.
 
-수학적으로, 기본 입력 이미지 x 와 스타일 이미지 a 의 스타일 손실을 스타일 표현(Gram 매트릭스) 사이의 거리로 설명합니다. 또한 우리는 이미지의 스타일 표현을, 다른 필터를 거친 이미지의 결과값의 상관관계(correlation) 이라고 설명합니다.
+수학적으로, 기본 입력 이미지 `x` 와 스타일 이미지 `a` 의 스타일 손실을 스타일 표현(Gram 매트릭스) 사이의 거리로 설명합니다. 또한 우리는 이미지의 스타일 표현을, 다른 필터를 거친 이미지의 결과값의 상관관계(correlation) 이라고 설명합니다.
 Gram 매트릭스를 Gˡ 로 표현하고, Gˡᵢⱼ 는 l 번째 레이어에서 피쳐맵 i, j 의 내적입니다.
 
 기본 입력 이미지를 위한 스타일을 생성하려면, 컨텐츠 이미지에서 기울기 하강(Gradient Descent)을 수행하여 원래 이미지의 스타일 표현과 일치하는 이미지로 변환합니다. 스타일 이미지의 피쳐 상관관계(correlation) 맵과 입력 이미지 사이의 평균 제곱 거리(MSE)를 최소화함으로써 이 작업을 수행합니다. 총 스타일 손실에 대한 각 계층의 기여는 아래와 같습니다.
@@ -192,7 +193,7 @@ Gram 매트릭스를 Gˡ 로 표현하고, Gˡᵢⱼ 는 l 번째 레이어에�
 
 ```python
 def gram_matrix(input_tensor):
-  # We make the image channels first
+  # 이미지용 채널(channel)을 만듭니다.
   channels = int(input_tensor.shape[-1])
   a = tf.reshape(input_tensor, [-1, channels])
   n = tf.shape(a)[0]
@@ -200,34 +201,35 @@ def gram_matrix(input_tensor):
   return gram / tf.cast(n, tf.float32)
 
 def get_style_loss(base_style, gram_target):
-  """Expects two images of dimension h, w, c"""
-  # height, width, num filters of each layer
+  """두 이미지의 차원(h, w, c)을 얻습니다."""
+  # 각 레이어의 높이, 너비, 채널의 형태
   height, width, channels = base_style.get_shape().as_list()
   gram_style = gram_matrix(base_style)
 
   return tf.reduce_mean(tf.square(gram_style - gram_target))
 ```
+> [style_loss.py](https://gist.github.com/raymond-yuan/17d41af4383937501ec814ad34d1543f#file-style_loss-py) 를 통해 볼 수 있습니다.
 
 #### 기울기 하강(Gradient Descent) 실행
 
 기울기 하강/역전파(backpropagation)가 익숙하지 않거나 재교육이 필요한 경우 이 [리소스](https://developers.google.com/machine-learning/crash-course/reducing-loss/gradient-descent)를 확실히 확인해주세요.
 
-우리는 손실을 최소화하기 위해서 Adam Optimizer를 사용할 것입니다. 우리는 손실을 최소화하도록 반복적으로 출력 이미지를 업데이트할 것입니다. 우리는 네트워크와 관련된 가중치를 업데이트하지 않고, 대신 손실을 최소화하기 위해 입력 이미지를 훈련시킵니다. 이를 위해서는 손실과 기울기를 어떻게 계산해야 하는지 알아야 합니다. L-BFGS 최적화 도구를 사용하는 것이 좋습니다. 이 알고리즘에 익숙하다면 사용하는 것을 추천하지만 이 튜토리얼에서 사용하지 않을 것 입니다. 이 튜토리얼의 주된 동기는 eager execution 으로 모범 사례를 설명하는 것이기 때문입니다. Adam을 사용하면 맞춤식 교육 루프를 통해 Autograd/gradient tape 기능을 시연할 수 있기 때문에 Adam Optimizer 를 사용할 것입니다.
+우리는 손실을 최소화하기 위해서 Adam Optimizer를 사용할 것입니다. 우리는 손실을 최소화하도록 반복적으로 출력 이미지를 업데이트할 것입니다. 우리는 신경망과 관련된 가중치를 업데이트하지 않고, 대신 손실을 최소화하기 위해 입력 이미지를 훈련시킵니다. 이를 위해서는 손실과 기울기를 어떻게 계산해야 하는지 알아야 합니다. L-BFGS 최적화 도구를 사용하는 것이 좋습니다. 이 알고리즘에 익숙하다면 사용하는 것을 추천하지만 이 튜토리얼에서 사용하지 않을 것 입니다. 이 튜토리얼의 주된 동기는 eager execution 으로 모범 사례를 설명하는 것이기 때문입니다. Adam을 사용하면 맞춤식 교육 루프를 통해 Autograd/gradient tape 기능을 시연할 수 있기 때문에 Adam Optimizer 를 사용할 것입니다.
 
 #### 손실과 기울기 계산하기
 
-컨텐츠 및 스타일 이미지를 로드하는 기능을 할 작은 함수를 정의하여 네트워크에 이미지들을 입력으로 주고, 우리의 모델에서 컨텐츠 및 스타일 피쳐 표현을 출력할 것입니다.
+컨텐츠 및 스타일 이미지를 로드하는 기능을 할 작은 함수를 정의하여 신경망에 이미지들을 입력으로 주고, 우리의 모델에서 컨텐츠 및 스타일 피쳐 표현을 출력할 것입니다.
 
 ```python
 def get_feature_representations(model, content_path, style_path):
   """Helper 함수 : 콘텐츠 이미지와 스타일 이미지의 피쳐를 계산합니다.
 
-  이 함수는 path에 존재하는 콘텐츠 이미지와 스타일 이미지를 로드하고 전처리 합니다. 그것을 네트워크의 입력으로 주고, 중간 레이어의 출력(피쳐맵)을 얻습니다.
+  이 함수는 path에 존재하는 콘텐츠 이미지와 스타일 이미지를 로드하고 전처리 합니다. 그것을 신경망의 입력으로 주고, 중간 레이어의 출력(피쳐맵)을 얻습니다.
 
   Arguments:
     model: 우리가 사용할 모델
-    content_path: 콘텐츠 이미지의 path
-    style_path: 스타일 이미지의 path
+    content_path: 콘텐츠 이미지 경로
+    style_path: 스타일 이미지 경로
 
   Returns:
     스타일 이미지와 콘텐츠 이미지의 피쳐맵을 리턴합니다.
@@ -245,8 +247,9 @@ def get_feature_representations(model, content_path, style_path):
   content_features = [content_layer[1] for content_layer in model_outputs[num_style_layers:]]
   return style_features, content_features
 ```
+> [get_feature_representations.py](https://gist.github.com/raymond-yuan/b36fe04d4225f484df9d0b74ca3835bb#file-get_feature_representations-py) 를 통해 볼 수 있습니다.
 
-여기서 우리는 tf.GradientTape 를 사용하여 기울기를 계산합니다. 추후 기울기 계산을 위한 추적 작업을 통해 이용 가능한 자동 기울기 하강 계산을 할 수 있습니다. tf.GradientTape forward pass 를 하는 동안 연산을 기록하기 때문  backwards pass 를 위해 우리의 입력 이미지와 관련하여 손실 함수의 기울기를 계산할 수 있습니다.
+여기서 우리는 [tf.GradientTape](https://www.tensorflow.org/programmers_guide/eager#computing_gradients) 를 사용하여 기울기를 계산합니다. 추후 기울기 계산을 위한 추적 작업을 통해 이용 가능한 자동 기울기 하강 계산을 할 수 있습니다. tf.GradientTape 는 `forward pass`를 하는 동안 연산을 기록하기 때문에 `backwards pass` 를 위해 입력 이미지와 관련하여 손실 함수의 기울기를 계산할 수 있습니다.
 
 ```python
 def compute_loss(model, loss_weights, init_image, gram_style_features, content_features):
@@ -293,6 +296,7 @@ def compute_loss(model, loss_weights, init_image, gram_style_features, content_f
   loss = style_score + content_score + total_variation_score
   return loss, style_score, content_score, total_variation_score
 ```
+> [compute_losses.py](https://gist.github.com/raymond-yuan/fff9f105962d861b5a7613acd580a412#file-compute_losses-py) 를 통해 볼 수 있습니다.
 
 그 다음에 기울기를 계산하는 것은 아주 쉽습니다:
 
@@ -304,6 +308,7 @@ def compute_grads(cfg):
   total_loss = all_loss[0]
   return tape.gradient(total_loss, cfg['init_image']), all_loss
 ```
+> [compute_grads.py](https://gist.github.com/raymond-yuan/f3c6c71d956449e67fd127444a408426#file-compute_grads-py) 를 통해 볼 수 있습니다.
 
 #### Style fransfer 절차를 실행, 적용
 
@@ -393,8 +398,9 @@ def run_style_transfer(content_path,
 
     return best_img, best_loss
 ```
+> [run_style_transfer.py](https://gist.github.com/raymond-yuan/beb64629c3e88f34f241f9373fcc9079#file-run_style_transfer-py)를 통해 볼 수 있습니다.
 
-And that’s it!
+
 이게 전부입니다!
 
 이제는 거북이 이미지와 Hokusai 의 Greate Wave off Kanagawa 라는 작품에 style transfer 를 해봅시다:
@@ -404,23 +410,24 @@ best, best_loss = run_style_transfer(content_path,
                                      style_path,
                                      verbose=True,
                                      show_intermediates=True)
-```                                  
+```                 
+> [run_generic.py](https://gist.github.com/raymond-yuan/f6dfab1740152849da4326a33382e4e0#file-run_generic-py)를 통해 볼 수 있습니다.                 
 
 ![학습 과정 간의 변화](media/15_4.png)
 
 ![신경 스타일 결과물](media/15_5.png)
 
-시간의 흐름에 따른 style transfer 과정의 학습 결과 사진들을 확인해보세요:
+시간의 흐름에 따른 Style transfer 과정의 학습 결과 사진들을 확인해보세요:
 
 ![변화 과정](media/15_6.gif)
 
-여기에 다른 이미지들에 대한 neural style transfer 에 대한 예제들이 존재합니다. 확인해보세요!
+여기에 다른 이미지들에 대한 Neural Style Transfer 에 대한 예제들이 존재합니다. 확인해보세요!
 
 ![고흐 스타일 적용](media/15_7.png)
 ![칸딘스키 스타일 적용](media/15_8.png)
 ![허블 적용](media/15_9.png)
 
-이제는 당신이 원하는 이미지로 style transfer 를 실험해보세요!
+이제는 당신이 원하는 이미지로 Style transfer 를 실험해보세요!
 
 ### 주요 요점들
 
@@ -430,16 +437,15 @@ best, best_loss = run_style_transfer(content_path,
 
 * 우리의 주된 손실 기능은 주로 이러한 다른 표현의 관점에서 거리를 계산하는 것이었습니다.
 
-* 우리는 style transfer 를 위해 맞춤형 모델과 **eager excution** 을 사용하였습니다.
+* 우리는 Style transfer 를 위해 맞춤형 모델과 **eager excution** 을 사용하였습니다.
 
-* 우리는 우리의 맞춤형 모델을 functional API로 만들었습니다.
+* 우리는 우리의 맞춤형 모델을 실용 API로 만들었습니다.
 
-* Eager execution 은 natural 파이썬을 통해 tensors 를 동적으로 실행할 수 있게 해주었습니다.
+* Eager execution 은 natural 파이썬을 통해 tensors를 동적으로 실행할 수 있게 해주었습니다.
 
-* 우리는 tensors 를 직접 조작하여 tensors 를 쉽게 디버깅하고 작업할 수 있었습니다.
+* 우리는 tensors를 직접 조작하여 tensors를 쉽게 디버깅하고 작업할 수 있었습니다.
 
-우리는 tf.radient를 사용하여 optimizers 업데이트 규칙을 적용하여 반복적으로 우리의 이미지를 업데이트 했습니다. Optimizers 는 우리의 입력 이미지와 관련하여 주어진 손실을 최소화해주었습니다.
-#### (이 글에서) 얻을 수 있는 것은:
+우리는 tf.radient를 사용하여 Optimizers 업데이트 규칙을 적용하여 반복적으로 우리의 이미지를 업데이트 했습니다. Optimizers 는 우리의 입력 이미지와 관련하여 주어진 손실을 최소화해주었습니다.
 
 ### 참고문서
 * [A Neural Algorithm of Artistic Style](https://arxiv.org/abs/1508.06576)
