@@ -10,13 +10,15 @@
 
 ----
 
-저는 처음 케라스를 사용하기 시작했을 때 케라스의 API와 사랑에 빠지게 되었습니다. 
-케라스의 API는 scikit-learn처럼 간단하고 우아하지만, 동시에 최첨단의 모델들을 구현하고 학습시킬 수 있을 만큼 강력하기 때문입니다. 
+저는 처음 케라스(Keras)를 사용하기 시작했을 때 케라스의 API와 사랑에 빠지게 되었습니다. 
+케라스의 API는 scikit-learn처럼 간단하고 우아하지만, 동시에 최첨단의 심층 신경망(Deep Neural Network, DNN)들을 구현하고 학습시킬 수 있을 만큼 강력하기 때문입니다. 
 
-However, one of my biggest frustrations with Keras is that it could be a bit non-trivial to use in multi-GPU environments.
+하지만, 케라스를 사용하며 한 가지 가장 아쉬운 점은 바로 멀티 GPU 환경에서 케라스를 사용하는 것이 까다로울 수 있다는 것입니다.   
 
-If you were using Theano, forget about it — multi-GPU training wasn’t going to happen.
-TensorFlow was a possibility, but it could take a lot of boilerplate code and tweaking to get your network to train using multiple GPUs.
+만약 테아노(Theano)를 사용하는 유저들이라면, 이 주제는 테아노에서는 불가능한 것에 대해 다루기 때문에 신경쓰지 않으셔도 됩니다.
+텐서플로우(TensorFlow)를 사용한다면 가능성은 있지만, 멀티 GPU를 사용하여 네트워크를 학습시키려면 수 많은 보일러플레이트 코드와 
+수정이 필요할 수 있다는 단점이 있죠. 
+
 
 I preferred using the mxnet backend (or even the mxnet library outright) to Keras when performing multi-GPU training, but that introduced even more configurations to handle.
 
