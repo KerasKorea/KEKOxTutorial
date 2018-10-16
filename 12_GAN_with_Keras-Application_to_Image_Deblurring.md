@@ -309,19 +309,20 @@ for epoch in range(epoch_num):
 ```python
 for epoch in range(epoch_num):
   for index in range(batches):
-    # [Batch Preparation]
+    # [배치 준비]
 
-    # Generate fake inputs
+    # 가짜 입력값을 생성합니다.
     generated_images = g.predict(x=image_blur_batch, batch_size=batch_size)
     
-    # Train multiple times discriminator on real and fake inputs
+    # 실제, 가짜 입력값을 기반으로 식별자를 학습시킵니다.
     for _ in range(critic_updates):
         d_loss_real = d.train_on_batch(image_full_batch, output_true_batch)
         d_loss_fake = d.train_on_batch(generated_images, output_false_batch)
         d_loss = 0.5 * np.add(d_loss_fake, d_loss_real)
 
     d.trainable = False
-    # Train generator only on discriminator's decision and generated images
+    
+    # 식별자의 판단과 생성된 이미지를 기반으로 생성자를 학습시킵니다.
     d_on_g_loss = d_on_g.train_on_batch(image_blur_batch, [image_full_batch, output_true_batch])
 
     d.trainable = True
