@@ -20,7 +20,7 @@ Note: 모든 예제 코드는 2017년 3월 14일에 Keras 2.0 API에 업데이�
 
 <img src="https://blog.keras.io/img/ae/autoencoder_schema.jpg">
 
-**"Autoencoding"** 은 데이터 압축 알고리즘으로 압축 함수와 압축해제 함수는 다음과 같은 세가지 특징을 갖습니다: 1) data-specific, 2) 손실(lossy), 3) 사람의 개입 없이 예제로 부터 자동으로 학습. 또한, "autoencoder" 가 사용되는 대부분의 상황에서 압축 함수와 압축해제 함수는 신경망으로 구현됩니다. 
+**"Autoencoding"** 은 데이터 압축 알고리즘으로 압축 함수와 압축해제 함수는 다음과 같은 세가지 특징을 갖습니다: 1) data-specific, 2) 손실(lossy), 3) 사람의 개입 없이 예제를 통한 자동 학습. 또한, "autoencoder" 가 사용되는 대부분의 상황에서 압축 함수와 압축해제 함수는 신경망으로 구현됩니다. 
 
 1) autoencoder는 data-specific 합니다. autoencoder는 이제껏 훈련된 데이터와 비슷한 데이터로만 압축될 수 있습니다. 예를 들어 말하자면, autoencoder는 MPEG-2 Audio Layer III (MP3) 압축 알고리즘과는 다릅니다. MP3 알고리즘은 일반적으로 소리에 관한 압축이지만 특정한 종류의 소리에 관한 것은 아닙니다. 얼굴 사진에 대해 학습된 autoencoder는 나무의 사진을 압축하는 데에는 좋은 성능을 내지 못하는데 그 이유는 autoencoder가 배우는 특징은 얼굴 특유의 것이기 때문입니다. 
 
@@ -52,17 +52,17 @@ autoencoder는 실제 응용에서는 거의 사용되지 않습니다. 2012년,
 
 오늘날 autoencoder의 두 가지 흥미로운 실제 응용분야는 data denosing 과 데이터 시각화를 위한 차원 축소입니다. 적절한 dimensionality와 sparsity contraints를 사용하면, autoencoder는 PCA나 다른 기법들보다 더 흥미로운 data projection을 배울 수 있습니다. 
 
-특히 2차원 시각화에 대하여, t-SNE는 거의 최고의 알고리즘입니다. 하지만 이는 상대적으로 낮은 차원의 데이터를 요구합니다. 따라서 높은 차원의 데이터에서 유사(similarity) 관계를 시각화하는 좋은 전략은 먼저 autoencoder를 사용하여 데이터를 낮은 차원으로 압축합니다. 그리고나서 압축된 데이터를 t-SNE를 사용하여 2차원 평면으로 매핑합니다. 이미 케라스의 휼륭한 parametric implementation를 Kyle McDonald가 개발하였고, [github](https://github.com/kylemcdonald/Parametric-t-SNE/blob/master/Parametric%20t-SNE%20(Keras).ipynb) 에서 볼 수 있습니다. 또한, [scikit-learn](http://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html) 에도 간단하고 실용적으로 구현되어 있습니다.
+특히 2차원 시각화에 대하여, t-SNE는 거의 최고의 알고리즘입니다. 하지만 이는 상대적으로 낮은 차원의 데이터를 요구합니다. 따라서 높은 차원의 데이터에서 유사(similarity) 관계를 시각화하는 좋은 전략은 먼저 autoencoder를 사용하여 데이터를 낮은 차원으로 압축하는 것입니다. 그리고나서 압축된 데이터를 t-SNE를 사용하여 2차원 평면으로 매핑합니다. 이미 케라스의 휼륭한 parametric implementation를 Kyle McDonald가 개발하였고, [github](https://github.com/kylemcdonald/Parametric-t-SNE/blob/master/Parametric%20t-SNE%20(Keras).ipynb) 에서 볼 수 있습니다. 또한, [scikit-learn](http://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html) 에도 간단하고 실용적으로 구현되어 있습니다.
 
 
 
 ## 그렇다면 autoencoder는 왜 중요할까요?
 
-autoencoder가 유명해진 주된 이유는 온라인에서 이용할 수있는 많은 머신러닝 수업에 특집으로 등장하기 때문입니다. 결과적으로, 머신러닝 분야의 많은 입문자들은 autoencoder를 매우 좋아합니다. 이것이 이 튜토리얼이 존재하는 이유죠! 
+autoencoder가 유명해진 주된 이유는 온라인의 수많은 머신러닝 수업에 특집으로 등장하기 때문입니다. 이렇다보니, 머신러닝 분야의 많은 입문자는 autoencoder를 매우 좋아합니다. 이것이 이 튜토리얼이 존재하는 이유죠! 
 
-autoencoder가 수많은 연구와 집중을 끌어들이는 또 다른 이유는 autoencoder가 비지도 학습(unsupervised learning)의 문제를 풀어낼 잠재적인 수단으로 오랜동안 생각되어왔기 때문입니다. 다시 한번 말하자면, autoencoder는 진정한 비지도 학습(unsupervised learning) 기술이 아니고, self-supervised 기술입니다. 이는 지도 학습(supervised learning)의 일종으로 입력 데이터로부터 타겟을 만들어냅니다. 흥미로운 특징(feature)들을 학습하는 self-supervised model을 얻으려면 흥미로운 합성 목표 및 손실 함수를 제공해야 합니다. 문제는 여기서 발생합니다.
+autoencoder가 수많은 연구와 집중을 끌어들이는 또다른 이유는 autoencoder가 비지도 학습(unsupervised learning)의 문제를 풀어낼 잠재적인 수단으로 오랜동안 생각되었기 때문입니다. 다시 한번 말하자면, autoencoder는 진정한 비지도 학습(unsupervised learning) 기술이 아니라, self-supervised 기술입니다. 이는 지도 학습(supervised learning)의 일종으로 입력 데이터로부터 타겟을 만들어냅니다. 흥미로운 특징(feature)들을 학습하는 self-supervised model을 얻으려면 흥미로운 합성 목표 및 손실 함수를 제공해야 합니다. 문제는 여기서 발생합니다.
 
-단순히 빠르게 입력값을 재구성 하는 것을 학습시키는 것은 여기서 그렇게 좋은 선택이 아닙니다. 여기에서는, 예를 들어, 픽셀 수준에서 사진의 재구성에 초점을 맞추는 것은 label-supervised learning에서 얻을 수 있는 흥미롭고 추상적인 특징 '(feature)'을 배우는데 도움이 되지 않는다는 중요한 증거가 있습니다 (타겟이 '개'나 '자동차'처럼 인간이 발명해낸'' 추상적인 개념들인 경우). 사실, 이와 관련된 가장 좋은 특징(feature)은 다음과 같습니다. 정확하게 입력 재구성이 힘든 동시에, 범주화나 지역화 같은 여러분이 관심있는 주요 작업에서 높은 성능을 달성하는 것입니다. 
+단순히 빠르게 입력값을 재구성 하는 것을 학습시키는 것은 여기서 그렇게 좋은 선택이 아닙니다. 예를 들어, 픽셀 수준에서 사진의 재구성에 초점을 맞추는 것은 label-supervised learning에서 얻을 수 있는 흥미롭고 추상적인 특징 '(feature)'을 배우는데 도움이 되지 않는다는 중요한 증거가 있습니다 (타겟이 '개'나 '자동차'처럼 인간이 발명해낸'' 추상적인 개념들인 경우). 사실, 이와 관련된 가장 좋은 특징(feature)은 다음과 같습니다. 정확하게 입력 재구성이 힘든 동시에, 범주화나 지역화 같은 여러분이 관심있는 주요 작업에서 높은 성능을 달성하는 것입니다. 
 
 비전(vision)에 적용되는 self-supervised learning에서, autoencoder 스타일의 입력 재구성에 대한 잠재적으로 유용한 대안은 다음과 같습니다. 직소 퍼즐 해결 또는 세부 컨텍스트(context) 매칭(고해상도이지만 그림의 작은 조각들을 그 조각들이 추출된 그림의 저해상도 버전으로의 매칭을 가능하게 함)같은 작은 작업을 사용하는 것입니다. 
 
@@ -415,9 +415,9 @@ plt.show()
 
 <img src="https://blog.keras.io/img/ae/noisy_digits.png">
 
-자세히 들여다보면 어떤 숫자인지 알 수 있겠지만 힘들겠죠. autoencoder는 어떻게 원래 숫자로 복원하는 법을 배울 수 있었을까요? 알아봅시다. 
+자세히 들여다보면 어떤 숫자인지 알 수 있지만 알아보기 힘듭니다. 어떻게 autoencoder는 원본 숫자로 복원하는 법을 배울 수 있었을까요? 알아봅시다. 
 
-이전의 convolutional autoencoder와 비교했을 때, 재구성된 이미지의 질을 향상시키려면, 약간 다른 모델을 사용하여 layer 당 더 많은 필터를 사용합니다. 
+이전의 convolutional autoencoder와 비교해서, 재구성된 이미지의 질을 향상시키려면, 약간 다른 모델을 사용하여 layer 당 더 많은 필터를 사용합니다. 
 
 ```python
 input_img = Input(shape=(28, 28, 1))  # 'channels_firtst'이미지 데이터 형식을 사용하는 경우 이를 적용
@@ -439,7 +439,7 @@ autoencoder = Model(input_img, decoded)
 autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
 ```
 
-100 epoch동안 훈련시켜보죠.
+100 epoch 동안 훈련시켜보죠.
 
 ```python
 autoencoder.fit(x_train_noisy, x_train,
@@ -450,7 +450,7 @@ autoencoder.fit(x_train_noisy, x_train,
                 callbacks=[TensorBoard(log_dir='/tmp/tb', histogram_freq=0, write_graph=False)])
 ```
 
-이제 결과를 봅시다. 위에는, 네트워크에게 준 노이즈가 있는 숫자입니다. 그리고 밑의 이미지는 네트워크가 재구성한 숫자들이죠. 
+이제 결과를 봅시다. 위는 네트워크에게 준 노이즈가 있는 숫자입니다. 그리고 밑의 이미지는 네트워크가 재구성한 숫자들이죠. 
 
 <img src="https://blog.keras.io/img/ae/denoised_digits.png">
 
@@ -460,7 +460,7 @@ autoencoder.fit(x_train_noisy, x_train,
 
 ## Sequence-to-sequence autoencoder
 
-벡터나 2D 이미지가 아닌 입력값이 연속적이라면, 인코더와 디코더를 시간 구조를 잡을 수 있는 모델을 사용하고 싶을 것입니다. LSTM같은 것 말이죠. LSTM 기반의 autoencoder를 만드려면, 먼저 LSTM 인코더를 사용하여 입력 시퀀스를 전체 시퀀스에 대한 정보가 들어있는 단일 벡터로 변환하고, 그 벡터를 n번 반복합니다 (n은 출력 시퀀스의 timestep의 수입니다). 그리고 이 일정한 시퀀스를 타겟 시퀀스로 바꾸기 위해 LSTM 디코더를 실행합니다. 
+벡터나 2D 이미지가 아닌 입력값이 연속적이라면, 인코더와 디코더를 시간 구조를 잡을 수 있는 모델을 사용하고 싶을 것입니다. LSTM같은 것 말이죠. LSTM 기반의 autoencoder를 만들기 위해서는, 먼저 LSTM 인코더를 사용하여 입력 시퀀스를 전체 시퀀스에 대한 정보가 들어있는 단일 벡터로 변환하고, 그 벡터를 n번 반복합니다 (n은 출력 시퀀스의 timestep의 수입니다). 그리고 이 일정한 시퀀스를 타겟 시퀀스로 바꾸기 위해 LSTM 디코더를 실행합니다. 
 
 여기서 데이터에 대해 설명하지는 않겠습니다. 이는 독자의 미래 관심사에 대한 예제 코드일 뿐이니까요.
 
@@ -488,7 +488,7 @@ Variational autoencoder가 뭘까요? 이는 학습된 인코딩 표현에 대�
 
 어떻게 variational autoencoder가 작동하는 걸까요?
 
-먼저, encoder 네트워크는 입력 샘플 `x`를 잠재공간(latent space)에서 두 개의 매개 변수로 변환합니다. 이 매개 변수는 `z_mean`과 `z_log_sigma`를 나타냅니다. 그런 다음, `z = z_mean + exp(z_log_sigma) * epsilon` 을 통해 데이터를 생성한다고 가정한 잠재정규분포(latent normal distribution)에서 유사한 점 `z`를 무작위로 샘플링합니다. 여기서, `epsion`은 임의의 정규텐서(normal tensor)입니다. 마지막으로, decoder 네트워크는 이러한 잠재 공간의 점을 원래의 입력 데이터로 다시 매핑합니다. 
+먼저, encoder 네트워크는 입력 샘플 `x`를 잠재공간(latent space)에서 두 개의 매개 변수로 변환합니다. 이 매개 변수는 `z_mean`과 `z_log_sigma`를 나타냅니다. 그런 다음, `z = z_mean + exp(z_log_sigma) * epsilon` 을 통해 데이터를 생성한다고 가정한 잠재정규분포(latent normal distribution)에서 유사한 점 `z`를 무작위로 샘플링합니다. 여기서, `epsilon`은 임의의 정규텐서(normal tensor)입니다. 마지막으로, decoder 네트워크는 이러한 잠재 공간의 점을 원래의 입력 데이터로 다시 매핑합니다. 
 
 모델의 매개 변수는 두 가지 손실 함수를 통해 훈련됩니다: 디코딩된 샘플을 초기 입력과 일치하도록하는 재구성 손실 (이전의 autoencoder 처럼), 그리고 regularzation term처럼 작동하는 잠재 분포(latent distribution)과 사전 분포(prior distribution) 간의 KL 발산. 후자는 잘 형성된 잠재 공간(latent space)을 학습하고 훈련 데이터의 과적합(overfitting)을 줄이는 데 도움이 되지만, 후자를 완전히 삭제하도록 하겠습니다. 
 
@@ -574,7 +574,7 @@ vae.fit(x_train, x_train,
         validation_data=(x_test, x_test))
 ```
 
-우리의 잠재 공간(latent space)가 2차원이기 때문에, 이 시점에서 할 수 있는 몇가지 좋은 시각화가 있습니다. 하나는 잠재 2D 평면에서 다른 범주를 가진 이웃을 보는 것입니다. 
+우리의 잠재 공간(latent space)가 2차원이기 때문에, 이 시점에서 할 수 있는 좋은 시각화가 있습니다. 그 중 하나는 잠재 2D 평면에서 다른 범주를 가진 이웃을 보는 것입니다. 
 
 ```
 x_test_encoded = encoder.predict(x_test, batch_size=batch_size)
@@ -627,10 +627,6 @@ plt.show()
 \[4][Auto-Encoding Variational Bayes](http://arxiv.org/abs/1312.6114)
 
 
-
-> 이 글은 2018 컨트리뷰톤에서 [`Contribute to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.
-> Translator: 윤정인
-> Translator email : asdff2002@gmail.com
 
 
 
