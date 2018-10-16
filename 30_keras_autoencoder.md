@@ -614,7 +614,7 @@ plt.show()
 
 ![vae classes plane](https://blog.keras.io/img/ae/vae_digits_manifold.png)
 
-끝입니다! 이 게시물(또는 이후의 게시물)에서 다루어졌으면 좋겠는 주제가 있다면, [@fchollet](https://twitter.com/fchollet) 트위터에서 저에게 연락해주세요. 
+끝입니다! 이 게시물(또는 이후의 게시물)에서 다루어졌으면 좋겠는 주제가 있다면, 트위터 [@fchollet](https://twitter.com/fchollet) 를 통해 연락 주세요.
 
 ### References
 
