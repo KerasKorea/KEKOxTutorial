@@ -614,13 +614,13 @@ plt.show()
 
 ### References
 
-\[1] [Why does unsupervised pre-training help deep learning?](http://www.jmlr.org/papers/volume11/erhan10a/erhan10a.pdf)
+\[1][Why does unsupervised pre-training help deep learning?](http://www.jmlr.org/papers/volume11/erhan10a/erhan10a.pdf)
 
-\[2] [Batch normalization: Accelerating deep network training by reducing internal covariate shift.](http://arxiv.org/abs/1502.03167)
+\[2][Batch normalization: Accelerating deep network training by reducing internal covariate shift.](http://arxiv.org/abs/1502.03167)
 
-\[3] [Deep Residual Learning for Image Recognition](http://arxiv.org/abs/1512.03385)
+\[3][Deep Residual Learning for Image Recognition](http://arxiv.org/abs/1512.03385)
 
-\[4] [Auto-Encoding Variational Bayes](http://arxiv.org/abs/1312.6114)
+\[4][Auto-Encoding Variational Bayes](http://arxiv.org/abs/1312.6114)
 
 
 
