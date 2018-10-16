@@ -1,4 +1,4 @@
-# Building Autoencoders in Keras
+# Building Autoencoders in Keras 
 
 원문: https://blog.keras.io/building-autoencoders-in-keras.html
 
@@ -16,7 +16,7 @@ Note: 모든 예제 코드는 2017년 3월 14일에 Keras 2.0 API에 업데이�
 
 
 
-## Autoencoder는 무엇일까요?
+## autoencoder는 무엇일까요?
 
 <img src="https://blog.keras.io/img/ae/autoencoder_schema.jpg">
 
@@ -38,6 +38,8 @@ autoencoder를 만들기 위해서는 세 가지가 필요합니다
 
 간단합니다! 이러한 단어를 모른다고 걱정하지 마세요. 이 실습 예제는 이러한 단어를 몰라도 시작할 수 있습니다. 
 
+
+
 ## autoencoder는 데이터 압축에 좋을까요?
 
 일반적으로는 그렇지 않습니다. 사진 압축에서 JPEG와 같은 기본 알고리즘보다 나은 성능을 내는 autoencoder를 개발하는 것은 꽤 어렵습니다. 일반적으로 JPEG의 성능에 도달할 수 있는 유일한 방법은 사진을 매우 특정한 유형으로 제한하는 것입니다. autoencoder가 data-specific 하다는 점 때문에 autoencoder는 실제 데이터 압축 문제에 적용하기에 비실용적입니다. 따라서 autoencoder는 훈련된 것과 비슷한 데이터에서만 사용될 수 있고, autoencoder를 일반적인 데이터에 대해 사용하기 위해서는 많은 훈련 데이터가 필요합니다. 하지만 미래에는 바뀔 수도 있습니다, 모르는 일이지요.
@@ -46,7 +48,7 @@ autoencoder를 만들기 위해서는 세 가지가 필요합니다
 
 ## autoencoder는 어디에 쓰일까요? 
 
- autoencoder는 실제 응용에서는 거의 사용되지 않습니다. 2012년, autoencoder를 응용할 수 있는 방법이 deep convolutional neural network에 대한 greedy layer-wise pretraining 에서 발견되었습니다 [1].  그러나 random weight initialization schemes가 처음부터 deep network를 훈련하기에 충분하다는 것을 알게되면서 autoencoder는 빠르게 유행에서 사라졌습니다. 2014년, batch normalization[2]은 훨씬 더 깊은 network를 허용하기 시작했고, 2015년 말부터 residual learning을 사용하여 임의적으로 deep network를 훈련시킬 수 있었습니다 [3].
+autoencoder는 실제 응용에서는 거의 사용되지 않습니다. 2012년, autoencoder를 응용할 수 있는 방법이 deep convolutional neural network에 대한 greedy layer-wise pretraining 에서 발견되었습니다 [1].  그러나 random weight initialization schemes가 처음부터 deep network를 훈련하기에 충분하다는 것을 알게되면서 autoencoder는 빠르게 유행에서 사라졌습니다. 2014년, batch normalization[2]은 훨씬 더 깊은 network를 허용하기 시작했고, 2015년 말부터 residual learning을 사용하여 임의적으로 deep network를 훈련시킬 수 있었습니다 [3].
 
 오늘날 autoencoder의 두 가지 흥미로운 실제 응용분야는 data denosing 과 데이터 시각화를 위한 차원 축소입니다. 적절한 dimensionality와 sparsity contraints를 사용하면, autoencoder는 PCA나 다른 기법들보다 더 흥미로운 data projection을 배울 수 있습니다. 
 
@@ -58,13 +60,13 @@ autoencoder를 만들기 위해서는 세 가지가 필요합니다
 
 autoencoder가 유명해진 주된 이유는 온라인에서 이용할 수있는 많은 머신러닝 수업에 특집으로 등장하기 때문입니다. 결과적으로, 머신러닝 분야의 많은 입문자들은 autoencoder를 매우 좋아합니다. 이것이 이 튜토리얼이 존재하는 이유죠! 
 
-autoencoder가 수많은 연구와 집중을 끌어들이는 또 다른 이유는 autoencoder가 비지도 학습(unsupervised learning)의 문제를 풀어낼 잠재적인 수단으로 오랜동안 생각되어왔기 때문입니다. 다시 한번 말하자면, autoencoder는 진정한 비지도 학습 기술이 아니고, self-supervised(?) 기술입니다. 이는 지도 학습(supervised learning)의 일종으로 입력 데이터로부터 target을 만들어냅니다. 흥미로운 특징(feature)들을 학습하는 self-supervised model을 얻으려면 흥미로운 합성 목표 및 손실 함수를 제공해야 합니다. 문제는 여기서 발생합니다.
+autoencoder가 수많은 연구와 집중을 끌어들이는 또 다른 이유는 autoencoder가 비지도 학습(unsupervised learning)의 문제를 풀어낼 잠재적인 수단으로 오랜동안 생각되어왔기 때문입니다. 다시 한번 말하자면, autoencoder는 진정한 비지도 학습(unsupervised learning) 기술이 아니고, self-supervised 기술입니다. 이는 지도 학습(supervised learning)의 일종으로 입력 데이터로부터 타겟을 만들어냅니다. 흥미로운 특징(feature)들을 학습하는 self-supervised model을 얻으려면 흥미로운 합성 목표 및 손실 함수를 제공해야 합니다. 문제는 여기서 발생합니다.
 
 단순히 빠르게 입력값을 재구성 하는 것을 학습시키는 것은 여기서 그렇게 좋은 선택이 아닙니다. 여기에서는, 예를 들어, 픽셀 수준에서 사진의 재구성에 초점을 맞추는 것은 label-supervised learning에서 얻을 수 있는 흥미롭고 추상적인 특징 '(feature)'을 배우는데 도움이 되지 않는다는 중요한 증거가 있습니다 (타겟이 '개'나 '자동차'처럼 인간이 발명해낸'' 추상적인 개념들인 경우). 사실, 이와 관련된 가장 좋은 특징(feature)은 다음과 같습니다. 정확하게 입력 재구성이 힘든 동시에, 범주화나 지역화 같은 여러분이 관심있는 주요 작업에서 높은 성능을 달성하는 것입니다. 
 
 비전(vision)에 적용되는 self-supervised learning에서, autoencoder 스타일의 입력 재구성에 대한 잠재적으로 유용한 대안은 다음과 같습니다. 직소 퍼즐 해결 또는 세부 컨텍스트(context) 매칭(고해상도이지만 그림의 작은 조각들을 그 조각들이 추출된 그림의 저해상도 버전으로의 매칭을 가능하게 함)같은 작은 작업을 사용하는 것입니다. 
 
-다음 논문은 직소 퍼즐 문제를 조사하여 흥미로운 결과를 냈습니다:Noroozi and Favaro(2016) Unsupervised Learning of Visual Representation by Solving Jigsa Puzzles. 이러한 작업은 "*픽셀 수준의 세부 정보를 넘어서는 시각적 매크로 구조 문제*"와 같은 기존의 autoencoder 에는 없는 입력 데이터에 대한 가정을 제공합니다. 
+다음 논문은 직소 퍼즐 문제를 조사하여 흥미로운 결과를 냈습니다: Noroozi and Favaro(2016) Unsupervised Learning of Visual Representation by Solving Jigsa Puzzles. 이러한 작업은 "*픽셀 수준의 세부 정보를 넘어서는 시각적 매크로 구조 문제*"와 같은 기존의 autoencoder 에는 없는 입력 데이터에 대한 가정을 제공합니다. 
 
 <img src="https://blog.keras.io/img/ae/jigsaw-puzzle.png">
 
@@ -143,7 +145,7 @@ print x_train.shape
 print x_test.shape
 ```
 
-이제 autoencoder를 50세대(epochs) 동안 훈련시키죠.
+이제 autoencoder를 50 epoch 동안 훈련시키죠.
 
 ```python
 autoencoder.fit(x_train, x_train,
@@ -153,7 +155,7 @@ autoencoder.fit(x_train, x_train,
                 validation_data=(x_test, x_test))
 ```
 
-50세대 이후, autoencoder는 약 0.11의 안정적인 train/test 손실 값에 도달하였습니다. 재구성된 입력과 인코딩된 표현(representation)을 시각화 해봅시다. Matplotlib을 이용하겠습니다. 
+50 epoch 이후, autoencoder는 약 0.11의 안정적인 train/test 손실 값에 도달하였습니다. 재구성된 입력과 인코딩된 표현(representation)을 시각화 해봅시다. Matplotlib을 이용하겠습니다. 
 
 ```python
 # 숫자들을 인코딩 / 디코딩
@@ -209,7 +211,7 @@ decoded = Dense(784, activation='sigmoid')(encoded)
 autoencoder = Model(input_img, decoded)
 ```
 
-우리 모델을 100세대(epochs) 동안 훈련시킵시다. 모델은 0.11의 train loss와 0.10의 test loss로 끝납니다. 이 둘의 차이가 발생하는 이유는 대부분 훈련 중 손실에 추가되는 정규화때문입니다. 
+우리 모델을 100 epoch 동안 훈련시킵시다. 모델은 0.11의 train loss와 0.10의 test loss로 끝납니다. 이 둘의 차이가 발생하는 이유는 대부분 훈련 중 손실에 추가되는 정규화때문입니다. 
 
 새로운 결과를 보시죠. 
 
@@ -247,7 +249,7 @@ autoencoder.fit(x_train, x_train,
                 validation_data=(x_test, x_test))
 ```
 
-100세대(epochs) 이후, train/test loss는 ~0.097까지 도달합니다. 이전 모델보다 조금 더 나아졌죠. 재구성된 숫자 또한 더 나아보입니다. 
+100 epoch 이후, train/test loss는 ~0.097까지 도달합니다. 이전 모델보다 조금 더 나아졌죠. 재구성된 숫자 또한 더 나아보입니다.
 
 <img src="https://blog.keras.io/img/ae/deep_ae_32.png">
 
@@ -256,8 +258,6 @@ autoencoder.fit(x_train, x_train,
 ## Convolutional autoencoder
 
 우리가 사용하는 입력은 이미지이기 때문에, convolutional neural networks(convnet)을 인코더/디코더로 사용하는 것이 가능합니다. 실제로, 이미지에 적용되는 autoencoder는 항상 convolutional autoencoder입니다. 왜냐하면 성능이 더 좋기 때문이죠. 
-
-
 
 한 번 구현해 봅시다. 인코더는 Conv2D와 MaxPooling2D layer의 층으로 구성되고, 디코더는 Conv2D와 UpSampling2D layer의 층으로 구성됩니다. 
 
@@ -303,7 +303,7 @@ x_train = np.reshape(x_train, (len(x_train), 28, 28, 1))  # 'channels_firtst'이
 x_test = np.reshape(x_test, (len(x_test), 28, 28, 1))  # 'channels_firtst'이미지 데이터 형식을 사용하는 경우 이를 적용
 ```
 
-50세대(epochs) 동안 훈련시키죠. 모델 훈련 과정을 시각화하여 설명하기 위해, Tensorflow 백엔드와 TensworBoard 콜백을 사용할 것입니다. 
+50 epoch 동안 훈련시키죠. 모델 훈련 과정을 시각화하여 설명하기 위해, Tensorflow 백엔드와 TensworBoard 콜백을 사용할 것입니다. 
 
 
 
@@ -313,7 +313,7 @@ x_test = np.reshape(x_test, (len(x_test), 28, 28, 1))  # 'channels_firtst'이미
 tensorboard --logdir=/tmp/autoencoder
 ```
 
-이제 모델을 훈련시킵시다. callback 리스트에서 TensorBoard callboack 인스턴스를 전달합니다. 매 세대(epoch) 이후, 이 콜백은 TensorBoard 서버에서 읽을 수 있는 /tmp/autoencoder에 로그를 씁니다. 
+이제 모델을 훈련시킵시다. callback 리스트에서 TensorBoard callboack 인스턴스를 전달합니다. 매 epoch 이후, 이 콜백은 TensorBoard 서버에서 읽을 수 있는 /tmp/autoencoder에 로그를 씁니다. 
 
 ```python
 from keras.callbacks import TensorBoard
@@ -372,7 +372,9 @@ plt.show()
 
 <img src="https://blog.keras.io/img/ae/encoded_representations.png">
 
-## Application to image denosing
+
+
+## 이미지 denosing 응용 
 
 이제 우리의 convoultional autoencoder를 이미지 denoising 문제에 적용해봅시다. 매우 간단합니다: 노이지(noisy)한 숫자 이미지를 클린(clean)한 숫자 이미지로 매핑하는 autoencoder를 훈련시키면 됩니다. 
 
@@ -437,7 +439,7 @@ autoencoder = Model(input_img, decoded)
 autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
 ```
 
-100 세대(epoch)동안 훈련시켜보죠.
+100 epoch동안 훈련시켜보죠.
 
 ```python
 autoencoder.fit(x_train_noisy, x_train,
@@ -454,11 +456,13 @@ autoencoder.fit(x_train_noisy, x_train,
 
 만족할만한 결과입니다. 이 과정을 더 큰 convnet으로 확장하고 싶다면, 문서 denoising이나 오디오 denoising 모델 구축을 시작할 수 있습니다. [Kaggle이 당신의 시작을 위한 데이터셋을 가지고 있어요!](https://www.kaggle.com/c/denoising-dirty-documents)
 
+
+
 ## Sequence-to-sequence autoencoder
 
 벡터나 2D 이미지가 아닌 입력값이 연속적이라면, 인코더와 디코더를 시간 구조를 잡을 수 있는 모델을 사용하고 싶을 것입니다. LSTM같은 것 말이죠. LSTM 기반의 autoencoder를 만드려면, 먼저 LSTM 인코더를 사용하여 입력 시퀀스를 전체 시퀀스에 대한 정보가 들어있는 단일 벡터로 변환하고, 그 벡터를 n번 반복합니다 (n은 출력 시퀀스의 timestep의 수입니다). 그리고 이 일정한 시퀀스를 타겟 시퀀스로 바꾸기 위해 LSTM 디코더를 실행합니다. 
 
-여기서 데이터에 대해 설명하지는 않겠습니다. 이는 독자의 미래 관심사에 대한 에제 코드일 뿐이니까요.
+여기서 데이터에 대해 설명하지는 않겠습니다. 이는 독자의 미래 관심사에 대한 예제 코드일 뿐이니까요.
 
 ```python
 from keras.layers import Input, LSTM, RepeatVector
@@ -621,6 +625,12 @@ plt.show()
 \[3][Deep Residual Learning for Image Recognition](http://arxiv.org/abs/1512.03385)
 
 \[4][Auto-Encoding Variational Bayes](http://arxiv.org/abs/1312.6114)
+
+
+
+> 이 글은 2018 컨트리뷰톤에서 [`Contribute to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.
+> Translator: 윤정인
+> Translator email : asdff2002@gmail.com
 
 
 
