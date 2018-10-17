@@ -586,3 +586,9 @@ plt.show()
 - [Building Autoencoders in Keras](https://blog.keras.io/building-autoencoders-in-keras.html)
 - [Stanford tutorial on Autoencoders](http://ufldl.stanford.edu/tutorial/unsupervised/Autoencoders/)
 - [Stacked Autoencoders in TensorFlow](http://cmgreen.io/2016/01/04/tensorflow_deep_autoencoder.html)
+
+
+
+> 이 글은 2018 컨트리뷰톤에서 [`Contributue to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.
+> Translator : [karl6885](https://github.com/karl6885)(김영규)
+> Translator Email : karl6885@gmail.com
