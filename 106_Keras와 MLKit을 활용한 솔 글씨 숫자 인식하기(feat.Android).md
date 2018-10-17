@@ -3,12 +3,13 @@
 [From Keras to ML Kit 원문 바로가기](https://proandroiddev.com/from-keras-to-ml-kit-eeaf578a01df)
 
 >  이 튜토리얼의 목적은 Keras모델과 안드로이드를 이용하여 모바일 머신러닝을 구현함에 있습니다. <br>
+머신러닝의 유명한 데이터 셋 MNIST를 이용하여 모델을 학습하고, 학습시킨 모델을 안드로이드에 올려서 <br>
   전체적인 과정은 다음과 같습니다. <br>
-    1. Keras로 예측 모델 만들기
+    1. MNIST데이터 셋을 이용하여 Keras로 예측 모델 만들기
     2. Keras모델을 TF lite 모델로 변환하기
-    3. 변환된 TF Lite모델을 다운받아서 ML Kit에 올리기
-  안드로이드 구현함에 있어서 원작자는 이미지 파일을 미리 업로드 시켜서 구현하였습니다. <br>
-  번역자인 저는 원작자와 다른 방식으로 이미지 파일이 아닌 직접 손 글씨를 작성하여 Android에서 예측할 수 있도록 구현하였습니다. 맨 아래 부분에 추가했으니 참고해보세요. 재밌습니다.
+    3. 변환된 TF Lite모델을 다운받고 ML Kit에 올리기
+  안드로이드 구현함에 있어서 원작자는 이미지 파일을 미리 업로드 시켜 구현하였습니다. <br>
+  번역자인 저는 원작자와 다른 방식으로 이미지 파일이 아닌 직접 손 글씨를 작성하여 Android에서 예측할 수 있도록 구현하였습니다. 맨 아래 부분에 추가했으니 참고해보세요. 재밌습니다 :)
 
 
 
@@ -28,10 +29,10 @@
 <p>
 이 튜토리얼은 제가 쓴 ML Kit 시리즈 중 에 한 예시입니다.
 <p>
-<u>['TensorFlow 모델 ML Kit 으로 export하기'](https://proandroiddev.com/exporting-tensorflow-models-to-ml-kit-bce13b914f31)</u>는 여러분이 Python 코드로 작성한 모델을 export하기 쉽게 작성한 튜토리얼입니다. 이 튜토리얼에서는 온라인에서 볼 수 있는 다른 예시들보다 설치, 과정들이 많지 않습니다.
+<u>[TensorFlow 모델 ML Kit 으로 export하기](https://proandroiddev.com/exporting-tensorflow-models-to-ml-kit-bce13b914f31)</u>는 여러분이 Python 코드로 작성한 모델을 export하기 쉽게 작성한 튜토리얼입니다. 이 튜토리얼에서는 온라인에서 볼 수 있는 다른 예시들보다 설치, 과정들이 많지 않습니다.
 
 <p>
-<u>['커스텀한 TensorFlow 모델들 ML Kit에 올리기: 입력과 출력 이해하기'](https://proandroiddev.com/custom-tensorflow-models-on-ml-kit-understanding-input-and-output-ca0b2c27be5f)</u>는 ML Kit을 사용하여 export시킨 모델을 안드로이드 앱에 로드시켰습니다. 이 튜토리얼에서는 ML Kit 예제 코드를 자세히 살펴보고 적절한 입력 및 출력을 구성하는 방법을 알 수 있습니다.
+<u>[커스텀한 TensorFlow 모델들 ML Kit에 올리기: 입력과 출력 이해하기](https://proandroiddev.com/custom-tensorflow-models-on-ml-kit-understanding-input-and-output-ca0b2c27be5f)</u>는 ML Kit을 사용하여 export시킨 모델을 안드로이드 앱에 로드시켰습니다. 이 튜토리얼에서는 ML Kit 예제 코드를 자세히 살펴보고 적절한 입력 및 출력을 구성하는 방법을 알 수 있습니다.
 
 <p>
 오늘 저는 다음 질문에 답하려고 노력할 것입니다.
@@ -50,7 +51,7 @@ Keras는 TensorFlow 위에서 작동할 수 있는 파이썬 기반의 신경망
 
 
 자세히 살펴봅시다. 아래의 코드는 Keras로 모델을 생성하는 부분입니다.
-```
+```python
 model = Sequential()
 
 model.add(Dense(512, activation='relu', input_dim=784))
@@ -87,7 +88,7 @@ model.summary()
 
 
 
-```
+```python
 from keras import backend as K
 
 custom_input_tensor = tf.placeholder(tf.float32, shape=(1, 784))
@@ -119,7 +120,7 @@ Keras모델을 입력 텐서로 감싸고, 출력 텐서를 구해야 합니다.
 만약 Google Colab에서 만든 모델을 내보내고 싶다면, 내보내기 단계에서 파일 경로를 변경하고 `files.download`를 호출하면 됩니다. 그러면 브라우저에서 파일 다운로드가 시작됩니다.
 <br>
 
-```
+```python
 from google.colab import files
 ...
 open("nmist_mlp.tflite", "wb").write(tflite_model)
@@ -132,7 +133,7 @@ files.download('nmist_mlp.tflite')
 <p>
 이 모델이 실행되는 액티비티는 <u>[MnistActivity.kt](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/app/src/main/java/work/beltran/mlkitsample/MnistActivity.kt)</u> 에서 열 수 있습니다.
 <p>
-```
+```java
 // 입력 : 1x784 텐서
 val inputDims = intArrayOf(1, 784)
 // 출력 : 1x10 텐서
@@ -147,7 +148,7 @@ val outputDims = intArrayOf(1, 10)
 <br>
 두번째, 비트맵을 받고 하나의 0과 1 사이의 실수 배열로 변환하는 과정이 필요합니다.
 <p>
-```
+```java
 // ML Kit Input
 val inp = arrayOf(FloatArray(784) { 0f })
 
@@ -170,7 +171,7 @@ val inputs = FirebaseModelInputs.Builder().add(inp).build()
 <p>
 이제 입력을 가지고 모델을 실행할 시간입니다.
 <p>
-```
+```java
 interpreter.run(inputs, dataOptions)
     .continueWith { task ->
          val output = task.result.getOutput<Array<FloatArray>>(0)
@@ -193,7 +194,8 @@ interpreter.run(inputs, dataOptions)
 ```
 <p>
 결과 값을 살펴보면, 우리는 출력 배열의 3번째 위치하고 있는 0.999의 값을 얻었습니다. 이것은 **숫자3의 카테고리와 일치합니다!** 우리가 만든 모델이 Android에서 작동하네요!
-> 배열의 위치는 0부터 시작하기 때문에 순서대로 0, 1, 2, 3이여서 3번째 위치라고 표현합니다.
+> 배열의 위치는 0부터 시작하기 때문에 순서대로 0, 1, 2, 3이여서 3번째 위치라고 표현합니다 <br>
+> `E-숫자`에서 예를들어 E-15는 10^(-15)로 굉장히 작은 숫자 입니다.
 
 <br>
 **이 시리즈가 TensorFlow, Keras 및 ML Kit가 어떻게 함께 작동하는지 이해하는데 도움이 되었기를 바랍니다.** 추가적인 도움이 필요하다면 도와 드리겠습니다! 저는 모바일 및 머신러닝에서 프리랜서 기회를 찾고 있습니다. <u>http://beltran.work/with-me/</u>
@@ -205,23 +207,19 @@ interpreter.run(inputs, dataOptions)
  [[MLkit_MNIST_Keras]](https://colab.research.google.com/drive/1J8HieLqMCIdVmNq1hz7FzuHOW-XduZ00) Keras모델 생성, 학습, 내보내기, 모델을 모바일에 올리기 위한 다운로드 과정을 직접 따라해보며 만든 Colab파일입니다. 별다른 설치없이 바로 실행시킬 수 있습니다.<p>
 이 튜로리얼에서는 전반적인 로직만 살펴 보겠습니다. 최종 구현에 대한 코드와 상세 설명은 저의 깃허브 [AI-project/Handwritten digit recognition](https://github.com/SooDevv/AI-project/tree/master/Handwritten%20digit%20recognition)에서 확인할 수 있으며, 안드로이드 구현은 Java를 기반으로 하였습니다. [MNIST with TensorFlow Lite on Android](https://github.com/nex3z/tflite-mnist-android/blob/master/README.md)를 참고하였습니다. <p>
 
->
-0. 분류 모델과 안드로이드를 연결하는 **Classifier** 클래스,최종결과를 반환하는 **Result** 클래스와 유저와 상호작용하는 **MainActivity** 로 구성되어 있습니다. <p>
-1. 앞 서 만든 손글씨 숫자 분류 모델을 안드로이드에 올립니다.
 
+>0. 분류 모델과 안드로이드를 연결하는 **Classifier** 클래스,최종결과를 반환하는 **Result** 클래스와 유저와 상호작용하는 **MainActivity** 로 구성되어 있습니다.
+>1. 앞 서 만든 손글씨 숫자 분류 모델을 안드로이드에 올립니다.
   - `/android/app/src/main/assets`디렉토리를 생성하여  mnist_mlp.tflite파일을 저장합니다.<p>
-2. Classifier Class
-
+>2. Classifier Class
  - mnist_mlp.tflite파일을 읽어 사전에 훈련 된 TensoFlow Lite 모델을 캡슐화하는 Interpreter에 로드합니다.<p>
  - 사용자로 부터 입력받은 손 글씨 숫자 이미지를 전처리 하는 과정이 포함되어있습니다.<p>
-3. Result Class<br>
-
+>3. Result Class<br>
   - Classifier class로 부터 받은 결과를 정의하는 클래스 입니다. <p>
   - `Prediction`은 제일 높은 확률 값을 가진 결과값을 나타냅니다. 즉, 어떤 숫자를 썻는지 맞추는 영역이죠.<p>
   - `Probability`는 결과값의 확률을 나타냅니다.<p>
   - `Timecost`는 입력 받은 손글씨로 부터 결과값을 내기위해 걸린 시간을 나타냅니다.<p>
-4. Main Activity
-
+>4. Main Activity
   - 데이터 셋과 동일한 환경을 맞추기 위해 검은색 배경화면에 흰 글씨로 숫자를 적습니다. <p>
   - `Detect` 버튼을 클릭하면, 그린 손글씨 숫자 이미지가 Classifier에 의해 분류되고, 결과를 확인할 수 있습니다. <p>
   - `Clear` 버튼을 클릭하면, 다시 손글씨를 작성할 수 있는 새 도화지가 됩니다.
