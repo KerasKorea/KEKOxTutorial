@@ -141,3 +141,99 @@ for batch in datagen.flow(x, batch_size=1,
 결과는 다음과 같습니다. 저희는 이러한 이미지로 모델을 학습하게 될 겁니다. 잘못된 학습 예시가 있다면 *augmentation* 인자를 다시 한 번 조절해보세요.
 
 ![변형된 고양이 흑흑](https://blog.keras.io/img/imgclf/cat_data_augmentation.png)
+
+# 작은 CNN 밑바닥부터 학습하기 - 코드 40줄, 정확도 80%
+
+앞서 언급했듯이 이미지 분류 작업에 가장 적합한 모델은 CNN입니다. 우선 특별한 기법을 사용하지 않고 소규모의 CNN을 처음부터 학습시켜 볼 겁니다. 데이터가 많지 않기 때문에 먼저 과적합 문제부터 해결해야 합니다. 이미지를 효과적으로 분류하려면 대상의 핵심 특징에 집중해야 합니다. 고양이와 강아지를 분류하는데 색깔을 기준으로 하면 안 되겠죠. 하지만 학습 예시 속에 강아지가 대부분 짙은 털빛을 갖고 있고 고양이는 털빛이 연하다면 그렇게 학습이 될 수 있습니다. 학습 예시가 적을수록 이런 문제가 더 심하겠죠.
+
+Generator를 이용해서 이미지 *augmentation*을 수행하는 목적이 바로 이런 과적합을 막는 데에 있습니다. 하지만 이 방법에는 한계가 있죠. 단순 기하학적인 변형으로 이미지의 특성이 크게 달라지진 않으니까요. 가장 중요한 것은 모델의 엔트로피 용량, 즉 모델이 담을 수 있는 정보의 양입니다. 모델의 복잡도를 늘리면 담을 수 있는 정보가 많아집니다. 용량이 커질수록 이미지에서 더 많은 특징을 파악하고 활용할 수 있게 됩니다. 하지만 그만큼 분류 작업에 방해되는 특징도 찾게 될 겁니다—앞서 언급한 털빛 같은 특징 말이죠. 오히려 모델의 복잡도를 줄이면 가장 중요한 몇 가지 특징에 집중해서 분류 대상을 정확하게 파악하고, 새로운 이미지도 정확하게 분류해낼 수 있습니다.
+
+엔트로피 용량을 조절하는 방법은 다양합니다. 대표적으로 모델에 관여하는 파라미터 개수를 조절하는 방법이 있습니다. 레이어 개수와 레이어 크기가 여기에 해당하죠. 저희가 작은 규모의 CNN을 사용하는 이유가 여기에 있습니다. 또한, L1, L2 정규화 (regularization) 같은 가중치 정규화 기법이 있습니다. 학습하면서 모든 가중치를 반복적으로 축소하는 방법인데, 결과적으로 핵심적인 특징에 대한 가중치만 남게 되는 효과가 있습니다.
+
+저희는 레이어 개수, 그리고 레이어당 필터 개수가 적은 소규모 CNN을 학습시킬 겁니다. 학습 과정에서는 데이터 augmentation 및 드롭아웃 (dropout) 기법을 사용합니다. 드롭아웃은 과적합을 방지할 수 있는 또 다른 방법입니다. 하나의 레이어가 이전 레이어로부터 같은 입력을 두번 이상 받지 못하도록 하여 데이터 augmentation과 비슷한 효과를 냅니다.
+
+위에서 묘사한 모델을 생성할 코드입니다. Convolution 레이어 3개를 쌓아놓은 간단한 형태로, ReLU 활성화 함수를 사용하고, max-pooling을 적용합니다. CNN 기법을 처음 고안한 Yann LeCun이 1990년대에 제시한 아키텍처와 유사한 형태입니다.
+
+```python
+model = Sequential()
+model.add(Conv2D(32, (3, 3), input_shape=(3, 150, 150)))
+model.add(Activation(`relu`))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+
+model.add(Conv2D(32, (3, 3)))
+model.add(Activation(`relu`))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+
+model.add(Conv2D(64, (3, 3)))
+model.add(Activation(`relu`))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+```
+
+모델의 상단에는 두 개의 fully-connected 레이어를 배치할 것입니다. 마지막으로 sigmoid 활성화 레이어를 배치합니다. 만약 분류하고자 하는 클래스가 3가지 이상이면 softmax 활성화 레이어를 사용하시면 됩니다. 각각의 출력값은 클래스별 예측 확률값을 나타냅니다. 저희는 강이지와 고양이를 분류하는 이진 분류 문제를 다루므로 2개로 설정하면 되겠죠. 손실 함수는 binary_crossentropy를 사용합니다. 이 또한 클래스가 3가지 이상이면 categorical_crossentropy를 사용하시면 됩니다.
+
+```
+model.add(Flatten())  # 이전 CNN 레이어에서 나온 3차원 배열은 1차원으로 뽑아줍니다
+model.add(Dense(64))
+model.add(Activation(`relu`))
+model.add(Dropout(0.5))
+model.add(Dense(2))
+model.add(Activation(`sigmoid`))
+
+model.compile(loss=`binary_crossentropy`,
+              optimizer=`rmsprop`,
+              metrics=[`accuracy`])
+```
+
+이제 본격적으로 데이터를 불러옵시다. `flow_from_directory()` 함수를 사용하면 이미지가 저장된 폴더의 구조를 파악해서 라벨 정보와 함께 이미지를 불러옵니다.
+
+```python
+batch_size = 16
+
+# 학습 이미지에 적용한 augmentation 인자를 지정해줍니다.
+train_datagen = ImageDataGenerator(
+        rescale=1./255,
+        shear_range=0.2,
+        zoom_range=0.2,
+        horizontal_flip=True)
+
+# 검증 및 테스트 이미지는 augmentation을 적용하지 않습니다. 모델 성능을 평가할 때에는 이미지 원본을 사용합니다.
+validation_datagen = ImageDataGenerator(rescale=1./255)
+test_datagen = ImageDataGenerator(rescale=1./255)
+
+# 이미지를 배치 단위로 불러와 줄 generator입니다.
+train_generator = train_datagen.flow_from_directory(
+        `data/train`,  # this is the target directory
+        target_size=(150, 150),  # 모든 이미지의 크기가 150x150로 조정됩니다.
+        batch_size=batch_size,
+        class_mode=`binary`)  # binary_crossentropy 손실 함수를 사용하므로 binary 라벨을 불러와야 합니다.
+
+validation_generator = validation_datagen.flow_from_directory(
+        `data/validation`,
+        target_size=(150, 150),
+        batch_size=batch_size,
+        class_mode=`binary`)
+
+test_generator = test_datagen.flow_from_directory(
+        `data/validation`,
+        target_size=(150, 150),
+        batch_size=batch_size,
+        class_mode=`binary`)
+```
+
+이제 본격적으로 학습을 시작합니다. 각 에폭 (epoch) 당 GPU에서는 약 20\~30초, CPU에서는 300\~400초 정도 걸립니다. 너무 급하지 않다면 CPU에서도 충분히 학습을 돌릴 수 있는 시간입니다.
+
+```python
+model.fit_generator(
+        train_generator,
+        steps_per_epoch=1000 // batch_size,
+        validation_data=validation_generator,
+        epochs=50)
+model.save_weights(`first_try.h5`)  # 많은 시간을 들여 학습한 모델인 만큼, 학습 후에는 꼭 모델을 저장해줍시다.
+```
+
+이렇게 학습을 돌린 결과, 50에폭\*으로 0.79-0.81의 검증 정확도 (validation accuracy)를 달성했습니다. 캐글 대회가 열린 2013년을 기준으로 저희는 이미 업계 최고 수준을 달성한 것입니다. 더군다나 데이터도 2000장밖에 안 쓰고, 모델을 최적화하려는 별다른 노력도 없이 말이죠. 캐글 대회 순위표 기준 215명 중 100위권에 들었습니다. 적어도 115명의 참가자는 딥러닝을 사용하지 않았나 봅니다. ;)
+
+> \*여기서 에폭 수 50은 임의로 정한 값입니다. 학습을 돌린 결과, 학습셋과 테스트셋의 성능이 크게 다르지 않게 나와 과적합이 일어나지 않은 것을 확인했습니다. 50이 괜찮은 에폭 수였던 것이죠. CNN 규모가 작고, 드롭아웃 계수도 높았기 때문에 50 에폭만으로는 과적합이 일어나지 않았던 것이라 예상해볼 수 있습니다.
+
+> 여기서 눈여겨 볼만한 점은 검증 정확도가 변동이 심하다는 것입니다. 본래 정확도, accuracy라는 통계 지표는 변동성이 크기도 하고, 검증 이미지가 500장밖에 되지 않기 때문에 그렇습니다. 변동성이 큰 만큼, 신뢰성이 조금 떨어지는 지표이죠. 저희 모델이 정말로 올바르게 학습이 된 건지, 평가에서 운이 좋았던 것인지 확실하지 않은 겁니다. 이럴 때 사용하기 좋은 방법으로 *k-fold cross-validation*이 있습니다. 같은 데이터로 더욱 신뢰할 수 있는 평가 결과를 낼 수 있지만 그만큼 시간이 오래 걸리는 방법입니다.
+
