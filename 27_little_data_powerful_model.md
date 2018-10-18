@@ -237,3 +237,103 @@ model.save_weights(`first_try.h5`)  # 많은 시간을 들여 학습한 모델�
 
 > 여기서 눈여겨 볼만한 점은 검증 정확도가 변동이 심하다는 것입니다. 본래 정확도, accuracy라는 통계 지표는 변동성이 크기도 하고, 검증 이미지가 500장밖에 되지 않기 때문에 그렇습니다. 변동성이 큰 만큼, 신뢰성이 조금 떨어지는 지표이죠. 저희 모델이 정말로 올바르게 학습이 된 건지, 평가에서 운이 좋았던 것인지 확실하지 않은 겁니다. 이럴 때 사용하기 좋은 방법으로 *k-fold cross-validation*이 있습니다. 같은 데이터로 더욱 신뢰할 수 있는 평가 결과를 낼 수 있지만 그만큼 시간이 오래 걸리는 방법입니다.
 
+# 병목 특징 - 기존 네트워크에서 뽑은 정보로 1분 만에 90% 정확도 달성
+
+더욱 정교한 접근 방식은 대규모 데이터셋에 이미 학습된 기존 네트워크 (convolutional neural *network*)를 활용하는 것입니다. 이러한 네트워크는 이미지를 파악하기에 유용한 특징을 추출하는 법을 이미 *잘* 배웠습니다. CNN의 앞쪽 레이어에서 이러한 특징을 추출하고, 뒤쪽 레이어에서 그 특징들을 가지고 이미지를 분류하겠죠. 저희는 앞쪽 레이어만 쏙 빌려와서 높은 성능의 모델을 만들어볼 겁니다. 앞쪽 레이어를 통과시켜서 추출된 특징을 바로 *bottleneck*, 즉 병목 특징이라고 부릅니다.
+
+> 이처럼 기존의 네트워크를 활용하는 방식을 *transfer learning*이라 부릅니다. 대규모 데이터셋에서 학습한 내용을 새로운 문제 상황으로 옮겨온 격이기 때문이죠.
+
+저희는 대규모 ImageNet 데이터셋에 마리 학습된 VGG16 네트워크를 사용할 것입니다. 사실 ImageNet에는 이미 고양이와 강아지 사진, 즉 고양이와 강아지 클래스가 포함되어 있으므로 VGG16은 고양이 vs 강아지 문제를 이미 접해보았습니다. 사실 고양이와 강아지 분류는 원본 VGG16 모델을 그대로 사용해도 되는 문제입니다. 하지만 ImageNet에 없는 클래스를 분류하는 데에도 병목 특징을 사용하여 뛰어난 모델을 만들 수 있습니다. 고양이와 강아지는 단지 예시입니다.
+
+VGG16 아키텍처는 다음과 같습니다.
+
+![VGG16 아키텍쳐](https://blog.keras.io/img/imgclf/vgg16_original.png)
+
+우리의 전략은 다음과 같습니다. 우선 VGG16에서 convolution 레이어로 이루어진 앞단만 가져옵니다. 뒤쪽의 fully-connected 레이어는 배제합니다. 그리고 이미지 데이터를 이 *부분 모델*에 넣고 돌려서 마지막 레이어에서 출력되는 병목 특징을 NumPy 배열에 담습니다. 이 병목 특징은 모두 수치적인 값으로 이루어져 있습니다. 마지막으로, 작은 fully-connected 모델을 만들어서 이 병목 데이터를 가지고 학습시킬 것입니다. 이때 병목 데이터는 학습, 검증, 테스트셋으로 분리해서 관리해야 합니다.
+
+사실 VGG16 하단부 위에 fully-connected 레이어를 얹은 후, VGG 부분은 동결시키고* 얹은 레이어만 학습해도 됩니다. 하지만 이 경우, 학습 스텝마다 VGG 앞단의 연산을 수행해야 하기 때문에 학습 시간이 상당히 길어집니다. 특히 CPU를 사용할 경우 시간이 너무 오래 걸리게 됩니다. 병목 방식을 사용하면 이러한 연산을 최소화할 수 있습니다. 다만 augmentation은 어려워지겠죠\*\*.
+
+> \* 동결 (freezing): 학습시키고자 하지 않은 레이어는 가중치를 동결시켜서 연산량을 줄일 수 있습니다.
+
+> \*\* 한 이미지당 (이미지를 무작위로 변형하여) bottleneck을 여러 개 생성하면 augmentation의 효과를 낼 수는 있습니다.
+
+이 실험의 전체 코드는 [여기서](https://gist.github.com/fchollet/f35fbc80e066a49d65f1688a7e99f069) 찾을 수 있습니다. 학습된 모델은 [GitHub](https://gist.github.com/baraldilorenzo/07d7802847aaad0a35d3)에서 내려받을 수 있습니다. 모델을 생성하고 불러오는 과정은 예시 코드에서 확인하실 수 있습니다. 저희는 병목 특징을 추출하는 방법을 살펴보겠습니다.
+
+```python
+batch_size = 16
+
+generator = datagen.flow_from_directory(
+        `data/train`,
+        target_size=(150, 150),
+        batch_size=batch_size,
+        class_mode=None,  #  라벨은 불러오지 않습니다.
+        shuffle=False)  # 출력되는 병목 특징이 어디서 왔는지 알 수 있도록 입력 데이터의 순서를 유지합니다 (사전순으로 cat 1000장, dog 1000장 순서로 입력이 들어옵니다).
+
+# 이미지를 모델에 입력시켜 결과를 가져옵니다. 본래 어떤 예측 결과가 출력되어야 하지만 모델의 일부만 가져왔기 때문에 병목 특징이 출력됩니다.
+bottleneck_features_train = model.predict_generator(generator, 2000)
+# 출력된 병목 데이터를 저장합니다.
+np.save(open(`bottleneck_features_train.npy`, `w`), bottleneck_features_train)
+
+generator = datagen.flow_from_directory(
+        `data/validation`,
+        target_size=(150, 150),
+        batch_size=batch_size,
+        class_mode=None,
+        shuffle=False)
+bottleneck_features_validation = model.predict_generator(generator, 800)
+np.save(open(`bottleneck_features_validation.npy`, `w`), bottleneck_features_validation)
+```
+
+이제 저장된 병목 데이터를 불러와서 소규모 fully-connected 모델을 학습시킵니다.
+
+> 코드 실행 중 문제가 발생하면 생성한 병목 데이터가 날아갈 수 있으므로 저장 후 불러오는 방식을 사용합니다.
+
+```python
+train_data = np.load(open(`bottleneck_features_train.npy`))
+# 앞서 언급한 바와 같이 병목 특징은 순서대로 추출되기 때문에 라벨 데이터는 아래와 같이 손쉽게 생성할 수 있습니다.
+train_labels = np.array([0] * 1000 + [1] * 1000)
+
+validation_data = np.load(open(`bottleneck_features_validation.npy`))
+validation_labels = np.array([0] * 400 + [1] * 400)
+
+model = Sequential()
+model.add(Flatten(input_shape=train_data.shape[1:]))
+model.add(Dense(256, activation=`relu`))
+model.add(Dropout(0.5))
+model.add(Dense(1, activation=`sigmoid`))
+
+model.compile(optimizer=`rmsprop`,
+              loss=`binary_crossentropy`,
+              metrics=[`accuracy`])
+
+model.fit(train_data, train_labels,
+          epochs=50,
+          batch_size=batch_size,
+          validation_data=(validation_data, validation_labels))
+model.save_weights(`bottleneck_fc_model.h5`)
+```
+
+모델의 크기가 워낙 작으므로 정말 빠르게 학습시킬 수 있습니다. CPU에서도 에폭 당 1초 정도밖에 걸리지 않습니다.
+
+> 이미 주요 특징이 추출된 상태이기 때문에 분류 작업을 하는데 큰 모델이 필요하지 않습니다. 오히려 모델을 크게 잡으면 과적합이 발생할 수 있겠죠.
+
+```
+Train on 2000 samples, validate on 800 samples
+Epoch 1/50
+2000/2000 [==============================] - 1s - loss: 0.8932 - acc: 0.7345 - val_loss: 0.2664 - val_acc: 0.8862
+Epoch 2/50
+2000/2000 [==============================] - 1s - loss: 0.3556 - acc: 0.8460 - val_loss: 0.4704 - val_acc: 0.7725
+...
+Epoch 47/50
+2000/2000 [==============================] - 1s - loss: 0.0063 - acc: 0.9990 - val_loss: 0.8230 - val_acc: 0.9125
+Epoch 48/50
+2000/2000 [==============================] - 1s - loss: 0.0144 - acc: 0.9960 - val_loss: 0.8204 - val_acc: 0.9075
+Epoch 49/50
+2000/2000 [==============================] - 1s - loss: 0.0102 - acc: 0.9960 - val_loss: 0.8334 - val_acc: 0.9038
+Epoch 50/50
+2000/2000 [==============================] - 1s - loss: 0.0040 - acc: 0.9985 - val_loss: 0.8556 - val_acc: 0.9075
+```
+
+0.90-0.91의 검증 정확도 도달했습니다. 나쁘지 않습니다. 앞서 언급했듯이 VGG16 학습 데이터에 이미 고양이와 강아지 사진이 포함되어 있어서 더더욱 성능이 높게 나왔지만, 그렇지 않은 경우에도 병목 방식을 사용할 수 있습니다.
+
+
