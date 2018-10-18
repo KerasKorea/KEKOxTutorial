@@ -136,7 +136,7 @@ for batch in datagen.flow(x, batch_size=1,
         break  # 이미지 20장을 생성하고 마칩니다
 ```
 
-결과는 다음과 같습니다. 저희는 이러한 이미지로 모델을 학습하게 될 겁니다. 잘못된 학습 예시가 있다면 *augmentation* 인자를 다시 한 번 조절해보세요.
+결과는 다음과 같습니다. 저희는 이러한 이미지로 모델을 학습하게 될 겁니다. 잘못된 학습 예시가 있다면 augmentation 인자를 다시 한 번 조절해보세요.
 
 ![변형된 고양이 흑흑](https://blog.keras.io/img/imgclf/cat_data_augmentation.png)
 
