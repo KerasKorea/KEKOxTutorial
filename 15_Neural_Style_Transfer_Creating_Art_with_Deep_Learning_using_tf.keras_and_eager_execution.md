@@ -48,14 +48,13 @@ Neural Style Transfer의 원리는 2가지 다른 함수를 정의하는 것으�
 3. 손실 함수 설정
 4. model 생성
 5. 손실 함수 최적화
-
 독자들에게 : 이 글은 기본적인 머신러닝 개념에 익숙한 중급 사용자들을 대상으로 합니다. 이 글을 최대한 활용하려면 다음을 하셔야 합니다.:
 - [Gatys 논문](https://arxiv.org/abs/1508.06576) 읽기 : 아래에서 설명하겠지만, 이 논문은 한층 더 이해할 수 있게 해줍니다.
 - [기울기 상승 이해하기](https://developers.google.com/machine-learning/crash-course/reducing-loss/gradient-descent)
 
 **예상 시간** : 60분
 
-**Code:**  
+**Code:** 
 이 글의 전체 코드는 [이곳](https://github.com/tensorflow/models/tree/master/research/nst_blogpost)에서 찾아볼 수 있습니다. 만약, 예제에 따라 단계별로 진행하고 싶다면, [colab](https://colab.sandbox.google.com/github/tensorflow/models/blob/master/research/nst_blogpost/4_Neural_Style_Transfer_with_Eager_Execution.ipynb)에서 찾아볼 수 있습니다.
 
 
@@ -64,53 +63,53 @@ Neural Style Transfer의 원리는 2가지 다른 함수를 정의하는 것으�
 먼저, [Eager excution](https://www.tensorflow.org/guide/eager)이 가능하도록 설계하는 것부터 시작합니다. Eager excution은 우리가 가장 명확하고 읽기 쉬운 방법으로 Neural Style Transfer를 공부할 수 있게 해줍니다.
 
 ```python
-  tf.enable_eager_execution()
-  print("Eager execution: {}".format(tf.executing_eagerly()))
+tf.enable_eager_execution()
+print("Eager execution: {}".format(tf.executing_eagerly()))
 
-  Here are the content and style images we will use:
-  plt.figure(figsize=(10,10))
+Here are the content and style images we will use:
+plt.figure(figsize=(10,10))
 
-  content = load_img(content_path).astype('uint8')
-  style = load_img(style_path)
+content = load_img(content_path).astype(`uint8`)
+style = load_img(style_path)
 
-  plt.subplot(1, 2, 1)
-  imshow(content, 'Content Image')
+plt.subplot(1, 2, 1)
+imshow(content, `Content Image`)
 
-  plt.subplot(1, 2, 2)
-  imshow(style, 'Style Image')
-  plt.show()
+plt.subplot(1, 2, 2)
+imshow(style, `Style Image`)
+plt.show()
 ```
 > [show_images.py](https://gist.github.com/raymond-yuan/dee15872cb18e628ad7bd984a7411d2c#file-show_images-py) 를 통해 볼 수 있습니다.
 
 
 ![Image of Green Sea Turtle and The Great Wave Off Kanagawa](media/15_3.png)
-  Image of Green Sea Turtle -By P .Lindgren from [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Green_Sea_Turtle_grazing_seagrass.jpg) and Image of The Great Wave Off Kanagawa from by Katsushika Hokusai [Public Domain](https://commons.wikimedia.org/wiki/File:The_Great_Wave_off_Kanagawa.jpg)
+Image of Green Sea Turtle -By P .Lindgren from [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Green_Sea_Turtle_grazing_seagrass.jpg) and Image of The Great Wave Off Kanagawa from by Katsushika Hokusai [Public Domain](https://commons.wikimedia.org/wiki/File:The_Great_Wave_off_Kanagawa.jpg)
 
 
 #### 콘텐츠와 스타일 표현 정의
 
-이미지의 콘텐츠와 스타일 표현을 얻기 위해, model 내에 몇 가지 중간 레이어(layer)를 볼 수 있습니다. 중간 레이어들은 피쳐맵(feature map)을 나타나는데 이는 깊어질 수록 높이가 커지게 됩니다. 이번 경우, 미리 학습된 이미지 분류 신경망인 VGG19 신경망을 사용합니다. 이 신경망의 중간 레이어들은 이미지의 스타일과 콘텐츠 표현을 정의하는데 필요합니다. 입력 이미지의 경우, 중간 레이어들에서 해당 스타일 및 콘텐츠가 목적 표현에도 맞춰지도록 시도합니다.
+이미지의 콘텐츠와 스타일 표현을 얻기 위해, model 내에 몇 가지 중간 레이어(layer)를 볼 수 있습니다. 중간 레이어들은 피쳐맵(feature map)을 나타나는데 이는 깊어질수록 높이가 커지게 됩니다. 이번 경우, 미리 학습된 이미지 분류 신경망인 VGG19 신경망을 사용합니다. 이 신경망의 중간 레이어들은 이미지의 스타일과 콘텐츠 표현을 정의하는 데 필요합니다. 입력 이미지의 경우, 중간 레이어들에서 해당 스타일 및 콘텐츠가 목적 표현에도 맞춰지도록 시도합니다.
 
 **왜 중간 레이어인가?**
 
-학습된 이미지 분류 신경망의 중간 레이어 출력값들이 스타일과 콘텐츠 표현을 정의하도록 하는지 궁금할 겁니다. 높은 단계에서, 이 현상은 신경망이 (신경망이 학습해온)이미지 분류를 하기 위해서는 반드시 이미지를 이해해야 하는 사실로 설명될 수 있습니다. 이는 원본 이미지를 입력 픽셀(pixel)로 사용하고 원본 이미지 픽셀을 이미지 내 피쳐들의 복잡한 이해형태로 변형하는 방식으로 내부 표현을 설계합니다. 이는 CNN(Convolution Neural Network)이 얼마나 잘 일반화될 수 있는지에 대한 이유이기도 합니다. CNN은 배경이나 다른 노이즈들에 영향을 받지 않는 클래스 내에 존재하는 불변성(invariances)을 포착하고 피쳐들을 정의할 수 있습니다. 그러므로, 원본 이미지가 입력되고 분류 레이블(label)이 출력되는 구간 어딘가에서 model은 복잡한 피쳐 추출기로서 작동합니다. 따라서 중간 레이어에 접근함으로써 입력 이미지의 콘텐츠와 스타일을 설명할 수 있습니다.
+학습된 이미지 분류 신경망의 중간 레이어 출력값들이 스타일과 콘텐츠 표현을 정의하도록 하는지 궁금할 겁니다. 높은 단계에서, 이 현상은 신경망이 (신경망이 학습해 온) 이미지 분류를 하기 위해서는 반드시 이미지를 이해해야 하는 사실로 설명될 수 있습니다. 이는 원본 이미지를 입력 픽셀(pixel)로 사용하고 원본 이미지 픽셀을 이미지 내 피쳐들의 복잡한 이해형태로 변형하는 방식으로 내부 표현을 설계합니다. 이는 CNN(Convolution Neural Network)이 얼마나 잘 일반화될 수 있는지에 대한 이유이기도 합니다. CNN은 배경이나 다른 노이즈들에 영향을 받지 않는 클래스 내에 존재하는 불변성(invariances)을 포착하고 피쳐들을 정의할 수 있습니다. 그러므로 원본 이미지가 입력되고 분류 레이블(label)이 출력되는 구간 어딘가에서 model은 복잡한 피쳐 추출기로서 작동합니다. 따라서 중간 레이어에 접근함으로써 입력 이미지의 콘텐츠와 스타일을 설명할 수 있습니다.
 
 특히 신경망에서 다음과 같은 중간 레이어를 추출합니다.
 
 ```python
-  # 피쳐맵을 추출하려는 콘텐츠 레이어
-  content_layers = ['block5_conv2']
+# 피쳐맵을 추출하려는 콘텐츠 레이어
+content_layers = [`block5_conv2`]
 
-  # 관심있는 스타일 레이어들
-  style_layers = ['block1_conv1',
-                  'block2_conv1',
-                  'block3_conv1',
-                  'block4_conv1',
-                  'block5_conv1'
-                  ]
+# 관심있는 스타일 레이어들
+style_layers = [`block1_conv1`,
+`block2_conv1`,
+`block3_conv1`,
+`block4_conv1`,
+`block5_conv1`
+]
 
-  num_content_layers = len(content_layers)
-  num_style_layers = len(style_layers)
+num_content_layers = len(content_layers)
+num_style_layers = len(style_layers)
 ```
 > [content_style_layers.py](https://gist.github.com/raymond-yuan/e5a9012acdee3295408c5019d2a2ef3c#file-content_style_layers-py)에서 확인할 수 있습니다.
 
