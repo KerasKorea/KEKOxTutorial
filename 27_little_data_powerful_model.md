@@ -68,3 +68,42 @@ data/
 저는 이런 말을 자주 듣게 됩니다: “deep learning is only relevant when you have a huge amount of data”. 데이터가 정말 많아야 딥러닝을 해볼 만하다는 것입니다. 전혀 엉뚱한 소리는 아닙니다. 컴퓨터가 알아서 데이터의 특성을 파악하려면 일반적으로 학습할 수 있는 데이터가 많아야 합니다. 이미지처럼 차원이 높은 데이터, 즉 복잡한 데이터는 더더욱 그렇습니다. 하지만 대표적인 딥러닝 모델인 CNN은 바로 이런 문제를 해결하기 위해 설계된 모델입니다—학습한 데이터가 적은 경우라도 말이죠. 별도의 데이터 조작 없이 적은 데이터를 가지고도 간단한 CNN을 처음부터 학습시켜보면 괜찮은 성능이 나오는 것을 확인할 수  있을 것입니다.
 
 하지만 이 글에서 다루는 딥러닝 모델의 핵심 장점은 바로 재사용성입니다. 예를 들어 매우 큰 데이터셋을 가지고 학습된 이미지 분류 또는 음성인식 모델은, 조금만 수정을 가하면 아예 다른 문제 상황에서도 사용할 수 있게 됩니다. 더구나 최근에는 학습이 완료된 이미지 분류 모델이 많이 공개되어 누구나 이용할 수 있습니다. 이를 활용하면 아주 적은 데이터를 가지고도 강력한 이미지 분류 모델을 손쉽게 만들 수 있습니다.
+
+# 데이터 전처리와 Augmentation
+
+모델이 적은 이미지에서 최대한 많은 정보를 뽑아내서 학습할 수 있도록 우선 이미지를 *augment* 시켜보도록 하겠습니다. 이미지를 사용할 때마다 임의로 변형을 가함으로써 마치 훨씬 더 많은 이미지를 보고 공부하는 것과 같은 학습 효과를 내는 겁니다. 이를 통해 과적합 (overfitting), 즉 학습 데이터에만 맞춰지는 것을 방지하고, 새로운 이미지도 잘 분류할 수 있게 해줍니다.
+
+이런 전처리 과정을 돕기 위해 케라스는 [`ImageDataGenerator`](https://keras.io/preprocessing/image/#imagedatagenerator-class) 클래스를 제공합니다. 이런 일을 할 수 있죠:
+
+- 학습 도중에 이미지에 임의 변형 및 정규화 적용
+- 변형된 이미지를 배치 단위로 불러올 수 있는 `generator` 생성.
+	- `generator`를 생성할 때 `flow(data, labels)`, `flow_from_directory(directory)` 두 가지 함수를 사용합니다.
+  - `fit_generator`, `evaluate_generator` 함수를 이용하여 `generator`로 이미지를 불러와서 모델을 학습시킬 수 있습니다.
+
+한번 예시를 살펴봅시다.
+
+```python
+from keras.preprocessing.image import ImageDataGenerator
+
+datagen = ImageDataGenerator(
+        rotation_range=40,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        rescale=1./255,
+        shear_range=0.2,
+        zoom_range=0.2,
+        horizontal_flip=True,
+        fill_mode=`nearest`)
+```
+
+앞서 언급했듯이 `ImageDataGenerator`는 이미지 *augmentation*을 도와주는 친구입니다. 이미지를 마음대로 바꾸면 곤란하니까 저희가 몇 가지 지시 사항을 인자로 넘겨줍니다. 각각의 인자가 어떤 사항을 지시하는지 설명드리겠습니다.
+
+- `rotation_range`: 이미지 회전 범위 (degrees)
+- `width_shift`, `height_shift`: 그림을 수평 또는 수직으로 랜덤하게 평행 이동시키는 범위 (원본 가로, 세로 길이에 대한 비율 값)
+- `rescale`: 원본 영상은 0-255의 RGB 계수로 구성되는데, 이 같은 입력값은 모델을 효과적으로 학습시키기에 너무 높습니다 (통상적인 learning rate를 사용할 경우). 그래서 이를 1/255로 스케일링하여 0-1 범위로 변환시켜줍니다. 이는 다른 전처리 과정에 앞서 가장 먼저 적용됩니다.
+- `shar_range`: 임의 전단 변환 (shearing transformation) 범위
+- `zoom_range`: 임의 확대/축소 범위
+- `horizontal_flip`: True로 설정할 경우, 50% 확률로 이미지를 수평으로 뒤집습니다. 원본 이미지에 수평 비대칭성이 없을 때 효과적입니다. 즉, 뒤집어도 자연스러울 때 사용하면 좋습니다.
+	-`fill_mode` 이미지를 회전, 이동하거나 축소할 때 생기는 공간을 채우는 방식
+
+[케라스 공식 문서](https://keras.io/preprocessing/image/)를 보시면 이외에도 인자가 더 많습니다.
