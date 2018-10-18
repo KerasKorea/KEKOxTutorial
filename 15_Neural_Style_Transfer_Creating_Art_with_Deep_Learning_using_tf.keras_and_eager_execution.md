@@ -36,7 +36,7 @@ Neural Style Transfer의 원리는 2가지 다른 함수를 정의하는 것으�
 - **Eager Execution** : 작업을 즉시 평가하는 TensorFlow의 필수 프로그래밍 환경을 사용
 - [Eager execution](https://www.tensorflow.org/guide/eager)에 대해 자세히 알아보기.
 - [실제로 해보기](https://www.tensorflow.org/tutorials) ([Colaboratory](http://colab.research.google.com/)에서 대부분의 튜토리얼을 진행할 수 있습니다)
-- **ionLayer(61)`>model를 정의하기 위한 [실용 API](https://keras.io/getting-started/functional-api-guide/)를 사용** : 실용 API를 사용해 필수 중간 활성화에 접근할 수 있도록 model 일부를 구성합니다.
+- **model를 정의하기 위한 [실용 API](https://keras.io/getting-started/functional-api-guide/)를 사용** : 실용 API를 사용해 필수 중간 활성화에 접근할 수 있도록 model 일부를 구성합니다.
 - **선행 학습한 model의 특징 맵 활용** : 선행 학습한 model과 해당 특징 맵(map)을 사용하는 방법을 배웁니다.
 - **맞춤형 학습 루프를 생성** : 입력 매개변수에 대해 주어진 손실을 최소화하기 위해 최적화 도구를 어떻게 설정할지 알아봅니다.
 
