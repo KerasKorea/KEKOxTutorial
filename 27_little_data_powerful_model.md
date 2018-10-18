@@ -53,7 +53,7 @@ data/
 
 ![고양이와 강아지](https://blog.keras.io/img/imgclf/cats_and_dogs.png)
 
-앞서 언급한 고양이 vs 강아지 대회를 캐글에서 개최한지 이제 근 5년이 되어가는데, 그때 당시만 하더라도 캐글에서는 다음과 같은 발표문을 냈습니다.
+고양이 vs 강아지 대회를 캐글에서 개최한지 이제 근 5년이 되어가는데, 그때 당시만 하더라도 캐글에서는 다음과 같은 발표문을 냈습니다.
 
 "In an informal poll conducted many years ago, computer vision experts posited that a classifier with better than 60% accuracy would be difficult without a major advance in the state of the art. For reference, a 60% classifier improves the guessing probability of a 12-image HIP from 1/4096 to 1/459. The current literature suggests machine classifiers can score above 80% accuracy on this task [\[참고\]](http://xenon.stanford.edu/~pgolle/papers/dogcat.pdf)."
 
