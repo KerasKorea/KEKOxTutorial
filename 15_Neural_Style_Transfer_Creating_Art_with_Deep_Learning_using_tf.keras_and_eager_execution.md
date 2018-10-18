@@ -9,7 +9,7 @@
 * convolution neural network
 
 ### 주요 개념 설명
-[이 글](https://colab.sandbox.google.com/github/tensorflow/models/blob/master/research/nst_blogpost/4_Neural_Style_Transfer_with_Eager_Execution.ipynb)을 통해 어떻게 딥러닝으로 다른 이미지의 스타일로 이미지를 재구성하는지 알아봅시다 (그대가 피카소 혹은 고흐처럼 그림을 그리길 원한다면). 이는 **Neural Style Transfer**로 알려져 있습니다. [예술 스타일의 신경 알고리즘](https://arxiv.org/abs/1508.06576) 이라는 Leon A. Gatys의 논문에 서술돼 있습니다. 이 알고리즘은 훌륭한 읽을거리기에 반드시 확인을 해야 합니다.
+[이 글](https://colab.sandbox.google.com/github/tensorflow/models/blob/master/research/nst_blogpost/4_Neural_Style_Transfer_with_Eager_Execution.ipynb)을 통해 어떻게 딥러닝으로 다른 이미지의 스타일로 이미지를 재구성하는지 알아봅시다 (그대가 피카소 혹은 고흐처럼 그림을 그리길 원한다면). 이는 **Neural Style Transfer**로 알려져 있습니다. [예술 스타일의 신경 알고리즘](https://arxiv.org/abs/1508.06576) 이라는 Leon A. Gatys의 논문에 서술되어 있습니다. 이 알고리즘은 훌륭한 읽을거리기에 반드시 확인을 해야합니다.
 
 Neural Style Transfer는 콘텐츠 이미지, 스타일 참조용 이미지(예 : 유명화가의 예술 작품) 그리고 스타일을 적용할 입력 이미지, 총 3가지 이미지를 가져와 입력 이미지가 콘텐츠 이미지로 보일 뿐만 아니라, 스타일 이미지의 스타일이 "그려지도록" 각각을 혼합하는 데 사용되는 최적화 기술입니다.
 
