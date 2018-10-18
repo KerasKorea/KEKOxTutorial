@@ -102,7 +102,7 @@ datagen = ImageDataGenerator(
 - `shear_range`: 임의 전단 변환 (shearing transformation) 범위
 - `zoom_range`: 임의 확대/축소 범위
 - `horizontal_flip`: True로 설정할 경우, 50% 확률로 이미지를 수평으로 뒤집습니다. 원본 이미지에 수평 비대칭성이 없을 때 효과적입니다. 즉, 뒤집어도 자연스러울 때 사용하면 좋습니다.
--`fill_mode` 이미지를 회전, 이동하거나 축소할 때 생기는 공간을 채우는 방식
+- `fill_mode` 이미지를 회전, 이동하거나 축소할 때 생기는 공간을 채우는 방식
 
 [케라스 공식 문서](https://keras.io/preprocessing/image/)를 보시면 이외에도 인자가 더 많습니다.
 
