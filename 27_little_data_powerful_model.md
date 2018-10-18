@@ -432,6 +432,6 @@ model.fit_generator(
 
 이번 글은 여기서 마치겠습니다! 앞서 수행한 실험 코드는 아래 모두 제공되어 있습니다.
 
-- [Convnet trained from scratc](https://gist.github.com/fchollet/0830affa1f7f19fd47b06d4cf89ed44d)
+- [Convnet trained from scratch](https://gist.github.com/fchollet/0830affa1f7f19fd47b06d4cf89ed44d)
 - [Bottleneck features](https://gist.github.com/fchollet/f35fbc80e066a49d65f1688a7e99f069)
 - [Fine-tuning](https://gist.github.com/fchollet/7eb39b44eb9e16e59632d25fb3119975)
