@@ -336,4 +336,102 @@ Epoch 50/50
 
 0.90-0.91의 검증 정확도 도달했습니다. 나쁘지 않습니다. 앞서 언급했듯이 VGG16 학습 데이터에 이미 고양이와 강아지 사진이 포함되어 있어서 더더욱 성능이 높게 나왔지만, 그렇지 않은 경우에도 병목 방식을 사용할 수 있습니다.
 
+# Fine Tuning: 기존 네트워크 추가 학습
 
+여기서 더더욱 성능을 개선하고자 한다면 학습하는 레이어 개수를 늘리면 됩니다. 기존에는 VGG16 뒤에 추가한 fully-connected 레이어만 학습했다면, 이제는 VGG16 최상단의 convolution 레이어까지 같이 학습시키는 것입니다. 즉, 미리 학습된 기존 네트워크의 일부 상단 레이어에 미세한 가중치 업데이트를 수행하여 지금 다루는 문제의 주어진 데이터에 좀 더 최적화시키는 것입니다. 이를 fine-tuning이라 부르며, 다음과 같이 구현됩니다.
+
+- 미리 학습된 VGG16의 CNN 부분 불러오기
+- 앞서 *학습을 마친* fully-connected 모델 추가
+- 마지막 convolution 레이어를 제외한 부분 (나머지 레이어) 동결
+
+![VGG16 변형](https://blog.keras.io/img/imgclf/vgg16_modified.png)
+
+이때, 몇 가지 주의할 점이 있습니다.
+
+Fine-tuning을 수행하려면 모든 레이어가 훈련된 가중치로 시작되어야 합니다. 예를 들어 미리 학습된 convolution 모델 위에 갓 초기화된 fully-connected 레이어를 갖다 붙이면 안 됩니다. 무작위로 초기화된 가중치 때문에 자칫 너무 큰 가중치 업데이트가 발생할 수 있습니다. 그렇게 되면 convolution 레이어 가중치가 교란될 수 있습니다. 방대한 데이터를 학습해서 얻어진 기존 네트워크의 가중치를 너무 크게 바꿔서 *핵심 학습 내용*을 잃게 되는 것입니다. Fine-tuning의 핵심은 그런 문제가 없도록 *미세하게 조정*하는 데 있습니다. 그렇기 때문에 최상단 레이어를 먼저 학습시킨 후에 학습된 레이어를 얹어서 그다음 convolution 레이어를 미세 조정해야 합니다.
+
+전체 네트워크가 아닌 마지막 convolution 레이어만 미세 조정하는 이유는 앞서 언급한 엔트로피 용량 때문입니다. 내부 용량이 큰 전체 네트워크를 학습하게 되면 과적합이 쉽게 일어날 수 있습니다. 더 나아가서, 하단 레이어는 주로 선이나 모서리와 같은 일반적인 특징을 추출하는 역할을 하므로 이를 미세 조정해도 큰 성능 향상을 기대하긴 힘듭니다.
+
+미세 조정을 할 때는 아주 작은 learning rate를 사용해야 합니다. 또한, RMSProp보다는 SGD와 같이 안정적인 학습 속도를 유지하는 optimizer를 사용하는 것이 바람직합니다. 이도 이전 학습 가중치를 훼손하지 않기 위함입니다.
+
+이 실험의 전체 코드는 [여기서](https://gist.github.com/fchollet/7eb39b44eb9e16e59632d25fb3119975) 찾을 수 있습니다.
+
+VGG 하단을 불러온 후, 앞서 학습한 fully-connected 모델을 추가합니다.
+
+```python
+# 최상단 레이어를 생성합니다
+top_model = Sequential()
+top_model.add(Flatten(input_shape=model.output_shape[1:]))
+top_model.add(Dense(256, activation=`relu`))
+top_model.add(Dropout(0.5))
+top_model.add(Dense(1, activation=`sigmoid`))
+
+# 기존 네트워크와 마찬가지로 이 방식에서는 최상단 레이어도 미리 학습되어 있어야 합니다.
+# 앞서 학습시킨 가중치를 불러옵니다.
+
+# VGG convolution 기반 위에 최상단 레이어를 얹습니다.
+model.add(top_model)
+```
+
+최상단 convolution 레이어 직전까지 모든 레이어를 동결시킵니다.
+
+```python
+# VGG 하단의 25개 레이어는 동결키십니다.
+for layer in model.layers[:25]:
+    layer.trainable = False
+
+# 아주 작은 learning ratefmf 가진 SGD/momentum optimizer를 사용합니다.
+model.compile(loss=`binary_crossentropy`,
+              optimizer=optimizers.SGD(lr=1e-4, momentum=0.9),
+              metrics=[`accuracy`])
+```
+
+마지막으로, 아주 작은 learning rate를 사용하여 모델을 학습시킵니다.
+
+```python
+batch_size = 16
+
+# 이미지 augmentation을 설정합니다
+train_datagen = ImageDataGenerator(
+        rescale=1./255,
+        shear_range=0.2,
+        zoom_range=0.2,
+        horizontal_flip=True)
+
+test_datagen = ImageDataGenerator(rescale=1./255)
+
+train_generator = train_datagen.flow_from_directory(
+        train_data_dir,
+        target_size=(img_height, img_width),
+        batch_size=batch_size,
+        class_mode=`binary`)
+
+validation_generator = test_datagen.flow_from_directory(
+        validation_data_dir,
+        target_size=(img_height, img_width),
+        batch_size=batch_size,
+        class_mode=`binary`)
+
+# Fine tuning 학습을 수행합니다.
+model.fit_generator(
+        train_generator,
+        steps_per_epoch=nb_train_samples // batch_size,
+        epochs=epochs,
+        validation_data=validation_generator,
+        validation_steps=nb_validation_samples // batch_size)
+```
+
+에폭 수 50으로 0.94의 검증 정확도를 달성했습니다. 훌륭합니다!
+
+여기서 성능을 더 늘리고자 한다면, 다음과 같은 방법을 추천해 드립니다.
+
+- 더 강한 이미지 augmentation
+- 더 높은 dropout 계수
+- L1 및 L2 정규화 (weight decay라고도 부릅니다)
+- 높은 정규화 계수와 함께 더 많은 convolution 레이어 미세 조정
+
+이번 글은 여기서 마치겠습니다! 앞서 수행한 실험 코드는 아래 모두 제공되어 있습니다.
+
+- [Convnet trained from scratc](https://gist.github.com/fchollet/0830affa1f7f19fd47b06d4cf89ed44d)
+- [Bottleneck features](https://gist.github.com/fchollet/f35fbc80e066a49d65f1688a7e99f069)
+- [Fine-tuning](https://gist.github.com/fchollet/7eb39b44eb9e16e59632d25fb3119975)
