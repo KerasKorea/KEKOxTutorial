@@ -54,6 +54,22 @@ x_test = x_test / 255.
 y_train = to_categorical(y_train, num_classes=10)
 ```
 
+데이터 세트는 10개의 클래스인 6만장의 32X32 RGB 이미지로 구성되 있습니다. 5만장은 학습과 확인용으로 사용되고 나머지 1만장은 테스트용으로 사용됩니다.
+
+```python
+print('x_train shape: {} | y_train shape: {}\nx_test shape : {} | y_test shape : {}'.format(x_train.shape, y_train.shape,                                                                                      x_test.shape, y_test.shape))
+```
+
+>>> *x_train shape: (50000, 32, 32, 3) | y_train shape: (50000, 10)*
+>>> *x_test shape: (10000, 32, 32, 3) | y_test shape: (10000, 10)*
+
+3가지 모델 전부 동일한 형태의 데이터로 작업을 하기에, 모든 모델에서 사용될 단일 입력 레이어를 정의하는게 편리합니다.
+
+```python
+input_shape = x_train[0,:,:,:].shape
+model_input = Input(shape=input_shape)
+```
+
 #### 첫번째 모델 : ConvPool-CNN-C
 
 ![ConvPool-CNN-C validation accuracy and loss](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/16_3.png)
