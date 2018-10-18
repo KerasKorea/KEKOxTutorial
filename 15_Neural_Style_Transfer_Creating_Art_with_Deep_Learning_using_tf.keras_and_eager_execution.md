@@ -63,27 +63,27 @@ Neural Style Transfer의 원리는 2가지 다른 함수를 정의하는 것으�
 먼저, [Eager excution](https://www.tensorflow.org/guide/eager)이 가능하도록 설계하는 것부터 시작합니다. Eager excution은 우리가 가장 명확하고 읽기 쉬운 방법으로 Neural Style Transfer를 공부할 수 있게 해줍니다.
 
 ```python
-tf.enable_eager_execution()
-print("Eager execution: {}".format(tf.executing_eagerly()))
+  tf.enable_eager_execution()
+  print("Eager execution: {}".format(tf.executing_eagerly()))
 
-Here are the content and style images we will use:
-plt.figure(figsize=(10,10))
+  Here are the content and style images we will use:
+  plt.figure(figsize=(10,10))
 
-content = load_img(content_path).astype(`uint8`)
-style = load_img(style_path)
+  content = load_img(content_path).astype('uint8')
+  style = load_img(style_path)
 
-plt.subplot(1, 2, 1)
-imshow(content, `Content Image`)
+  plt.subplot(1, 2, 1)
+  imshow(content, 'Content Image')
 
-plt.subplot(1, 2, 2)
-imshow(style, `Style Image`)
-plt.show()
+  plt.subplot(1, 2, 2)
+  imshow(style, 'Style Image')
+  plt.show()
 ```
 > [show_images.py](https://gist.github.com/raymond-yuan/dee15872cb18e628ad7bd984a7411d2c#file-show_images-py) 를 통해 볼 수 있습니다.
 
 
 ![Image of Green Sea Turtle and The Great Wave Off Kanagawa](media/15_3.png)
-Image of Green Sea Turtle -By P .Lindgren from [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Green_Sea_Turtle_grazing_seagrass.jpg) and Image of The Great Wave Off Kanagawa from by Katsushika Hokusai [Public Domain](https://commons.wikimedia.org/wiki/File:The_Great_Wave_off_Kanagawa.jpg)
+  Image of Green Sea Turtle -By P .Lindgren from [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Green_Sea_Turtle_grazing_seagrass.jpg) and Image of The Great Wave Off Kanagawa from by Katsushika Hokusai [Public Domain](https://commons.wikimedia.org/wiki/File:The_Great_Wave_off_Kanagawa.jpg)
 
 
 #### 콘텐츠와 스타일 표현 정의
@@ -97,19 +97,19 @@ Image of Green Sea Turtle -By P .Lindgren from [Wikimedia Commons](https://commo
 특히 신경망에서 다음과 같은 중간 레이어를 추출합니다.
 
 ```python
-# 피쳐맵을 추출하려는 콘텐츠 레이어
-content_layers = [`block5_conv2`]
+  # 피쳐맵을 추출하려는 컨텐츠 레이어
+  content_layers = ['block5_conv2']
 
-# 관심있는 스타일 레이어들
-style_layers = [`block1_conv1`,
-`block2_conv1`,
-`block3_conv1`,
-`block4_conv1`,
-`block5_conv1`
-]
+  # 관심있는 스타일 레이어들
+  style_layers = ['block1_conv1',
+                  'block2_conv1',
+                  'block3_conv1',
+                  'block4_conv1',
+                  'block5_conv1'
+                  ]
 
-num_content_layers = len(content_layers)
-num_style_layers = len(style_layers)
+  num_content_layers = len(content_layers)
+  num_style_layers = len(style_layers)
 ```
 > [content_style_layers.py](https://gist.github.com/raymond-yuan/e5a9012acdee3295408c5019d2a2ef3c#file-content_style_layers-py)에서 확인할 수 있습니다.
 
