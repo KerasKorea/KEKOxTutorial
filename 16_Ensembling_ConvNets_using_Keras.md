@@ -23,12 +23,36 @@
 
 [Keras](https://keras.io/), 특히 [실용 API](https://keras.io/models/model/), 를 사용해 상대적으로 잘 알려진 논문에서 3가지 작은 CNN(ResNet50, Inception과 비교해) 모델을 새로 만들 것입니다. 각 모델들은 [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html) 학습 데이터 세트를 기반으로 학습을 진행할 겁니다. [3](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf) 그 때 각 모델들은 테스트 세트를 사용해서 평가될 겁니다. 그 후에, 3가지 모델을 앙상블해 평가를 진행할 겁니다. 앙상블이 어떤 단일 모델들보다 테스트 세트에서 더 좋은 성능을 보여줄 거라 기대됩니다.
 
-
+여러 앙상블 기법 중 한가지로 **스택(Stacking)**이 있습니다. 이는 일반적인 앙상블 기법으로 다른 앙상블 기법을 대표할 수 있습니다. 스택은 여러 학습 알고리즘의 예측을 결합하는 학습 알고리즘을 학습하는걸 포함하고 있다.[1](https://en.wikipedia.org/wiki/Ensemble_learning#Stacking) 예시를 위해, 앙상블에서 모델 결과값의 평균을 취하는 가장 단순한 스택을 사용할 것입니다. 평균화에 매개변수가 필요하지 않으므로, 해당 앙상블을 학습할 필요가 없습니다.
 
 ![This post’s ensemble in a nutshell](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/16_2.png)
 
 
 #### 데이터 준비
+첫 번째, 필요한 라이브러리를 불러옵니다.
+
+```python
+from keras.models import Model, Input
+from keras.layers import Conv2D, MaxPooling2D, GlobalAveragePooling2D, Activation, Average, Dropout
+from keras.utils import to_categorical
+from keras.losses import categorical_crossentropy
+from keras.callbacks import ModelCheckpoint, TensorBoard
+from keras.optimizers import Adam
+from keras.datasets import cifar10
+
+import numpy as np
+```
+
+CIFAR-10에서 잘 작동하는 구조를 설명하는 논문을 찾는 것이 상대적으로 쉽기 때문에 CIFAR-10을 사용하고 있습니다. 유명한 데이터 세트를 사용하면 쉽게 재현할 수 있기도 합니다.
+
+아래는 데이터 세트를 불러오는 과정입니다. 학습용, 테스트용 데이터 둘다 정규화합니다. 학습 레이블 벡터는 **one-hot 행렬**로 변환됩니다. 테스트 레이블 벡터를 변환할 필요는 없습니다. 이는 학습단계에서 사용되지 않기 때문이죠.
+
+```python
+(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+x_train = x_train / 255.
+x_test = x_test / 255.
+y_train = to_categorical(y_train, num_classes=10)
+```
 
 #### 첫번째 모델 : ConvPool-CNN-C
 
