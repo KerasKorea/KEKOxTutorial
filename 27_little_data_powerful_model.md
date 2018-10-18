@@ -107,3 +107,37 @@ datagen = ImageDataGenerator(
 	-`fill_mode` 이미지를 회전, 이동하거나 축소할 때 생기는 공간을 채우는 방식
 
 [케라스 공식 문서](https://keras.io/preprocessing/image/)를 보시면 이외에도 인자가 더 많습니다.
+
+# ImageDataGenerator 디버깅
+
+Generator를 이용해서 학습하기 전, 먼저 변형된 이미지에 이상한 점이 없는지 확인해야 합니다. 케라스는 이를 돕기 위해 `flow`라는 함수를 제공합니다. 여기서 `rescale` 인자는 빼고 진행합니다—255배 어두운 이미지는 아무래도 눈으로 확인하기 힘들 테니까 말이죠.
+
+```python
+from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
+
+datagen = ImageDataGenerator(
+        rotation_range=40,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        shear_range=0.2,
+        zoom_range=0.2,
+        horizontal_flip=True,
+        fill_mode=`nearest`)
+
+img = load_img(`data/train/cats/cat.0.jpg`)  # PIL 이미지
+x = img_to_array(img)  # (3, 150, 150) 크기의 NumPy 배열
+x = x.reshape((1,) + x.shape)  # (1, 3, 150, 150) 크기의 NumPy 배열
+
+# 아래 .flow() 함수는 임의 변환된 이미지를 배치 단위로 생성해서
+# 지정된 `preview/` 폴더에 저장합니다.
+i = 0
+for batch in datagen.flow(x, batch_size=1,
+                          save_to_dir=`preview`, save_prefix=`cat`, save_format=`jpeg`):
+    i += 1
+    if i > 20:
+        break  # 이미지 20장을 생성하고 마칩니다
+```
+
+결과는 다음과 같습니다. 저희는 이러한 이미지로 모델을 학습하게 될 겁니다. 잘못된 학습 예시가 있다면 *augmentation* 인자를 다시 한 번 조절해보세요.
+
+![변형된 고양이 흑흑](https://blog.keras.io/img/imgclf/cat_data_augmentation.png)
