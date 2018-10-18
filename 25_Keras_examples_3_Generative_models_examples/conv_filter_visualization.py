@@ -1,8 +1,8 @@
-'''Visualization of the filters of VGG16, via gradient ascent in input space.
+'''입력공간의 기울기를 통해 VGG16 필터들을 시각화
 
-This script can run on CPU in a few minutes.
+이 글은 CPU환경에서 몇분이면 실행할 수 있습니다.
 
-Results example: http://i.imgur.com/4nj4KjN.jpg
+결과 예시 : http://i.imgur.com/4nj4KjN.jpg
 '''
 from __future__ import print_function
 
@@ -12,19 +12,19 @@ from keras.preprocessing.image import save_img
 from keras.applications import vgg16
 from keras import backend as K
 
-# dimensions of the generated pictures for each filter.
+# 각 필터들을 위한 생성 이미지의 차원 설정
 img_width = 128
 img_height = 128
 
-# the name of the layer we want to visualize
-# (see model definition at keras/applications/vgg16.py)
+# 시각화하고 싶은 레이어의 이름 설정
+# (모델에 대한 정의는 keras/applications/vgg16.py에서 볼 수 있습니다.)
 layer_name = 'block5_conv1'
 
-# util function to convert a tensor into a valid image
-
+# 텐서(tensor)를 확인된 이미지로 변환해주는 함수
 
 def deprocess_image(x):
-    # normalize tensor: center on 0., ensure std is 0.1
+
+    # 텐서를 정규화한다 : 중심은 0, 편차는 0.1
     x -= x.mean()
     x /= (x.std() + K.epsilon())
     x *= 0.1
@@ -33,7 +33,7 @@ def deprocess_image(x):
     x += 0.5
     x = np.clip(x, 0, 1)
 
-    # convert to RGB array
+    # RGB 배열로 변환
     x *= 255
     if K.image_data_format() == 'channels_first':
         x = x.transpose((1, 2, 0))
@@ -41,91 +41,92 @@ def deprocess_image(x):
     return x
 
 
-# build the VGG16 network with ImageNet weights
+# ImageNet의 가중치를 VGG16에 적용, 설계한다. 
 model = vgg16.VGG16(weights='imagenet', include_top=False)
 print('Model loaded.')
 
 model.summary()
 
-# this is the placeholder for the input images
+# 이미지를 입력받기 위한 placeholder 설정
 input_img = model.input
 
-# get the symbolic outputs of each "key" layer (we gave them unique names).
+# (앞서 이름을 지정한)각 핵심 레이어의 출력들을 가져옴.
 layer_dict = dict([(layer.name, layer) for layer in model.layers[1:]])
 
 
 def normalize(x):
-    # utility function to normalize a tensor by its L2 norm
+    # L2 norm으로 텐서를 정규화 해주는 함수
     return x / (K.sqrt(K.mean(K.square(x))) + K.epsilon())
 
 
 kept_filters = []
 for filter_index in range(200):
-    # we only scan through the first 200 filters,
-    # but there are actually 512 of them
+   
+    # 실제론 512개의 필터가 있지만 처음 200개의 필터만 스캔합니다.
     print('Processing filter %d' % filter_index)
     start_time = time.time()
 
-    # we build a loss function that maximizes the activation
-    # of the nth filter of the layer considered
+    # 관심을 두고 있는 레이어의 n번째 필터의 활성화를 최대치로 하는 손실 함수를 설계합니다.
     layer_output = layer_dict[layer_name].output
     if K.image_data_format() == 'channels_first':
         loss = K.mean(layer_output[:, filter_index, :, :])
     else:
         loss = K.mean(layer_output[:, :, :, filter_index])
 
-    # we compute the gradient of the input picture wrt this loss
+    # 손실 함수를 통해 입력 이미지의 기울기를 계산합니다
     grads = K.gradients(loss, input_img)[0]
 
-    # normalization trick: we normalize the gradient
+    # 정규화 기법 : 기울기를 정규화 합니다.
     grads = normalize(grads)
 
-    # this function returns the loss and grads given the input picture
+    # 입력 이미지의 손실과 기울기를 반환합니다.
     iterate = K.function([input_img], [loss, grads])
 
-    # step size for gradient ascent
+    # 기울기 상승을 위해 스탭 크기 지정.
     step = 1.
 
-    # we start from a gray image with some random noise
+    # 몇 개의 임의의 노이즈와 같이 회색 이미지부터 시작합니다.
     if K.image_data_format() == 'channels_first':
         input_img_data = np.random.random((1, 3, img_width, img_height))
     else:
         input_img_data = np.random.random((1, img_width, img_height, 3))
     input_img_data = (input_img_data - 0.5) * 20 + 128
 
-    # we run gradient ascent for 20 steps
+    # 20 스텝동안 기울기 상승을 시도합니다.
     for i in range(20):
         loss_value, grads_value = iterate([input_img_data])
         input_img_data += grads_value * step
 
         print('Current loss value:', loss_value)
         if loss_value <= 0.:
-            # some filters get stuck to 0, we can skip them
+            # 몇가지 필터가 0을 가질 때는 넘어갑니다.
             break
 
-    # decode the resulting input image
+    # 입력 이미지의 결과물을 디코드(decode)합니다.
     if loss_value > 0:
         img = deprocess_image(input_img_data[0])
         kept_filters.append((img, loss_value))
     end_time = time.time()
     print('Filter %d processed in %ds' % (filter_index, end_time - start_time))
 
-# we will stich the best 64 filters on a 8 x 8 grid.
+# 8 X 8 격자인 64개의 필터들을 사용할 겁니다.
 n = 8
 
-# the filters that have the highest loss are assumed to be better-looking.
-# we will only keep the top 64 filters.
+# 가장 큰 손실값을 가진 필터는 더 잘보일 것입니다.
+# 상위 64개의 필터는 유지시킬 겁니다.
 kept_filters.sort(key=lambda x: x[1], reverse=True)
 kept_filters = kept_filters[:n * n]
 
 # build a black picture with enough space for
 # our 8 x 8 filters of size 128 x 128, with a 5px margin in between
+# 128 x 128 크기의 8 x 8 필터를 저장할 수 있는 충분한 공간이 있는 검정 이미지를 만듭니다. 
+# 5px의 여유공간도 둬야합니다.
 margin = 5
 width = n * img_width + (n - 1) * margin
 height = n * img_height + (n - 1) * margin
 stitched_filters = np.zeros((width, height, 3))
 
-# fill the picture with our saved filters
+# 필터와 이미지를 저장합니다.
 for i in range(n):
     for j in range(n):
         img, loss = kept_filters[i * n + j]
@@ -135,5 +136,5 @@ for i in range(n):
             width_margin: width_margin + img_width,
             height_margin: height_margin + img_height, :] = img
 
-# save the result to disk
+# 결과를 디스크에 저장합니다.
 save_img('stitched_filters_%dx%d.png' % (n, n), stitched_filters)
