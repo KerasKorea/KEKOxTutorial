@@ -329,7 +329,7 @@ for epoch in range(epoch_num):
 ```
 > 위 코드는 [gan_training_fit.py](https://gist.github.com/RaphaelMeudec/c9c07f61981dda4d4ff742e020b6c4ba#file-gan_training_fit-py)를 통해 보실 수 있습니다.
 
-반복 구간의 확실한 이해를 위해 [Github](https://www.github.com/raphaelmeudec/deblur-gan)를 참조하십시오.
+반복 구간의 확실한 이해를 위해 [Github](https://www.github.com/raphaelmeudec/deblur-gan)를 참조하세요.
 
 
 #### 작업 환경
