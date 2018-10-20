@@ -12,7 +12,7 @@
 
 2014년, 이안 굿펠로우(Ian Goodfellow)가 **GAN**을 소개했습니다. 이 글에선 **케라스로 설계한 GAN으로 이미지 흐림 제거**를 실행하는데 초점을 두고 있습니다.
 
-본 글에 대한 [원본 논문](https://arxiv.org/pdf/1711.07064.pdf)과 그에 대한 [파이토치 코드](https://github.com/KupynOrest/DeblurGAN/)를 보기 바랍니다. 본 글의 모든 케라스 코드들은 [이곳](https://github.com/RaphaelMeudec/deblur-gan)에서 이용할 수 있으십니다.
+본 글에 대한 [원본 논문](https://arxiv.org/pdf/1711.07064.pdf)과 그에 대한 [파이토치 코드](https://github.com/KupynOrest/DeblurGAN/)를 보기 바랍니다. 본 글의 모든 케라스 코드들은 [이곳](https://github.com/RaphaelMeudec/deblur-gan)에서 이용할 수 있습니다.
 
 
 ### GAN 빠르게 복습하기
@@ -152,7 +152,7 @@ def generator_model():
     model = Model(inputs=inputs, outputs=outputs, name='Generator')
     return model
 ```
-> 위 코드는 [generator.py](https://gist.github.com/RaphaelMeudec/39b85509f9d8f41caffaf83525adced8#file-generator-py)에서 볼 수 있으십니다.
+> 위 코드는 [generator.py](https://gist.github.com/RaphaelMeudec/39b85509f9d8f41caffaf83525adced8#file-generator-py)에서 볼 수 있습니다.
 
 계획대로, 9개의 ResNet 블럭들은 입력 이미지의 업샘플링된 버전에 적용됩니다. 입력 부위에서 출력까지 레이어들을 연결시키고 정규화된 출력이 되도록 2로 나눕니다.
 
