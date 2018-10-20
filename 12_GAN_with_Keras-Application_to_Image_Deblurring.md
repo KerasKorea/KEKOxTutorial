@@ -65,7 +65,7 @@ def res_block(input, filters, kernel_size=(3,3), strides=(1,1), use_dropout=Fals
       - filters: 사용하려는 필터 수
       - kernel_size: 컨볼루션(convolution)을 위한 커널(kernel) 형태
       - strides: 컨볼루션을 위한 스트라이드(strides) 형태
-      - use_dropout: 드롭아웃(dropout) 사용 여부를 결정하는 bool값
+      - use_dropout: 드롭아웃(dropout) 사용 여부를 결정하는 boolean 값
     
     :반환
       - 케라스 모델
