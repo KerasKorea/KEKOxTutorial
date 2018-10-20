@@ -259,7 +259,7 @@ def wasserstein_loss(y_true, y_pred):
 > 위 코드는 [wasserstein_loss.py](https://gist.github.com/RaphaelMeudec/4fa6a6fe8fb341a1c410c5e2dad087de#file-wasserstein_loss-py)에서 볼 수 있습니다.
 
 #### 학습 과정
-첫 번째로 데이터를 불러오고 모든 모델을 초기화합니다. 데이터를 불러오기 위해 따로 만든 함수를 사용하고 아담 최적화 함수(Adam optimazer)를 추가해 줍니다. 식별자가 학습이 되는걸 방지하기 위해 케라스내 학습 옵션을 설정해 줍니다.
+첫 번째로 데이터를 불러오고 모든 모델을 초기화합니다. 데이터를 불러오기 위해 따로 만든 함수를 사용하고 아담 최적화 함수(Adam optimazer)를 추가합니다. 식별자가 학습이 되는걸 방지하기 위해 케라스내 학습 옵션을 설정합니다.
 
 ```python
 # 데이터를 불러옵니다.
