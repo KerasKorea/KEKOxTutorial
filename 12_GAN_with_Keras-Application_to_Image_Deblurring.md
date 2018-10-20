@@ -221,7 +221,7 @@ def generator_containing_discriminator_multiple_outputs(generator, discriminator
     model = Model(inputs=inputs, outputs=[generated_images, outputs])
     return model
 ```
-> 위 코드는 [gan.py](https://gist.github.com/RaphaelMeudec/15d1dde98739a2a22fd6bb2c4de5d17b#file-gan-py)에서 보실 수 있으십니다.
+> 위 코드는 [gan.py](https://gist.github.com/RaphaelMeudec/15d1dde98739a2a22fd6bb2c4de5d17b#file-gan-py)에서 볼 수 있습니다.
 
 어떻게 두 손실값을 이용해 이 특징들을 최대한 활용하는지 봅시다.
 
