@@ -46,7 +46,7 @@ GAN Training Process - [source](https://www.kdnuggets.com/2017/01/generative-adv
 
 #### 생성자
 
-![DeblurGAN generator nets](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_3.png)
+![DeblurGAN generator nets](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_3.png)  
 DeblurGAN 생성자 신경망의 구조입니다 - [Source](https://arxiv.org/pdf/1711.07064.pdf)
 
 핵심은 원본 이미지의 업샘플링(upsampling)에 적용되는 9개의 ResNet 블럭(block)들 입니다.
@@ -337,22 +337,22 @@ for epoch in range(epoch_num):
 본 글을 위해 Deep Learning AMI(3.0)과 같이 [AWS 인스턴스](https://aws.amazon.com/fr/ec2/instance-types/p2/)(p2.xlarge)를 사용했습니다. 학습 시간은 [GOPRO](https://drive.google.com/file/d/1H0PIXvJH4c40pk7ou6nAwoxuR4Qh_Sa2/view?usp=sharing)의 가벼운 버전을 사용해 대략 5시간(에폭 50회)이 걸렸습니다.
 
 ### 이미지 흐림 제거 결과
-![street_1](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_4.png)
+![street_1](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_4.png)  
 왼쪽부터 오른쪽으로 : 원본, 흐린 이미지, GAN 출력값
 
 위 결과는 본 글의 케라스 Deblur GAN의 결과입니다. 짙은 흐림이 있음에도 신경망이 흐린 부분을 줄이고 이미지를 좀 더 선명하게 형성했습니다. 자동차 불빛과 나뭇가지들이 선명해졌습니다.
 
-![street_2](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_5.png)
+![street_2](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_5.png)  
 왼쪽 : GOPRO 테스트 이미지, 오른쪽 : GAN 출력값
 
 한계점은 손실함수로 VGG를 사용하면 나타나는 패턴으로 위 이미지 상단에 나타나는 패턴입니다.
 
-![street_3](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_6.png)
+![street_3](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_6.png)  
 왼쪽 : GOPRO 테스트 이미지, 오른쪽 : GAN 출력값
 
 만약 컴퓨터 비전에 흥미가 있다면, [케라스를 사용한 컨텐츠 기반의 이미지 검색]을 한번 보십시오. 아래는 GAN관련 참조 목록입니다.
 
-![street_4](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_7.png)
+![street_4](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_7.png)  
 왼쪽 : GOPRO 테스트 이미지, 오른쪽 : GAN 출력값
 
 
