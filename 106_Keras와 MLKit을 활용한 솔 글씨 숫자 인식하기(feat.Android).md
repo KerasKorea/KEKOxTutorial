@@ -248,8 +248,8 @@ $ App Name
     - mnist_mlp.tflite파일을 읽어 Interpreter에 로드합니다. (Interpreter는 사전에 훈련 된 TensoFlow Lite 모델을 캡슐화합니다.)<p>
     - 사용자로 부터 입력받은 손 글씨 숫자 이미지를 회색 조(gray scale)로 바꾸는 전처리 과정이 포함되어있습니다.<p>
 
-    ```python
-      # Classifier Class 코드 일부
+    ```java
+      // Classifier Class 코드 일부
       public Result classify(Bitmap bitmap) {
 
         convertBitmapToByteBuffer(bitmap);
@@ -276,11 +276,12 @@ $ App Name
     - `mNumber`는 제일 높은 확률 값을 가진 결과값을 나타냅니다. 즉, 어떤 숫자를 썻는지 맞추는 영역입니다.<p>
     - `mProbability`는 결과값의 확률을 나타냅니다.<p>
     - `mTimecost`는 입력 받은 손글씨로 부터 결과 값을 내기위한 실행 시간을 나타냅니다.(Inference Time)<p>
+<br>
 
 4. **MainActivity**
 
-  ```python
-  # 데이터 셋과 동일한 환경을 맞추기 위해 검은색 배경화면에 흰 글씨로 숫자를 적습니다.
+  ```java
+  // 데이터 셋과 동일한 환경을 맞추기 위해 검은색 배경화면에 흰 글씨로 숫자를 적습니다.
   private void init() {
       Paint paint = new Paint();
       paint.setColor(Color.WHITE);
@@ -291,6 +292,25 @@ $ App Name
       mClassifier = new Classifier(this);
   }
   ```
+  ```java
+  // Detect 버튼
+  @OnClick(R.id.btn_detect)
+  void onDetectClick() {
+        ...
+        Bitmap image = mFpvPaint.exportToBitmap(Classifier.DIM_IMG_SIZE_WIDTH, Classifier.DIM_IMG_SIZE_HEIGHT);
+        Result result = mClassifier.classify(image);
+        renderResult(result);
+    }
+  // Clear 버튼
+  @OnClick(R.id.btn_clear)
+  void onClearClick() {
+        mFpvPaint.clear();
+        mTvPrediction.setText(R.string.empty);
+        mTvProbability.setText(R.string.empty);
+        mTvTimeCost.setText(R.string.empty);
+  }
+  ```
+
   - `Detect` 버튼을 클릭하면, 그린 손글씨 숫자 이미지가 Classifier에 의해 분류되고, 결과를 확인할 수 있습니다. <p>
   - `Clear` 버튼을 클릭하면, 다시 손글씨를 작성할 수 있는 새 도화지가 나타납니다.
 
