@@ -152,6 +152,12 @@ def predict():
 - 결과를 반복하고 그 결과들을 각각 `data["predictions"]`에 추가합니다.
 - JSON 형태으로 클라이언트에게 응답을 반환합니다.
 
+만약 이미지가 아닌 데이터로 작업한다면, `request.files` 코드를 삭제하고 원본 입력 데이터를 직접 구문 분석하거나 `request.get_json()`로 입력 데이터를 python 딕셔너리/객체에 자동으로 구문 분석되도록 해야합니다.
+
+추가로, [참조한 튜토리얼](https://scotch.io/bar-talk/processing-incoming-request-data-in-flask)은 Flask의 요청 객체의 기본 요소를 설명하는 내용을 읽어 보세요.
+
+이제 서비스를 시작하겠습니다.
+
 ```python
 # if this is the main thread of execution first load the model and
 # then start the server
@@ -162,7 +168,19 @@ if __name__ == "__main__":
     app.run()
 ```
 
+우선 `load_model`로 디스크에서 Keras 모델을 불러옵니다.
+
+`load_model` 호출은 차단 작업이며 모델을 완전히 불러올 때까지 웹서비스가 시작되지 않도록 합니다. 웹 서비스를 시작하기 전에 모델을 메모리로 완전히 불러오고 인퍼런스를 할 준비가 되지 않았다면 아래와 같은 상황이 발생할 수 있습니다:
+
+1. POST형식으로 서버에 요청합니다.
+2. 서버가 요청을 받고 데이터를 사전 처리하고 그 데이터를 모델을 통해 전달하도록 시도합니다.
+3. *만약 모델을 완전히 불러오지 않았다면, 에러가 발생할 겁니다.*
+
+당신만의 Keras REST API를 설계할 때, 요청들을 승인하기 전에 인퍼런스를 위한 준비가 되었는지 모델이 불러와졌는지를 보장하는 논리가 들어가 있는지 확인하셔야 합니다.
+
 #### REST API에서 Keras 모델을 불러오지 않는 방법
+
+예측 함수에 있는 당신의 모델을 불러오는 걸 시도할 수 있습니다. 아래 코드를 참조하세요:
 
 ```python
 # ensure an image was properly uploaded to our endpoint
@@ -184,9 +202,21 @@ if request.method == "POST":
         results = imagenet_utils.decode_predictions(preds)
         data["predictions"] = []
 ```
+위 코드는 새로운 요청이 들어올 때마다 모델을 불러온다는 의미를 가집니다. 이는 믿기 힘들 정도로 비효율적이고 여러분 시스템의 메모리가 부족해질 수도 있습니다.
 
+만약 위 코드를 실행하려고 하면 API 실행속도가 상당히 느릴겁니다.(특히 모델이 큰 경우) 이는 각 모델을 불러오는데 사용된 I/O 및 CPU 작업의 상당한 오버헤드(overhead)때문에 발생합니다.
+
+어떻게 당신 서버의 메모리를 쉽게 압도하는지 알아보기 위해, 동시에 서버로 N개의 입력 요청이 있다고 가정해 봅시다. 이는 N개의 모델을 메모리로 불러오는 것을 의미합니다. 만약 ResNet처럼 큰 모델일 경우, 모델의 N개 사본을 RAM에 저장하면 시스템 메모리가 쉽게 소진될 수 있습니다.
+
+이를 해결하기 위해, 매우 구체적이고 정당한 이유가 없는 한 새로 들어오는 요청에 대해 새 모델 인스턴스를 로드하지 않도록 시도하십시오.
+
+**경고** : 단일 스레드인 기본 Flask 서버를 사용한다고 가정합니다. 멀티 스레드 서버에서 배포할 경우, 이 글에서 앞서 설명한 "정확한" 방법을 사용하더라도 여러 모델을 메모리에 로드하는 상황에 놓일 수 있습니다. 만약 Apache나 nginx같은 서버를 사용하려면, [이곳](https://www.pyimagesearch.com/2018/01/29/scalable-keras-deep-learning-rest-api/)에서 설명하는 대로 파이프라인을 더 확장하는게 좋습니다.
 
 #### Keras REST API를 시작하기
+
+Keras REST API 서비스를 시작하는건 쉽습니다.
+
+터미널을 열어서 아래를 실행해보세요:
 
 ```bash
 $ python run_keras_server.py
@@ -196,14 +226,26 @@ Using TensorFlow backend.
  * Running on http://127.0.0.1:5000
 ```
 
+결과물에서 볼 수 있듯이, 모델을 먼저 불러옵니다. 그런 수, Flask 서버를 시작할 수 있습니다.
 
+이제 http://127.0.0.1:5000을 통해 서버에 엑세스할 수 있습니다.
+
+그러나, IP 주소 + 포트를 복사하여 브라우저에 붙여넣으려면 다음 이미지가 표시됩니다.
 
 ![Not Found](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/32_0.png)
 
+그 이유는 Flask URL 경로에 색인/홈페이지 세트가 없기 때문입니다.
+
+대신에, 브라우저를 통해 `/predict` 엔트포인트에 액세스해 보세요.
 
 ![Method Not Allowed](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/32_1.png)
 
+그리고 "Method Not Allowed"(방법 허용되지 않음) 오류가 표시됩니다. 해당 오류는 브라우저에서 GET 요청을 수행하지만 `/predict`는 POST만 허용하기 때문에 발생합니다. (다음 섹션에서 수행하는 방법을 보여드리려 합니다.)
+
 #### cURL을 사용해서 Keras REST API 테스트하기
+Keras REST API를 테스트하고 디버깅할 때는 [cURL](https://curl.haxx.se/)을 사용하는 것을 고려하세요.(사용법을 배우기에 좋은 툴입니다.)
+
+아래에서 분류하고 싶은 이미지(ex. 개)보다 구체적으로 비글을 보실 수 있을 겁니다.
 
 
 ![beagle](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/32_2.jpg)
