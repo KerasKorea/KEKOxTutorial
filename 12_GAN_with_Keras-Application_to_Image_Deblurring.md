@@ -334,7 +334,7 @@ for epoch in range(epoch_num):
 
 #### 작업 환경
 
-본 글을 위해 Deep Learning AMI(3.0)과 같이 [AWS 인스턴스](https://aws.amazon.com/fr/ec2/instance-types/p2/)(p2.xlarge)를 사용했습니다. 학습 시간은 [GOPRO](https://drive.google.com/file/d/1H0PIXvJH4c40pk7ou6nAwoxuR4Qh_Sa2/view?usp=sharing)의 가벼운 버전에서 대략 5시간(에폭 50회)이 걸렸습니다.
+본 글을 위해 Deep Learning AMI(3.0)과 같이 [AWS 인스턴스](https://aws.amazon.com/fr/ec2/instance-types/p2/)(p2.xlarge)를 사용했습니다. 학습 시간은 [GOPRO](https://drive.google.com/file/d/1H0PIXvJH4c40pk7ou6nAwoxuR4Qh_Sa2/view?usp=sharing)의 가벼운 버전을 사용해 대략 5시간(에폭 50회)이 걸렸습니다.
 
 ### 이미지 흐림 제거 결과
 ![street_1](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_4.png)
