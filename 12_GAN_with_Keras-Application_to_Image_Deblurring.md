@@ -246,7 +246,7 @@ def perceptual_loss(y_true, y_pred):
     loss_model.trainable = False
     return K.mean(K.square(loss_model(y_true) - loss_model(y_pred)))
 ```
-> 위 코드는 [perceptual_loss.py](https://gist.github.com/RaphaelMeudec/18c560ff875cfbe32cc0ff38d3374f1b#file-perceptual_loss-py)에서 보실 수 있으십니다.
+> 위 코드는 [perceptual_loss.py](https://gist.github.com/RaphaelMeudec/18c560ff875cfbe32cc0ff38d3374f1b#file-perceptual_loss-py)에서 볼 수 있습니다.
 
 두번째 손실값은 전체 모델의 출력값에 대해 수행되는 와서슈타인 손실값(wasserstein loss)입니다. 이는 두 이미지간의 차이의 평균을 가져옵니다. GAN의 컨버전스(convergence)를 개선시킨 것으로도 알려져 있습니다.
 
