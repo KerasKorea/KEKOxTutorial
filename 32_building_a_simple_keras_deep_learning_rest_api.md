@@ -106,36 +106,33 @@ def prepare_image(image, target):
 ```python
 @app.route("/predict", methods=["POST"])
 def predict():
-    # initialize the data dictionary that will be returned from the
-    # view
+    # view로부터 반환될 데이터 딕셔너리를 초기화합니다.
     data = {"success": False}
 
-    # ensure an image was properly uploaded to our endpoint
+    # 이미지가 엔트포인트에 올바르게 업로드 되었는디 확인하세요
     if flask.request.method == "POST":
         if flask.request.files.get("image"):
-            # read the image in PIL format
+            # PIL 형식으로 이미지를 읽어옵니다.
             image = flask.request.files["image"].read()
             image = Image.open(io.BytesIO(image))
 
-            # preprocess the image and prepare it for classification
+            # 분류를 위해 이미지를 사전 처리합니다.
             image = prepare_image(image, target=(224, 224))
 
-            # classify the input image and then initialize the list
-            # of predictions to return to the client
+            # 입력 이미지를 분류하고 클라이언트로부터 반환되는 예측치들의 리스트를 초기화 합니다.
             preds = model.predict(image)
             results = imagenet_utils.decode_predictions(preds)
             data["predictions"] = []
 
-            # loop over the results and add them to the list of
-            # returned predictions
+            # 결과를 반복하여 반환된 예측 목록에 추가합니다.
             for (imagenetID, label, prob) in results[0]:
                 r = {"label": label, "probability": float(prob)}
                 data["predictions"].append(r)
 
-            # indicate that the request was a success
+            # 요청이 성공했음을 나타냅니다.
             data["success"] = True
 
-    # return the data dictionary as a JSON response
+    # JSON 형식으로 데이터 딕셔너리를 반환합니다.
     return flask.jsonify(data)
 ```
 `data` 딕셔너리는 클라이언트에게 반환하길 희망하는 데이터를 저장하는데 사용합니다. 이 함수엔 예측의 성공 여부를 나타내는 부울을 가지고 있습니다. 또한, 이 딕셔너리를 사용하여 들어오는 데이터에 대한 예측 결과를 저장합니다.
@@ -159,8 +156,7 @@ def predict():
 이제 서비스를 시작하겠습니다.
 
 ```python
-# if this is the main thread of execution first load the model and
-# then start the server
+# 실행에서 메인 쓰레드인 경우, 먼저 모델을 불러온 뒤 서버를 시작합니다.
 if __name__ == "__main__":
     print(("* Loading Keras model and Flask starting server..."
         "please wait until server has fully started"))
@@ -183,21 +179,20 @@ if __name__ == "__main__":
 예측 함수에 있는 당신의 모델을 불러오는 걸 시도할 수 있습니다. 아래 코드를 참조하세요:
 
 ```python
-# ensure an image was properly uploaded to our endpoint
+# 이미지가 엔트포인트에 올바르게 업로드되었는지 확인하세요
 if request.method == "POST":
     if request.files.get("image"):
-        # read the image in PIL format
+        # PIL 형태로 이미지를 읽어옵니다.
         image = request.files["image"].read()
         image = Image.open(io.BytesIO(image))
 
-        # preprocess the image and prepare it for classification
+        # 분류를 위해 이미지를 사전 처리합니다.
         image = prepare_image(image, target=(224, 224))
 
-        # load the model
+        # 모델을 불러옵니다.
         model = ResNet50(weights="imagenet")
 
-        # classify the input image and then initialize the list
-        # of predictions to return to the client
+        # 입력 이미지를 분류하고 클라이언트로부터 반환되는 예측치들의 리스트를 초기화 합니다.
         preds = model.predict(image)
         results = imagenet_utils.decode_predictions(preds)
         data["predictions"] = []
@@ -232,23 +227,25 @@ Using TensorFlow backend.
 
 그러나, IP 주소 + 포트를 복사하여 브라우저에 붙여넣으려면 다음 이미지가 표시됩니다.
 
-![Not Found](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/32_0.png)
+![Not Found](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/32_0.png)  
 
 그 이유는 Flask URL 경로에 색인/홈페이지 세트가 없기 때문입니다.
 
 대신에, 브라우저를 통해 `/predict` 엔트포인트에 액세스해 보세요.
 
-![Method Not Allowed](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/32_1.png)
+![Method Not Allowed](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/32_1.png)  
 
 그리고 "Method Not Allowed"(방법 허용되지 않음) 오류가 표시됩니다. 해당 오류는 브라우저에서 GET 요청을 수행하지만 `/predict`는 POST만 허용하기 때문에 발생합니다. (다음 섹션에서 수행하는 방법을 보여드리려 합니다.)
 
 #### cURL을 사용해서 Keras REST API 테스트하기
 Keras REST API를 테스트하고 디버깅할 때는 [cURL](https://curl.haxx.se/)을 사용하는 것을 고려하세요.(사용법을 배우기에 좋은 툴입니다.)
 
-아래에서 분류하고 싶은 이미지(ex. 개)보다 구체적으로 비글을 보실 수 있을 겁니다.
+아래에서 분류하고 싶은 이미지(ex. *개*)보다 구체적으로 *비글*을 보실 수 있을 겁니다.
 
 
-![beagle](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/32_2.jpg)
+![beagle](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/32_2.jpg)  
+
+*curl*을 사용해서 API로 이미지를 전달할 수 있고 ResNet이 생각하는 이미지 내용을 확인할 수 있습니다.
 
 ```bash
 $ curl -X POST -F image=@dog.jpg 'http://localhost:5000/predict'
@@ -279,35 +276,59 @@ $ curl -X POST -F image=@dog.jpg 'http://localhost:5000/predict'
 }
 ```
 
+`-X` 플래그와 `POST` 값은 POST 요청을 수행하고 있음을 말해줍니다.
+
+`-F image=@dog.jpg`를 제공하여 인코딩된 데이터를 제출합니다. 그 후, `image`는 `dog.jpg`파일로 설정됩니다. `dog.jpg`보다 먼저 `@`를 제공하는 것은 cURL이 이미지의 내용을 로드하고 요청에 데이터를 전달하기를 원한다는 것을 의미합니다.
+
+끝으로, 엔트포인트를 얻게 됩니다 : `http://localhost:5000/predict`
+
+어떻게 입력 이미지가 99.01%의 신뢰도로 *"비글"*을 올바르게 분류하는지 보세요. 나머지 상위 5개 예측치 및 관련 확률도 Keras API의 응답에 포함됩니다.
+
 #### Keras REST API 프로그래밍 방식 사용
 
+아마도, Keras REST API에 데이터를 *제출*한 다음 반환된 예측치를 출력합니다. 이렇게 하려면 서버로부터 응답을 프로그래밍 방식으로 처리해야 합니다.
+
+이는 python 패키지인 [`requests`](http://docs.python-requests.org/en/master/)를 이용하면 간단한 프로세스 입니다.
+
 ```python
-# import the necessary packages
+# 필수 패키지를 불어옵니다.
 import requests
 
-# initialize the Keras REST API endpoint URL along with the input
-# image path
+# Keras REST API 엔드포인트의 URL를 입력 이미지 경로와 같이 초기화 합니다.
 KERAS_REST_API_URL = "http://localhost:5000/predict"
 IMAGE_PATH = "dog.jpg"
 
-# load the input image and construct the payload for the request
+# 입력 이미지를 불러오고 요청에 맞게 페이로드(payload)를 구성합니다.
 image = open(IMAGE_PATH, "rb").read()
 payload = {"image": image}
 
-# submit the request
+# 요청을 보냅니다.
 r = requests.post(KERAS_REST_API_URL, files=payload).json()
 
-# ensure the request was successful
+# 요청이 성공했는지 확인합니다.
 if r["success"]:
-    # loop over the predictions and display them
+    # 예측을 반복하고 이를 표시합니다.
     for (i, result) in enumerate(r["predictions"]):
         print("{}. {}: {:.4f}".format(i + 1, result["label"],
             result["probability"]))
 
-# otherwise, the request failed
+# 그렇지 않다면 요청은 실패합니다.
 else:
     print("Request failed")
 ```
+
+`KERAS_REST_API_URL`은 엔드포인트를 지정하는 반면 `IMAGE_PATH`는 디스크에 상주하는 입력 이미지의 경로입니다.
+
+`IMAGE_PATH`를 사용하여 이미지를 불러온 다음 요청에 대한 `페이로드`를 구성합니다.
+
+`페이로드`가 있을 경우 `requests.post`를 호출하여 데이터를 엔드포인트에 POST할 수 있습니다. 호출 끝에 `.json()`을 추가하면 다음과 같은 `requests`가 표시됩니다.
+
+1. 서버로부터 온 응답이 JSON에 있어야 합니다.
+2. JSON 객체가 자동으로 구문 분석 및 추상화되기를 원합니다.
+
+요청 결과가 `r`이면 분류가 성공(혹은 실패)인지 확인한 다음 `r["predictions"]`을 반복할 것입니다.
+
+`simple_request.py`를 실행하기 위해, 먼저 `run_keras_server.py`(즉 Flask 웹서버)가 현재 실행되고 있는지 확인하세요. 여기서, 별도의 셸에서 다음 명령을 실행합니다.
 
 ```bash
 $ python simple_request.py
@@ -318,7 +339,28 @@ $ python simple_request.py
 5. bluetick: 0.0011
 ```
 
+성공적으로 Keras REST API를 불러왔고 python을 통해 모델의 예측치들도 얻었습니다.  
+
 ---
+
+이 글에서 아래 항목들을 수행하는 방법을 배웠습니다:
+
+- Keras 모델을 Flask 웹 프레임워크를 사용해 REST API로 감싸는 법
+- cURL을 활용하여 데이터를 API로 전송하는 법
+- python과 `requests`패키지를 사용하여 엔드포인트로 데이터를 보내고 결과를 출력하는 법.
+
+이번 튜토리얼에 쓰인 코드는 [여기](https://github.com/jrosebr1/simple-keras-rest-api)에서 보실 수 있고, 고유한 Keras REST API용 템플릿으로 사용하실 수 있습니다.(원하는 대로 수정할 수 있습니다.)
+
+명심하세요. 이 글에 있는 코드는 교육용입니다. 대량의 호출 및 수신 요청에 따라 규모를 확장할 수 있는 생산 수준이 아닙니다.
+
+이 방법은 다음 경우에 가장 적합합니다:
+
+1. Keras 딥러닝 모델을 위한 REST API를 빠르게 설정할 필요가 있을 때
+2. 엔드포인트가 크게 타격을 받지 않을 때
+
+메세지 큐 및 배치 기능을 활용하는 고급 Keras REST API에 관심이 있을 경우, [이 글](https://www.pyimagesearch.com/2018/01/29/scalable-keras-deep-learning-rest-api/)을 참조하세요. 
+
+만약 질문이나 의견이 있다면 [PyImageSearch](https://www.pyimagesearch.com/)에서 Adrian에게 연락하세요. 앞으로 다뤄야할 주제에 대한 제안일 경우 Twitter에서 [Francois](https://twitter.com/fchollet)를 찾아보세요.
 
 ### 참고
 * [PyImageSearch](https://www.pyimagesearch.com/)
