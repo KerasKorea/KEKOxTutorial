@@ -285,7 +285,7 @@ loss_weights = [100, 1]
 d_on_g.compile(optimizer=d_on_g_opt, loss=loss, loss_weights=loss_weights)
 d.trainable = True
 ```
-> 위 코드는 [gan_training_initialization.py](https://gist.github.com/RaphaelMeudec/1c0ed2dbdef394d2ab854d63161487d9#file-gan_training_initialization-py)에서 보실 수 있으십니다.
+> 위 코드는 [gan_training_initialization.py](https://gist.github.com/RaphaelMeudec/1c0ed2dbdef394d2ab854d63161487d9#file-gan_training_initialization-py)에서 볼 수 있습니다.
 
 그리고, 설정한 에폭(epoch)만큼 실행하면서 데이터 세트를 나눠서 배치(batch)에 분배합니다.
 
