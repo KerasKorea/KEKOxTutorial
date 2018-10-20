@@ -60,8 +60,8 @@ y_train = to_categorical(y_train, num_classes=10)
 print('x_train shape: {} | y_train shape: {}\nx_test shape : {} | y_test shape : {}'.format(x_train.shape, y_train.shape,                                                                                      x_test.shape, y_test.shape))
 ```
 
->>> *x_train shape: (50000, 32, 32, 3) | y_train shape: (50000, 10)*
->>> *x_test shape: (10000, 32, 32, 3) | y_test shape: (10000, 10)*
+*>>>* *x_train shape: (50000, 32, 32, 3) | y_train shape: (50000, 10)*  
+*>>>* *x_test shape: (10000, 32, 32, 3) | y_test shape: (10000, 10)*
 
 3가지 모델 전부 동일한 형태의 데이터로 작업을 하기에, 모든 모델에서 사용될 단일 입력 레이어를 정의하는게 편리합니다.
 
@@ -72,7 +72,79 @@ model_input = Input(shape=input_shape)
 
 #### 첫번째 모델 : ConvPool-CNN-C
 
+첫번째로 학습하려는 모델은 ConvPool-CNN-C입니다. 자세한 설명은 [해당 논문](https://arxiv.org/abs/1412.6806)의 4쪽에서 보실수 있습니다. 
+
+첫번째 모델은 꽤나 간단합니다. 몇 개의 컨볼루션 레이어(convolution layer)가 풀링 레이어(pooling layer) 뒤에 연결되는 일반적인 패턴을 띄고 있습니다. 다만, 마지막 레이어에서 익숙하지 않을 수 있습니다. 몇 개의 완전 연결 레이어(FC layer)를 사용하는 대신, 전역 평균 풀링 레이어를 사용했습니다.
+
+어떻게 전역 풀링 레이어가 작동하는지 전반적은 흐름을 알아봅시다. 마지막 컨볼루션 레이어 `Conv2D(10, (1,1))`는 10가지 출력 클래스에 따라서 10가지 피쳐맵을 출력합니다. 그때 `GolobalAveragePooling2D()`레이어는 10가지 피쳐맵의 공간적 평균을 계산합니다. 이는 출력값이 단지 길이가 10인 벡터임을 의미합니다. 그 후, 소프트맥스(softmax) 활성 함수를 적용합니다. 여기서 볼 수 있듯이, 이 방법은 모델 상단에 완전 연결 레이어를 사용하는 것과 동일한 방법입니다. 신경망 논문에서 이 모델의 장점과 전역 풀링 레이어에 대해 좀 더 알아볼 수 있습니다.[5](https://arxiv.org/abs/1312.4400)
+
+여기서 중요 요점 한가지로, 마지막 `Conv2D(10, (1,1))` 레이어의 출력에는 활성 함수를 사용하지 않았다는 점입니다. 이는, 해당 레이어의 출력이 `GlobalAveragePoling2D()`의 앞부분으로 연결되기 때문입니다.
+
+```python
+def conv_pool_cnn(model_input):
+    
+    x = Conv2D(96, kernel_size=(3, 3), activation='relu', padding = 'same')(model_input)
+    x = Conv2D(96, (3, 3), activation='relu', padding = 'same')(x)
+    x = Conv2D(96, (3, 3), activation='relu', padding = 'same')(x)
+    x = MaxPooling2D(pool_size=(3, 3), strides = 2)(x)
+    x = Conv2D(192, (3, 3), activation='relu', padding = 'same')(x)
+    x = Conv2D(192, (3, 3), activation='relu', padding = 'same')(x)
+    x = Conv2D(192, (3, 3), activation='relu', padding = 'same')(x)
+    x = MaxPooling2D(pool_size=(3, 3), strides = 2)(x)
+    x = Conv2D(192, (3, 3), activation='relu', padding = 'same')(x)
+    x = Conv2D(192, (1, 1), activation='relu')(x)
+    x = Conv2D(10, (1, 1))(x)
+    x = GlobalAveragePooling2D()(x)
+    x = Activation(activation='softmax')(x)
+    
+    model = Model(model_input, x, name='conv_pool_cnn')
+    
+    return model
+```
+
+아래 코드는 첫번째 모델을 인스턴스하는 부분입니다.
+
+```python
+conv_pool_cnn_model = conv_pool_cnn(model_input)
+```
+
+단순화를 위해, 각 모델들은 동일한 매개변수를 사용해서 학습되고 컴파일됩니다. 크기가 32인 배치(batch)로 20에폭(epoch) 진행하면 세가지 모델 중 어떤 것이 되더라도 로컬 최소값(local minima)를 찾기엔 충분해 보입니다. 학습 데이터 세트의 20%를 임의로 선정하여 확인용으로 사용하게 됩니다.
+
+```python
+def compile_and_train(model, num_epochs): 
+    
+    model.compile(loss=categorical_crossentropy, optimizer=Adam(), metrics=['acc']) 
+    filepath = 'weights/' + model.name + '.{epoch:02d}-{loss:.2f}.hdf5'
+    checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=0, save_weights_only=True, save_best_only=True, mode='auto', period=1)
+    tensor_board = TensorBoard(log_dir='logs/', histogram_freq=0, batch_size=32)
+    history = model.fit(x=x_train, y=y_train, batch_size=32, epochs=num_epochs, verbose=1, callbacks=[checkpoint, tensor_board], validation_split=0.2)
+    return history
+```
+
+단일 테슬라 k80 gpu를 사용할 시, 1에폭 동안 첫번째와 두번째 모델을 학습하는데 1분정도 걸립니다. cpu를 사용할 경우 학습에 시간이 약간 걸릴겁니다.
+
+```python
+_ = compile_and_train(conv_pool_cnn_model, num_epochs=20)
+```
+
+첫번째 모델에서 확인용 데이터 세트에서 ~79% 정확도가 나왔습니다.
+
+이제 테스트 세트기반으로 에러율을 계산해 첫번째 모델을 평가합니다.
+
 ![ConvPool-CNN-C validation accuracy and loss](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/16_3.png)
+
+```python
+def evaluate_error(model):
+    pred = model.predict(x_test, batch_size = 32)
+    pred = np.argmax(pred, axis=1)
+    pred = np.expand_dims(pred, axis=1) # make same shape as y_test
+    error = np.sum(np.not_equal(pred, y_test)) / y_test.shape[0]  
+  
+    return error
+evaluate_error(conv_pool_cnn_model)
+```
+
+*>>>* 0.2414
 
 #### 두번째 모델 : ALL-CNN-C
 
