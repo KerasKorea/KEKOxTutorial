@@ -202,14 +202,14 @@ interpreter.run(inputs, dataOptions)
 
 ---
 
-<center>![](./media/106_6.gif)</center>
+![](./media/106_6.gif)
 
 >  여기부터는 이 튜토리얼의 일부분과 다른 튜토리얼의 일부분을 참고하여 만든 것입니다. 최종 데모는 위의 이미지와 같습니다.<p>
  [[MLkit_MNIST_Keras]](https://colab.research.google.com/drive/1J8HieLqMCIdVmNq1hz7FzuHOW-XduZ00) Keras모델 생성, 학습, 내보내기, 모델을 모바일에 올리기 위한 다운로드 과정을 직접 따라해보며 만든 Colab파일입니다. 별다른 설치없이 바로 실행시킬 수 있습니다.<p>
 이 튜로리얼에서는 전반적인 로직만 살펴 보겠습니다. 최종 구현에 대한 코드는 저의 깃허브 [AI-project/Handwritten digit recognition](https://github.com/SooDevv/AI-project/tree/master/Handwritten%20digit%20recognition)에서 확인할 수 있으며, 안드로이드 구현은 Java를 기반으로 하였습니다. [MNIST with TensorFlow Lite on Android](https://github.com/nex3z/tflite-mnist-android/blob/master/README.md)를 참고하였습니다. <p>
 
-<br>
-안드로이드 프로젝트의 디렉토리 구성은 다음과 같습니다.
+안드로이드 프로젝트의 디렉토리 구성은 다음과 같습니다. <p>
+
 ```
 $ App Name
 .
@@ -234,23 +234,24 @@ $ App Name
     ├── build.gradle(Project:MNIST-Android)
     └── build.gradle(Module:app)
 ```
+
 <br>
 보다시피 디렉토리는 단순하게 구성되어 있습니다.<br>
 훈련한 모델을 안드로이드에 올리고, 모델과 유저 인터페이스를 연결하면 끝입니다!  
 
-1. 앞 서 만든 손글씨 숫자 분류 모델을 안드로이드에 올립니다.
-  - `/android/app/src/main/assets`디렉토리에  mnist_mlp.tflite파일을 업로드합니다.<br>
+1. 앞 서 만든 손글씨 숫자 분류 모델을 안드로이드에 올립니다. <p>
+    - `/android/app/src/main/assets`디렉토리에  mnist_mlp.tflite파일을 업로드합니다.<br>
 
 
 소스코드는 분류 모델과 안드로이드를 연결하는 **Classifier** 클래스, 유저와 상호작용하는 **MainActivity**, 최종 결과를 반환하는 **Result** 클래스로 구성되어 있습니다. 좀 더 자세히 살펴볼까요? <p>
 
   2. **Classifier Class**
-    - mnist_mlp.tflite파일을 읽어 Interpreter에 로드합니다. (Interpreter는 사전에 훈련 된 TensoFlow Lite 모델을 캡슐화합니다.)<p>
-    - 사용자로 부터 입력받은 손 글씨 숫자 이미지를 회색 조(gray scale)로 바꾸는 전처리 과정이 포함되어있습니다.<p>
+ - mnist_mlp.tflite파일을 읽어 Interpreter에 로드합니다. (Interpreter는 사전에 훈련 된 TensoFlow Lite 모델을 캡슐화합니다.)
+ - 사용자로 부터 입력받은 손 글씨 숫자 이미지를 회색 조(gray scale)로 바꾸는 전처리 과정이 포함되어있습니다.<p>
 
     ```java
-      // Classifier Class 코드 일부
-      public Result classify(Bitmap bitmap) {
+    // Classifier Class 코드 일부
+    public Result classify(Bitmap bitmap) {
 
         convertBitmapToByteBuffer(bitmap);
 
@@ -260,25 +261,28 @@ $ App Name
         long timeCost = endTime - startTime;
 
         return new Result(mResult[0], timeCost);
-      }```
+    }
+    ```
 <br>
-  - **Result Class**
 
-    - Classifier class로 부터 받은 결과를 정의하는 클래스 입니다. <p>
+  3. **Result Class**
 
-  ```python
-    public Result(float[] result, long timeCost) {
+ - Classifier class로 부터 받은 결과를 정의하는 클래스 입니다. <p>
+
+  ```java
+  public Result(float[] result, long timeCost) {
         mNumber = argmax(result);
         mProbability = result[mNumber];
         mTimeCost = timeCost;
-  }```
+  }
+  ```
 
     - `mNumber`는 제일 높은 확률 값을 가진 결과값을 나타냅니다. 즉, 어떤 숫자를 썻는지 맞추는 영역입니다.<p>
     - `mProbability`는 결과값의 확률을 나타냅니다.<p>
     - `mTimecost`는 입력 받은 손글씨로 부터 결과 값을 내기위한 실행 시간을 나타냅니다.(Inference Time)<p>
 <br>
 
-4. **MainActivity**
+  4. **MainActivity**
 
   ```java
   // 데이터 셋과 동일한 환경을 맞추기 위해 검은색 배경화면에 흰 글씨로 숫자를 적습니다.
@@ -292,8 +296,10 @@ $ App Name
       mClassifier = new Classifier(this);
   }
   ```
+
   ```java
   // Detect 버튼
+  // 입력한 손글씨 숫자 이미지가 Classifier에 의해 분류되고, 결과를 확인할 수 있습니다.
   @OnClick(R.id.btn_detect)
   void onDetectClick() {
         ...
@@ -301,7 +307,9 @@ $ App Name
         Result result = mClassifier.classify(image);
         renderResult(result);
     }
+
   // Clear 버튼
+  // 다시 손글씨를 작성할 수 있는 새 도화지가 나타납니다.
   @OnClick(R.id.btn_clear)
   void onClearClick() {
         mFpvPaint.clear();
@@ -311,8 +319,6 @@ $ App Name
   }
   ```
 
-  - `Detect` 버튼을 클릭하면, 그린 손글씨 숫자 이미지가 Classifier에 의해 분류되고, 결과를 확인할 수 있습니다. <p>
-  - `Clear` 버튼을 클릭하면, 다시 손글씨를 작성할 수 있는 새 도화지가 나타납니다.
 
 <br>
 ### 참고문서
