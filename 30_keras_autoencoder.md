@@ -2,7 +2,7 @@
 
 원문: https://blog.keras.io/building-autoencoders-in-keras.html
 
-> 이 문서에서는 autoencoder에 대한 일반적인 질문에 답하며 다음의 모델에 해당하는 코드를 다룹니다.
+> 이 문서에서는 autoencoder에 대한 일반적인 질문에 답하고, 아래 모델에 해당하는 코드를 다룹니다.
 
 - a simple autoencoders based on a fully-connected layer 
 - a sparse autoencoder
@@ -20,11 +20,11 @@ Note: 모든 예제 코드는 2017년 3월 14일에 Keras 2.0 API에 업데이�
 
 <img src="https://blog.keras.io/img/ae/autoencoder_schema.jpg">
 
-**"Autoencoding"** 은 데이터 압축 알고리즘으로 압축 함수와 압축해제 함수는 다음과 같은 세가지 특징을 갖습니다: 1) data-specific, 2) 손실(lossy), 3) 사람의 개입 없이 예제를 통한 자동 학습. 또한, "autoencoder" 가 사용되는 대부분의 상황에서 압축 함수와 압축해제 함수는 신경망으로 구현됩니다. 
+**"Autoencoding"** 은 데이터 압축 알고리즘으로 압축 함수와 압축해제 함수는 다음과 같은 세가지 특징을 갖습니다: 1) data-specific, 2) 손실(lossy), 3) 사람의 개입 없이 예제를 통한 자동 학습. 추가적으로 "autoencoder" 가 사용되는 대부분의 상황에서 압축 함수와 압축해제 함수는 신경망으로 구현되는 경향이 있습니다. 각 특징에 대해 자세히 알아보겠습니다.
 
 1) autoencoder는 data-specific 합니다. autoencoder는 이제껏 훈련된 데이터와 비슷한 데이터로만 압축될 수 있습니다. 예를 들어 말하자면, autoencoder는 MPEG-2 Audio Layer III (MP3) 압축 알고리즘과는 다릅니다. MP3 알고리즘은 일반적으로 소리에 관한 압축이지만 특정한 종류의 소리에 관한 것은 아닙니다. 얼굴 사진에 대해 학습된 autoencoder는 나무의 사진을 압축하는 데에는 좋은 성능을 내지 못하는데 그 이유는 autoencoder가 배우는 특징은 얼굴 특유의 것이기 때문입니다. 
 
-2) autoencoder는 손실이 있습니다. 즉, 압축 해제된 결과물은 원본 보다 좋지 않습니다. (ex. MP3, JPEG 압축). 이는 손실없는 산술 압축과는 다릅니다. 
+2) autoencoder는 손실이 있습니다. 즉, 압축 해제된 결과물은 원본 보다 좋지 않습니다 (ex. MP3, JPEG 압축). 이는 손실없는 산술 압축과는 다릅니다. 
 
 3)  autoencoder는 예제 데이터로부터 자동적으로 학습하는데 이는 유용한 성질입니다: 데이터로부터 자동적으로 학습한다는 의미는 특정 종류의 입력값에 대해 잘 작동하는 특별한 형태의 알고리즘을 쉽게 훈련시킬 수 있다는 말입니다. 이는 새로운 공학적 방법 필요 없이 단지 데이터를 적절히 훈련시키면 됩니다. 
 
@@ -34,9 +34,9 @@ autoencoder를 만들기 위해서는 세 가지가 필요합니다
 - 디코딩 함수 (decoding function)
 - 원본에 대해 압축된 표현(representation)과 압축 해제된 표현(representation) 간 정보 손실량 간의 거리 함수 (즉, 손실 함수)
 
-인코더와 디코더는 parametic 함수 (일반적으로 신경망) 로 선택되고 거리 함수와 관련하여 차별화되므로 인코딩/디코딩 함수의 매개변수를 확률적 경사하강법(Stochastic gradient descent)을 사용하여 재구성 손실을 최소화하도록 최적화 할 수 있습니다.
+인코더와 디코더는 parametic 함수(일반적으로 신경망) 로 선택되고 거리 함수와 관련하여 차별화되므로 인코딩/디코딩 함수의 매개변수를 확률적 경사하강법(Stochastic gradient descent)을 사용하여 재구성 손실을 최소화하도록 최적화 할 수 있습니다.
 
-간단합니다! 이러한 단어를 모른다고 걱정하지 마세요. 이 실습 예제는 이러한 단어를 몰라도 시작할 수 있습니다. 
+간단합니다! 이러한 단어를 모른다고 걱정하지 마세요. 이 실습 예제는 이런 단어를 몰라도 시작할 수 있습니다. 
 
 
 
@@ -48,11 +48,11 @@ autoencoder를 만들기 위해서는 세 가지가 필요합니다
 
 ## autoencoder는 어디에 쓰일까요? 
 
-autoencoder는 실제 응용에서는 거의 사용되지 않습니다. 2012년, autoencoder를 응용할 수 있는 방법이 deep convolutional neural network에 대한 greedy layer-wise pretraining 에서 발견되었습니다 [1].  그러나 random weight initialization schemes가 처음부터 deep network를 훈련하기에 충분하다는 것을 알게되면서 autoencoder는 빠르게 유행에서 사라졌습니다. 2014년, batch normalization[2]은 훨씬 더 깊은 network를 허용하기 시작했고, 2015년 말부터 residual learning을 사용하여 임의적으로 deep network를 훈련시킬 수 있었습니다 [3].
+autoencoder는 실제 응용에서는 거의 사용되지 않습니다. 2012년, autoencoder를 응용할 수 있는 방법이 deep convolutional neural network에 대한 greedy layer-wise pretraining 에서 발견되었습니다 [[1]].  그러나 random weight initialization schemes가 처음부터 deep network를 훈련하기에 충분하다는 것을 알게되면서 autoencoder는 빠르게 유행에서 사라졌습니다. 2014년, batch normalization[[2]]은 훨씬 더 깊은 network를 허용하기 시작했고, 2015년 말부터 residual learning을 사용하여 임의적으로 deep network를 훈련시킬 수 있었습니다[[3]].
 
-오늘날 autoencoder의 두 가지 흥미로운 실제 응용분야는 data denosing 과 데이터 시각화를 위한 차원 축소입니다. 적절한 dimensionality와 sparsity contraints를 사용하면, autoencoder는 PCA나 다른 기법들보다 더 흥미로운 data projection을 배울 수 있습니다. 
+오늘날 autoencoder의 두 가지 흥미로운 실제 응용분야는 data denosing과 데이터 시각화를 위한 차원 축소입니다. 적절한 dimensionality와 sparsity contraints를 사용하면, autoencoder는 PCA나 다른 기법들보다 더 흥미로운 data projection을 배울 수 있습니다. 
 
-특히 2차원 시각화에 대하여, t-SNE는 거의 최고의 알고리즘입니다. 하지만 이는 상대적으로 낮은 차원의 데이터를 요구합니다. 따라서 높은 차원의 데이터에서 유사(similarity) 관계를 시각화하는 좋은 전략은 먼저 autoencoder를 사용하여 데이터를 낮은 차원으로 압축하는 것입니다. 그리고나서 압축된 데이터를 t-SNE를 사용하여 2차원 평면으로 매핑합니다. 이미 케라스의 휼륭한 parametric implementation를 Kyle McDonald가 개발하였고, [github](https://github.com/kylemcdonald/Parametric-t-SNE/blob/master/Parametric%20t-SNE%20(Keras).ipynb) 에서 볼 수 있습니다. 또한, [scikit-learn](http://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html) 에도 간단하고 실용적으로 구현되어 있습니다.
+특히 2차원 시각화에 대하여, t-SNE는 거의 최고의 알고리즘입니다. 하지만 이는 상대적으로 낮은 차원의 데이터를 요구합니다. 따라서 높은 차원의 데이터에서 유사(similarity) 관계를 시각화하는 좋은 전략은 먼저 autoencoder를 사용하여 데이터를 낮은 차원으로 압축하는 것입니다. 그리고나서 압축된 데이터를 t-SNE를 사용하여 2차원 평면으로 매핑합니다. 이미 케라스의 휼륭한 parametric implementation를 Kyle McDonald가 개발하였고, [github](https://github.com/kylemcdonald/Parametric-t-SNE/blob/master/Parametric%20t-SNE%20(Keras).ipynb)에서 볼 수 있습니다. 또한, [scikit-learn](http://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html)에도 간단하고 실용적으로 구현되어 있습니다.
 
 
 
@@ -195,7 +195,7 @@ plt.show()
 
 ## Adding a sparsity constraint on the encoded representations
 
-이전 예제에서, 표현(representation)은 은닉층의 크기(32)에만 제약을 받았습니다. 이러한 상황에서, 전형적으로 발생하는 일은 은닉층이 PCA(principal component analysis) 의 근사값을 학습한다는 것입니다. 표현을 더 간결하게 제한하는 다른 방법은 숨겨진 표현의 활동에 sparsity를 부여하는 것입니다. 이는 주어진 시간에 더 적은 유닛이 "실행"될 수 있도록 합니다. Keras에서는 activity_regularizer를 Dense layer에 추가하여 수행할 수 있습니다. 
+이전 예제에서, 표현(representation)은 은닉층의 크기(32)에만 제약을 받았습니다. 이러한 상황에서, 전형적으로 발생하는 일은 은닉층이 PCA(principal component analysis)의 근사값을 학습한다는 것입니다. 표현을 더 간결하게 제한하는 다른 방법은 숨겨진 표현의 활동에 sparsity를 부여하는 것입니다. 이는 주어진 시간에 더 적은 유닛이 "실행"될 수 있도록 합니다. Keras에서는 activity_regularizer를 Dense layer에 추가하여 수행할 수 있습니다. 
 
 ```python
 from keras import regularizers
@@ -559,7 +559,7 @@ vae.compile(optimizer='rmsprop', loss=vae_loss)
 
 MNIST 숫자에 대해 VAE를 학습시킵니다. 
 
-```
+```python
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
 x_train = x_train.astype('float32') / 255.
@@ -576,7 +576,7 @@ vae.fit(x_train, x_train,
 
 우리의 잠재 공간(latent space)가 2차원이기 때문에, 이 시점에서 할 수 있는 좋은 시각화가 있습니다. 그 중 하나는 잠재 2D 평면에서 다른 범주를 가진 이웃을 보는 것입니다. 
 
-```
+```python
 x_test_encoded = encoder.predict(x_test, batch_size=batch_size)
 plt.figure(figsize=(6, 6))
 plt.scatter(x_test_encoded[:, 0], x_test_encoded[:, 1], c=y_test)
@@ -590,7 +590,7 @@ plt.show()
 
 VAE가 생성 모델이기 때문에, 우리는 새로운 숫자도 만들어낼 수 있습니다! 여기서는 잠재 평면을 스캔하고 일정한 간격으로 잠재 지점(point)를 샘플링 한 다음, 점 각각에 해당하는 숫자를 생성해내겠습니다. 이는 MNIST 숫자를 "생성"하는 잠재 매니폴드(manifold)의 시각화를 제공합니다. 
 
-```
+```python
 # 숫자의 2D manifold 출력 
 n = 15  # 15x15 
 digit_size = 28
@@ -614,7 +614,7 @@ plt.show()
 
 ![vae classes plane](https://blog.keras.io/img/ae/vae_digits_manifold.png)
 
-끝입니다! 이 게시물(또는 이후의 게시물)에서 다루어졌으면 좋겠는 주제가 있다면, 트위터 [@fchollet](https://twitter.com/fchollet) 를 통해 연락 주세요.
+끝입니다! 이 게시물(또는 이후의 게시물)에서 다루어졌으면 좋겠는 주제가 있다면, 트위터 [@fchollet](https://twitter.com/fchollet)를 통해 연락 주세요.
 
 ### References
 
@@ -626,6 +626,11 @@ plt.show()
 
 \[4][Auto-Encoding Variational Bayes](http://arxiv.org/abs/1312.6114)
 
+[1]:http://www.jmlr.org/papers/volume11/erhan10a/erhan10a.pdf
+
+[2]:http://arxiv.org/abs/1502.03167
+
+[3]:http://arxiv.org/abs/1512.03385
 
 
 
