@@ -152,7 +152,7 @@ def generator_model():
     model = Model(inputs=inputs, outputs=outputs, name='Generator')
     return model
 ```
-> 위 코드는 [generator.py](https://gist.github.com/RaphaelMeudec/39b85509f9d8f41caffaf83525adced8#file-generator-py)에서 보실 수 있으십니다.
+> 위 코드는 [generator.py](https://gist.github.com/RaphaelMeudec/39b85509f9d8f41caffaf83525adced8#file-generator-py)에서 볼 수 있으십니다.
 
 계획대로, 9개의 ResNet 블럭들은 입력 이미지의 업샘플링된 버전에 적용됩니다. 입력 부위에서 출력까지 레이어들을 연결시켜주고 정규화된 출력이 되도록 2로 나눠줍니다.
 
