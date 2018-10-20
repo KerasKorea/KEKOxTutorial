@@ -420,3 +420,11 @@ if __name__ == "__main__":
 ```Python
 #                    self.env.render()
 ```
+
+<br></br>
+
+> 이 글은 2018 컨트리뷰톤에서 Contribute to Keras 프로젝트로 진행했습니다.
+>
+> Translator: 박정현
+>
+> Translator email : parkjh688@gmail.com
