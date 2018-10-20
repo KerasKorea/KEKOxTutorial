@@ -148,13 +148,111 @@ evaluate_error(conv_pool_cnn_model)
 
 #### 두번째 모델 : ALL-CNN-C
 
+두번째 모델은 ALL-CNN-C입니다. [4](https://arxiv.org/abs/1412.6806v3)를 참조하시면 됩니다. 이 모델은 첫번째 모델과 매우 유사합니다. 실제로, 다른점은 최대 풀링 레이어에 보폭(stride)를 2로 설정한 컨볼루션 레이어가 있는 것 뿐입니다. 다시 말하자면, `Conv2D(10, (1,1))` 레이어 뒤에 활성 함수는 없다는 걸 기억하세요. 만약 `Conv2D(10, (1,1))` 레이어 뒤에 ReLU 활성 함수를 사용한다면 학습이 실패할 겁니다.
+
+```python
+def all_cnn(model_input):
+    
+    x = Conv2D(96, kernel_size=(3, 3), activation='relu', padding = 'same')(model_input)
+    x = Conv2D(96, (3, 3), activation='relu', padding = 'same')(x)
+    x = Conv2D(96, (3, 3), activation='relu', padding = 'same', strides = 2)(x)
+    x = Conv2D(192, (3, 3), activation='relu', padding = 'same')(x)
+    x = Conv2D(192, (3, 3), activation='relu', padding = 'same')(x)
+    x = Conv2D(192, (3, 3), activation='relu', padding = 'same', strides = 2)(x)
+    x = Conv2D(192, (3, 3), activation='relu', padding = 'same')(x)
+    x = Conv2D(192, (1, 1), activation='relu')(x)
+    x = Conv2D(10, (1, 1))(x)
+    x = GlobalAveragePooling2D()(x)
+    x = Activation(activation='softmax')(x)
+        
+    model = Model(model_input, x, name='all_cnn')
+    
+    return model
+all_cnn_model = all_cnn(model_input)
+_ = compile_and_train(all_cnn_model, num_epochs=20)
+```
+
+두번째 모델은 확인용 데이터 세트에서 ~75% 정확도가 나왔습니다.
+
 ![ALL-CNN-C validation accuracy and loss](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/16_4.png)
+
+각 부분에서 첫번째 모델과 매우 유사해, 에러율이 차이가 별로 없습니다.
+
+```python
+evaluate_error(all_cnn_model)
+```
+
+*>>>* 0.26090000000000002 
+
 
 #### 세번째 모델 : Network in Network CNN
 
+세번째 모델은 네트워크 인 네트워크(통칭 NIN) CNN입니다. [5](https://arxiv.org/abs/1312.4400) 전역 풀링 레이어를 소개하는 논문에 있는 CNN입니다. 이 모델은 앞의 두 모델보다 작으므로 학습이 더 빠르게 됩니다. 마지막 컨볼루션 레이어 뒤에는 `relu`가 없다는 점 기억하세요!
+
+MLP 컨볼루션 레이어 안에 있는 다층 퍼셉트론을 사용하는 대신, 1x1 커널을 사용하는 컨볼루션 레이어를 사용합니다. 이 방법은 최적화에 매개변수를 적게 사용하므로, 학습을 더 빠르고 더 좋은 결과를 성취하도록 해줍니다. (완전 연결 레이어를 사용할 시 확인용 데이터로 50%보다 더 높은 정확도는 얻을 수 없었습니다.) 해당 논문에선 mlpconv 레이어에 적용된 함수는 일반 컨볼루션 레이어에 채널 파라미터 풀링을 나열하는 것과 동일합니다. 이는 1x1 커널이 있는 컨볼루션 레이어와 동일합니다.
+
+```python
+def nin_cnn(model_input):
+    
+    #mlpconv block 1
+    x = Conv2D(32, (5, 5), activation='relu',padding='valid')(model_input)
+    x = Conv2D(32, (1, 1), activation='relu')(x)
+    x = Conv2D(32, (1, 1), activation='relu')(x)
+    x = MaxPooling2D((2, 2))(x)
+    x = Dropout(0.5)(x)
+    
+    #mlpconv block2
+    x = Conv2D(64, (3, 3), activation='relu',padding='valid')(x)
+    x = Conv2D(64, (1, 1), activation='relu')(x)
+    x = Conv2D(64, (1, 1), activation='relu')(x)
+    x = MaxPooling2D((2, 2))(x)
+    x = Dropout(0.5)(x)
+    
+    #mlpconv block3
+    x = Conv2D(128, (3, 3), activation='relu',padding='valid')(x)
+    x = Conv2D(32, (1, 1), activation='relu')(x)
+    x = Conv2D(10, (1, 1))(x)
+    
+    x = GlobalAveragePooling2D()(x)
+    x = Activation(activation='softmax')(x)
+    
+    model = Model(model_input, x, name='nin_cnn')
+    
+    return model
+nin_cnn_model = nin_cnn(model_input)
+```
+
+세번째 모델은 각 에폭마다 15초 정도 더 빠르게 학습되었습니다.
+
+```python
+_ = compile_and_train(nin_cnn_model, num_epochs=20)
+```
+
 ![NIN-CNN validation accuracy and loss](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/16_5.png)
 
+세번째 모델은 앞의 두 모델보다 간단하기에 에러율은 약간 더 높습니다.
+
+*>>>* 0.31640000000000001
+
 #### 세가지 모델을 앙상블
+
+이제 세가지 모델들을 앙상블로 결합시킬 예정입니다.
+
+아래는, 세가지 모델들을 다시 인스턴스화하고 가장 잘 학습된 가중치를 불러옵니다.
+
+```python
+conv_pool_cnn_model = conv_pool_cnn(model_input)
+all_cnn_model = all_cnn(model_input)
+nin_cnn_model = nin_cnn(model_input)
+
+conv_pool_cnn_model.load_weights('weights/conv_pool_cnn.29-0.10.hdf5')
+all_cnn_model.load_weights('weights/all_cnn.30-0.08.hdf5')
+nin_cnn_model.load_weights('weights/nin_cnn.30-0.93.hdf5')
+
+models = [conv_pool_cnn_model, all_cnn_model, nin_cnn_model]
+```
+
+앙상블 모델의 정의는 매우 간단합니다. 
 
 #### 가능한 앙상블 형태
 
