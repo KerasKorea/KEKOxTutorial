@@ -2,7 +2,7 @@
 
 [원문 링크](https://medium.com/@curiousily/credit-card-fraud-detection-using-autoencoders-in-keras-tensorflow-for-hackers-part-vii-20e0c85301bd)
 
-> 이 문서에서는 Autoencoder와 불균형한 데이터셋의 평가 방법에 대해 설명하고, 신용카드 이상 거래를 탐지하는 Autoencoder 모델을 만들어봅니다. 
+> 이 문서에서는 Autoencoder에 대한 기본 개념과 불균형한 데이터셋을 학습한 모델의 평가 방법을 설명하고, 신용카드 이상 거래를 탐지하는 Autoencoder 모델을 만들어봅니다. 
 
 
 
@@ -14,7 +14,7 @@
 
 
 
-**3줄 요약**
+## **3줄 요약**
 
 1. Autoencoder는 어떤 데이터의 입력을 받은 후, 정보를 압축시켰다가 다시 확장하며 입력받은 것과 최대한 비슷한 결과값을 반환하는 '재구성'의 방법을 통해 특정 데이터의 패턴을 인코딩한다.
 2. 신용카드 거래 데이터셋은 대부분 정상 거래 데이터로 이루어져 있으며, 이상 거래 데이터는 적게 포함되어 있는 불균형한 데이터셋이다.
@@ -22,15 +22,13 @@
 
 
 
-**신용카드 이상 거래 탐지는 어떻게 이루어질까?**
-
-
+## **신용카드 이상 거래 탐지는 어떻게 이루어질까?**
 
 조용한 일요일 아침, 당신은 입가에 미소를 띄우며 일어난다. *오늘은 좋은 날이 될거야!* 당신의 핸드폰이, 그것도 상당히 '국제적으로' 울리는 일만 아니었다면. 당신은 핸드폰을 천천히 집어들었고, 무언가 별난 말을 듣게 되었다 - "Bonjour, je suis Michele, 아, 이런. 죄송합니다. 저는 미셸이예요. 당신이 쓰고 있는 은행의 직원인데요." 대체 뭐가 그렇게 급하길래 스위스에 있는 누군가가 이 시간에 당신에게 전화를 걸게 했을까? "혹시 디아블로 3 100장을 사기 위해 3,358.65 달러를 지불하신 적이 있나요?" "아뇨, 그런 적 없는데요!?" 미셸의 대답은 빠르고 간결했다-"감사합니다, 저희가 처리하겠습니다." 휴, 하마터면 어쩔 뻔했어! 그런데 미셸이 어떻게 이 거래가 이상하다는 것을 알게 되었을까? 사실 지난 주에 같은 은행 계좌를 통해 10개의 새로운 스마트폰을 구매하기도 했는데, 그 때는 이렇게 미셸이 전화를 걸지 않았다.
 
 
 
-[Nilson Report](https://www.nilsonreport.com/upload/content_promo/The_Nilson_Report_10-17-2016.pdf)에 따르면, 신용카드 사기로 인한 연간 피해액은 국제적으로 218억 달러에 달했다(2015년 기준). 당신이 사기꾼이라면 아마 매우 운이 좋다고 생각할지도 모르겠다. 같은 해에 미국에서는 100달러당 12센트를 도둑맞았다. 우리의 친구 미셸은 여기 해결해야 할 심각한 문제가 있을지도 모른다.
+[Nilson Report](https://www.nilsonreport.com/upload/content_promo/The_Nilson_Report_10-17-2016.pdf)에 따르면, 신용카드 사기로 인한 연간 피해액은 국제적으로 218억 달러에 달했다(2015년 기준). 당신이 사기꾼이라면 아마 매우 운이 좋다고 생각할지도 모르겠다. 같은 해에 미국에서는 100달러당 12센트를 도둑맞았다. 우리의 친구 미셸은 이 때문에 심각한 문제들을 해결해야 할지도 모른다.
 
 
 
@@ -82,7 +80,7 @@ LABELS = ["Normal", "Fraud"]
 
 
 
-데이터셋에 있는 모든 변수는 수치 데이터이다. 데이터는 개인 정보보호 문제로 인해 `PCA 변환` 과정을 거쳤다. 딱 두 가지 변환하지 않은 것은 `시간(Time)`과 `거래액(Amount)`이다. 시간은 각 거래가 이루어진 시점과 데이터셋 내의 첫번째 거래가 이루어진 시점 사이의 시간을 초(second) 단위로 기록했다.
+데이터셋에 있는 모든 변수는 수치 데이터이다. 데이터는 개인 정보보호 문제로 인해 `PCA 변환` 과정을 거쳤다. 딱 두 가지 변환하지 않은 것은 `시간(Time)`과 `거래액(Amount)`이다. `시간`은 데이터셋 내 첫번째 거래가 이루어진 시점부터 각 거래가 이루어진 시점  사이의 시간을 초(second) 단위로 기록했다.
 
 
 
@@ -242,9 +240,8 @@ plt.show()
 Autoencoder는 처음에는 이상해보일 수도 있다. 이러한 모델들은 입력값을 받아서, 입력값을 예측하는 일을 한다. 어리둥절한가? 적어도 내가 처음 이 설명을 들었을 때는 그랬다.
 
 좀 더 자세히, Autoencoder 신경망에 대해 살펴보자. 이 Autoencoder는 다음과 같은 항등 함수를 근사하도록 학습된다.
-$$
-f_{W,b}(x) \approx x
-$$
+
+![equation](https://latex.codecogs.com/gif.download?%5Chuge%20f_%7BW%2Cb%7D%28x%29%20%5Capprox%20x)
 
 > 역자 추가 설명: 
 >
@@ -269,12 +266,12 @@ $$
 ## 재구성 오류(Reconstruction error)
 
 우리는 Autoencoder 모델의 파라미터(parameter)들을 학습 오류가 최소화되도록 최적화시킨다. 이 때 쓰이는 학습 오류는 조금 특별한 종류인데, 바로 `재구성 오류(reconstruction error)`다. 실전에서는 다음과 같이 전통적인 제곱식으로 오류를 구한다.
-$$
-L(x,x') = ||x-x'||^2
-$$
-만약 Autoencoder들에 대해 더 알고 싶다면, Hugo Larochelle의 [다음 비디오](https://youtu.be/FzS3tMl4Nsc)들을 매우 추천한다.
 
-![[Video Label](http://img.youtube.com/vi/FzS3tMl4Nsc/0.jpg)](https://youtu.be/FzS3tMl4Nsc)
+![equation](https://latex.codecogs.com/gif.download?%5Chuge%20L%28x%2Cx%27%29%20%3D%20%7C%7Cx-x%27%7C%7C%5E2)
+
+
+
+만약 Autoencoder들에 대해 더 알고 싶다면, Hugo Larochelle의 [다음 비디오](https://youtu.be/FzS3tMl4Nsc)들을 매우 추천한다.
 
 
 
@@ -577,7 +574,7 @@ plt.show()
 
 
 
-`Keras`는 우리에게 자칫 어려울 수도 있는 Deep Autoencoder를 매우 깔끔하고 쉽게 만들 수 있는 API를 제공한다. `Tensorflow` 구현체를 찾고 하나를 학습시키기 위해 얼마나 많은 상용코드(boilerplate code,최소한의 수정만을 거쳐 여러 곳에 필수적으로 사용되는 코드)가 필요한지 직접 확인하는 방법도 있긴 하다. 자, 비슷한 모델을 다른 문제에 적용해 볼 수 있을까?
+`Keras`는 우리에게 자칫 어려울 수도 있는 Deep Autoencoder를 매우 깔끔하고 쉽게 만들 수 있는 API를 제공한다. `Tensorflow` 구현체를 찾고 하나를 학습시키기 위해 얼마나 많은 상용코드(boilerplate code, 최소한의 수정만을 거쳐 여러 곳에 필수적으로 사용되는 코드)가 필요한지 직접 확인하는 방법도 있긴 하다. 자, 그럼 이제 비슷한 모델을 다른 문제에 적용해 볼까?
 
 
 
@@ -590,5 +587,7 @@ plt.show()
 
 
 > 이 글은 2018 컨트리뷰톤에서 [`Contributue to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.
+>
 > Translator : [karl6885](https://github.com/karl6885)(김영규)
+>
 > Translator Email : karl6885@gmail.com
