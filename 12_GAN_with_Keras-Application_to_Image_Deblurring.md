@@ -302,7 +302,7 @@ for epoch in range(epoch_num):
       image_blur_batch = x_train[batch_indexes]
       image_full_batch = y_train[batch_indexes]
 ```
-> 위 코드는 [gan_training_batches.py](https://gist.github.com/RaphaelMeudec/68b997ba5dfb3abf66f74fd67baa4e3d#file-gan_training_batches-py)에서 보실 수 있으십니다.
+> 위 코드는 [gan_training_batches.py](https://gist.github.com/RaphaelMeudec/68b997ba5dfb3abf66f74fd67baa4e3d#file-gan_training_batches-py)에서 볼 수 있습니다.
 
 마지막으로, 두 개의 손실 함수를 기반으로 식별자와 생성자를 성공적으로 학습시킵니다. 생성자를 통해 가짜 입력값을 생성합니다. 식별자가 진짜와 가짜를 식별하도록 훈련시키고, 전체 모델을 학습시킵니다.
 
