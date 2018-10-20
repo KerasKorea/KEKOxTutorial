@@ -12,7 +12,7 @@
 
 2014년, 이안 굿펠로우가 **GAN**을 소개했습니다. 이 글에선 **케라스로 설계한 GAN으로 이미지 흐림 제거**를 실행하는데 초점을 두고 있습니다.
 
-본 글에 대한 [원본 논문](https://arxiv.org/pdf/1711.07064.pdf)과 그에 대한 [파이토치 코드](https://github.com/KupynOrest/DeblurGAN/)를 보시기 바랍니다. 본 글의 모든 케라스 코드들은 [이곳](https://github.com/RaphaelMeudec/deblur-gan)에서 이용하실 수 있으십니다.
+본 글에 대한 [원본 논문](https://arxiv.org/pdf/1711.07064.pdf)과 그에 대한 [파이토치 코드](https://github.com/KupynOrest/DeblurGAN/)를 보기 바랍니다. 본 글의 모든 케라스 코드들은 [이곳](https://github.com/RaphaelMeudec/deblur-gan)에서 이용할 수 있으십니다.
 
 
 ### GAN 빠르게 복습하기
