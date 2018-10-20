@@ -90,7 +90,7 @@ def res_block(input, filters, kernel_size=(3,3), strides=(1,1), use_dropout=Fals
     merged = Add()([input, x])
     return merged
 ```
-> 위 코드는 [res_block.py](https://gist.github.com/RaphaelMeudec/ee723dbb0ad429bc73f7641b61043765#file-res_block-py)에서 보실수 있으십니다.
+> 위 코드는 [res_block.py](https://gist.github.com/RaphaelMeudec/ee723dbb0ad429bc73f7641b61043765#file-res_block-py)에서 볼 수 있습니다.
 
 ResNet 레이어는 기본적으로 최종 출력을 만드는 입력과 출력이 포함된 콘볼루션 레이어입니다.
 
