@@ -58,7 +58,7 @@ from keras.layers.core import Dropout
 
 def res_block(input, filters, kernel_size=(3,3), strides=(1,1), use_dropout=False):
     """
-    순차적인 API 사용해 케라스 Resnet 블럭을 인스턴스(Instace)해줍니다.
+   순차 API(sequential API)를 사용해 케라스 Resnet 블럭을 인스턴스화 합니다.
     
     :매개변수
       - input: 입력 텐서(tensor)
