@@ -206,7 +206,7 @@ def discriminator_model():
     model = Model(inputs=inputs, outputs=x, name='Discriminator')
     return model
 ```
-> 위 코드는 [discriminator.py](https://gist.github.com/RaphaelMeudec/d1a37d2543c3b223cf16643b5bd06cc2#file-discriminator-py)에서 보실 수 있으십니다.
+> 위 코드는 [discriminator.py](https://gist.github.com/RaphaelMeudec/d1a37d2543c3b223cf16643b5bd06cc2#file-discriminator-py)에서 볼 수 있습니다.
 
 마지막 단계는 전체 모델을 생생해 줍니다. 이번 GAN의 특징은 입력값이 실제 이미지이고 노이즈가 아닌 점입니다. 그러므로, 우리는 생성자의 출력값에 대한 직접적인 피드백을 갖습니다.
 
