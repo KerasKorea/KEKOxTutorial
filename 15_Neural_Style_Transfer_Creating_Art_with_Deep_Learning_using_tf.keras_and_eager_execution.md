@@ -1,6 +1,6 @@
 ## Neural Style Transfer : tf.keras와 eager execution를 이용한 딥러닝 미술 작품 만들기(Neural Style Transfer: Creating Art with Deep Learning using tf.keras and eager execution)
 [원문 링크](https://medium.com/tensorflow/neural-style-transfer-creating-art-with-deep-learning-using-tf-keras-and-eager-execution-7d541ac31398)
-> 이 글은 Tensorflow의 Raymond Yuan가 작성한 글로 tf.keras와 eager execution을 이용해 입력 이미지를 특정 미술 작품의 스타일로 변화시키는 딥러닝 튜토리얼입니다.
+> 이 글은 TensorFlow의 Raymond Yuan이 작성한 글로 tf.keras와 eager execution을 이용해 입력 이미지를 특정 미술 작품의 스타일로 변화시키는 딥러닝 튜토리얼입니다.
 
 * keras
 * eager execution
@@ -9,15 +9,15 @@
 * convolution neural network
 
 ### 주요 개념 설명
-[이 글](https://colab.sandbox.google.com/github/tensorflow/models/blob/master/research/nst_blogpost/4_Neural_Style_Transfer_with_Eager_Execution.ipynb)을 통해 어떻게 딥러닝으로 다른 이미지의 스타일로 이미지를 재구성하는지 알아봅시다 (그대가 피카소 혹은 고흐처럼 그림을 그리길 원한다면). 이는 **Neural Style Transfer**로 알려져 있습니다. [예술 스타일의 신경 알고리즘](https://arxiv.org/abs/1508.06576) 이라는 Leon A. Gatys의 논문에 서술되 있습니다. 이 알고리즘은 훌륭한 읽을 거리이기에 반드시 확인을 해야합니다.
+[이 글](https://colab.sandbox.google.com/github/tensorflow/models/blob/master/research/nst_blogpost/4_Neural_Style_Transfer_with_Eager_Execution.ipynb)을 통해 어떻게 딥러닝으로 다른 이미지의 스타일로 이미지를 재구성하는지 알아봅시다 (그대가 피카소 혹은 고흐처럼 그림을 그리길 원한다면). 이는 **Neural Style Transfer**로 알려져 있습니다. [예술 스타일의 신경 알고리즘](https://arxiv.org/abs/1508.06576) 이라는 Leon A. Gatys의 논문에 서술되어 있습니다. 이 알고리즘은 훌륭한 읽을거리기에 반드시 확인을 해야합니다.
 
-Neural Style Transfer는 컨텐츠 이미지, 스타일 참조용 이미지(예 : 유명화가의 예술 작품) 그리고 스타일을 적용할 입력 이미지, 총 3가지 이미지를 가져와 입력 이미지가 컨텐츠 이미지로 보일 뿐만 아니라, 스타일 이미지의 스타일이 "그려지도록" 각각을 혼합하는 데 사용되는 최적화 기술입니다.
+Neural Style Transfer는 콘텐츠 이미지, 스타일 참조용 이미지(예 : 유명화가의 예술 작품) 그리고 스타일을 적용할 입력 이미지, 총 3가지 이미지를 가져와 입력 이미지가 콘텐츠 이미지로 보일 뿐만 아니라, 스타일 이미지의 스타일이 "그려지도록" 각각을 혼합하는 데 사용되는 최적화 기술입니다.
 
 예를 들어, 밑에 Katsushika Hokusai의 *The Great Wave off kanagawa*
 라는 작품과 거북이 이미지가 있습니다.:
 
 ![Image of Green Sea Turtle and The Great Wave Off Kanagawa](media/15_1.png)
-녹색 바다 거북이 (P. Lindgren, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Green_Sea_Turtle_grazing_seagrass.jpg))
+녹색 바다거북이 (P. Lindgren, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Green_Sea_Turtle_grazing_seagrass.jpg))
 
 Hokusai 이미지에서 파도의 질감과 스타일을 거북이 이미지에 추가한다면 어떻게 보일까요? 마치 아래처럼 보일까요?
 
@@ -25,19 +25,19 @@ Hokusai 이미지에서 파도의 질감과 스타일을 거북이 이미지에 
 
 마술일까요, 아니면 단지 딥러닝일까요? 다행히도, 어떠한 마술도 들어가 있지 않습니다 : style transfer는 신경망 내부의 표현과 기능을 보여주는 재밌고 흥미로운 기술입니다.
 
-Neural Style Transfer의 원리는 2가지 다른 함수를 정의하는 것으로 하나는 **어떻게 두 이미지의 컨텐츠가 차이나는지 설명**하고(Lcontent), 다른 하나는 **두 이미지의 스타일의 차이를 설명**합니다(Lstyle). 그런 다음, 3가지 이미지(원하는 스타일 이미지, 원하는 콘텐츠 이미지, 입력 이미지(콘텐츠 이미지로 초기화된)를 줌으로써 입력 이미지를 변환해 콘텐츠 이미지와 스타일의 차이를 최소화 합니다.
+Neural Style Transfer의 원리는 2가지 다른 함수를 정의하는 것으로 하나는 **어떻게 두 이미지의 콘텐츠가 차이나는지 설명**하고(Lcontent), 다른 하나는 **두 이미지의 스타일의 차이를 설명**합니다(Lstyle). 그런 다음, 3가지 이미지(원하는 스타일 이미지, 원하는 콘텐츠 이미지, 입력 이미지(콘텐츠 이미지로 초기화된)를 줌으로써 입력 이미지를 변환해 콘텐츠 이미지와 스타일의 차이를 최소화합니다.
 
-요약하면, 기본 입력 이미지, 일치시키고 싶은 컨텐츠 이미지와 스타일 이미지를 선택합니다. 컨텐츠와 스타일간 차이를 역전파(backpropagation)로 최소화함으로써 기본 입력 이미지를 변환 합니다. 다시 말해, 컨텐츠 이미지의 컨텐츠와 스타일 이미지의 스타일과 일치하는 이미지를 생성합니다.
+요약하면, 기본 입력 이미지, 일치시키고 싶은 콘텐츠 이미지와 스타일 이미지를 선택합니다. 콘텐츠와 스타일 간 차이를 역전파(backpropagation)로 최소화함으로써 기본 입력 이미지를 변환합니다. 다시 말해, 콘텐츠 이미지의 콘텐츠와 스타일 이미지의 스타일과 일치하는 이미지를 생성합니다.
 
 
 #### 습득하게 될 특정 개념들 :
 튜로리얼 중에서, 실전 경험을 쌓고 하단의 개념들에 대한 직관력이 생길 것입니다.
 
-- **Eager Execution** : 작업을 즉시 평가하는 텐서플로우의 필수 프로그래밍 환경을 사용
+- **Eager Execution** : 작업을 즉시 평가하는 TensorFlow의 필수 프로그래밍 환경을 사용
 - [Eager execution](https://www.tensorflow.org/guide/eager)에 대해 자세히 알아보기.
 - [실제로 해보기](https://www.tensorflow.org/tutorials) ([Colaboratory](http://colab.research.google.com/)에서 대부분의 튜토리얼을 진행할 수 있습니다)
 - **model를 정의하기 위한 [실용 API](https://keras.io/getting-started/functional-api-guide/)를 사용** : 실용 API를 사용해 필수 중간 활성화에 접근할 수 있도록 model 일부를 구성합니다.
-- **선행학습한 model의 특징 맵 활용** : 선행학습한 model과 해당 특징 맵(map)을 사용하는 방법을 배웁니다.
+- **선행 학습한 model의 특징 맵 활용** : 선행 학습한 model과 해당 특징 맵(map)을 사용하는 방법을 배웁니다.
 - **맞춤형 학습 루프를 생성** : 입력 매개변수에 대해 주어진 손실을 최소화하기 위해 최적화 도구를 어떻게 설정할지 알아봅니다.
 
 
@@ -48,14 +48,13 @@ Neural Style Transfer의 원리는 2가지 다른 함수를 정의하는 것으�
 3. 손실 함수 설정
 4. model 생성
 5. 손실 함수 최적화
-
-독자들에게 : 이 글은 기본적인 머신러닝 개념에 익숙한 중급 사용자들을 대상으로 합니다. 이 글ㄹ을 최대한 활용하려면 다음을 하셔야 합니다.:
+독자들에게 : 이 글은 기본적인 머신러닝 개념에 익숙한 중급 사용자들을 대상으로 합니다. 이 글을 최대한 활용하려면 다음을 하셔야 합니다.:
 - [Gatys 논문](https://arxiv.org/abs/1508.06576) 읽기 : 아래에서 설명하겠지만, 이 논문은 한층 더 이해할 수 있게 해줍니다.
 - [기울기 상승 이해하기](https://developers.google.com/machine-learning/crash-course/reducing-loss/gradient-descent)
 
 **예상 시간** : 60분
 
-**Code:**  
+**Code:** 
 이 글의 전체 코드는 [이곳](https://github.com/tensorflow/models/tree/master/research/nst_blogpost)에서 찾아볼 수 있습니다. 만약, 예제에 따라 단계별로 진행하고 싶다면, [colab](https://colab.sandbox.google.com/github/tensorflow/models/blob/master/research/nst_blogpost/4_Neural_Style_Transfer_with_Eager_Execution.ipynb)에서 찾아볼 수 있습니다.
 
 
@@ -87,13 +86,13 @@ Neural Style Transfer의 원리는 2가지 다른 함수를 정의하는 것으�
   Image of Green Sea Turtle -By P .Lindgren from [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Green_Sea_Turtle_grazing_seagrass.jpg) and Image of The Great Wave Off Kanagawa from by Katsushika Hokusai [Public Domain](https://commons.wikimedia.org/wiki/File:The_Great_Wave_off_Kanagawa.jpg)
 
 
-#### 컨텐츠와 스타일 표현 정의
+#### 콘텐츠와 스타일 표현 정의
 
-이미지의 컨텐츠와 스타일 표현을 얻기 위해, model 내에 몇 가지 중간 레이어(layer)를 볼 수 있습니다. 중간 레이어들은 피쳐맵(feature map)을 나타나는데 이는 깊어질 수록 높이가 커지게 됩니다. 이번 경우, 미리 학습된 이미지 분류 신경망인 VGG19 신경망을 사용합니다. 이 신경망의 중간 레이어들은 이미지의 스타일과 컨텐츠 표현을 정의하는데 필요합니다. 입력 이미지의 경우, 중간 레이어들에서 해당 스타일 및 컨텐츠가 목적 표현에도 맞춰지도록 시도합니다.
+이미지의 콘텐츠와 스타일 표현을 얻기 위해, model 내에 몇 가지 중간 레이어(layer)를 볼 수 있습니다. 중간 레이어들은 피쳐맵(feature map)을 나타나는데 이는 깊어질수록 높이가 커지게 됩니다. 이번 경우, 미리 학습된 이미지 분류 신경망인 VGG19 신경망을 사용합니다. 이 신경망의 중간 레이어들은 이미지의 스타일과 콘텐츠 표현을 정의하는 데 필요합니다. 입력 이미지의 경우, 중간 레이어들에서 해당 스타일 및 콘텐츠가 목적 표현에도 맞춰지도록 시도합니다.
 
 **왜 중간 레이어인가?**
 
-학습된 이미지 분류 신경망의 중간 레이어 출력값들이 스타일과 컨텐츠 표현을 정의하도록 하는지 궁금할 겁니다. 높은 단계에서, 이 현상은 신경망이 (신경망이 학습해온)이미지 분류를 하기 위해서는 반드시 이미지를 이해해야 하는 사실로 설명될 수 있습니다. 이는 원본 이미지를 입력 픽셀(pixel)로 사용하고 원본 이미지 픽셀을 이미지 내 피쳐들의 복잡한 이해형태로 변형하는 방식으로 내부 표현을 설계합니다. 이는 CNN(Convolution Neural Network)이 얼마나 잘 일반화될 수 있는지에 대한 이유이기도 합니다. CNN은 배경이나 다른 노이즈들에 영향을 받지 않는 클래스 내에 존재하는 불변성(invariances)을 포착하고 피쳐들을 정의할 수 있습니다. 그러므로, 원본 이미지가 입력되고 분류 레이블(label)이 출력되는 구간 어딘가에서 model은 복잡한 피쳐 추출기로서 작동합니다. 따라서 중간 레이어에 접근함으로써 입력 이미지의 컨텐츠와 스타일을 설명할 수 있습니다.
+학습된 이미지 분류 신경망의 중간 레이어 출력값들이 스타일과 콘텐츠 표현을 정의하도록 하는지 궁금할 겁니다. 높은 단계에서, 이 현상은 신경망이 (신경망이 학습해 온) 이미지 분류를 하기 위해서는 반드시 이미지를 이해해야 하는 사실로 설명될 수 있습니다. 이는 원본 이미지를 입력 픽셀(pixel)로 사용하고 원본 이미지 픽셀을 이미지 내 피쳐들의 복잡한 이해형태로 변형하는 방식으로 내부 표현을 설계합니다. 이는 CNN(Convolution Neural Network)이 얼마나 잘 일반화될 수 있는지에 대한 이유이기도 합니다. CNN은 배경이나 다른 노이즈들에 영향을 받지 않는 클래스 내에 존재하는 불변성(invariances)을 포착하고 피쳐들을 정의할 수 있습니다. 그러므로 원본 이미지가 입력되고 분류 레이블(label)이 출력되는 구간 어딘가에서 model은 복잡한 피쳐 추출기로서 작동합니다. 따라서 중간 레이어에 접근함으로써 입력 이미지의 콘텐츠와 스타일을 설명할 수 있습니다.
 
 특히 신경망에서 다음과 같은 중간 레이어를 추출합니다.
 
@@ -116,11 +115,11 @@ Neural Style Transfer의 원리는 2가지 다른 함수를 정의하는 것으�
 
 #### model
 
-이번 글에선, [VGG19](https://keras.io/applications/#vgg19)를 불러와 model에 입력 텐서(tensor)를 제공합니다. 이렇게 하면 컨텐츠, 스타일 그리고 생성된 이미지의 피쳐맵(나중에 콘텐츠와 스타일을 표현함)을 추출할 수 있습니다.
+이번 글에선, [VGG19](https://keras.io/applications/#vgg19)를 불러와 model에 입력 텐서(tensor)를 제공합니다. 이렇게 하면 콘텐츠, 스타일 그리고 생성된 이미지의 피쳐맵(나중에 콘텐츠와 스타일을 표현함)을 추출할 수 있습니다.
 
-논문에서 제안했듯이 VGG19를 사용합니다. 게다가, Vgg19는 (ResNet, Inception과 비교해) 상대적으로 간단한 모델이기에 피쳐맵이 style transfer하기에 더 효과적입니다.
+논문에서 제안했듯이 VGG19를 사용합니다. 게다가, VGG19는 (ResNet, Inception과 비교해) 상대적으로 간단한 모델이기에 피쳐맵이 style transfer하기에 더 효과적입니다.
 
-스타일과 컨텐츠 피쳐맵에 해당하는 중간 레이어 접근을 위해, 케라스 [실용 API](https://keras.io/getting-started/functional-api-guide/)를 사용해 원하는 출력 activation으로 model을 정의함으로써 해당 출력값을 얻습니다.
+스타일과 콘텐츠 피쳐맵에 해당하는 중간 레이어 접근을 위해, 케라스 [실용 API](https://keras.io/getting-started/functional-api-guide/)를 사용해 원하는 출력 activation으로 model을 정의함으로써 해당 출력값을 얻습니다.
 
 실용 API에서, 모델을 정의하는 건 입력과 출력을 정의하는 것도 포함하고 있습니다. : `model = Model(inputs, outputs)`
 
@@ -132,14 +131,14 @@ def get_model():
     이런 레이어들을 사용해 입력 이미지를 가져오고 VGG 모델의 중간 레이어에서 출력값을 반환하는 새로운 model을 만듭니다.
 
   반환 :
-    이미지 입력값과 스타일과 컨텐츠 중간 레이어의 결과값을 이용하는 케라스 model을 반환합니다.
+    이미지 입력값과 스타일과 콘텐츠 중간 레이어의 결과값을 이용하는 케라스 model을 반환합니다.
 
   """
   # `imagenet`으로 미리 학습된 VGG모델을 로드합니다.
   vgg = tf.keras.applications.vgg19.VGG19(include_top=False, weights='imagenet')
   vgg.trainable = False
 
-  # 스타일과 컨텐츠 레이어와 관련된 출력 레이어를 설정합니다.
+  # 스타일과 콘텐츠 레이어와 관련된 출력 레이어를 설정합니다.
   style_outputs = [vgg.get_layer(name).output for name in style_layers]
   content_outputs = [vgg.get_layer(name).output for name in content_layers]
   model_outputs = style_outputs + content_outputs
@@ -148,21 +147,21 @@ def get_model():
 ```
 > [get_model.py](https://gist.github.com/raymond-yuan/231fe86a0d49ed40c4fa0aed4b430bc9#file-get_model-py)을 통해 확인할 수 있습니다.
 
-위 코드를 통해, 미리 학습된 이미지 분류 신경망을 로드할 수 있습니다. 그리고 앞서 정의한 관심 레이어를 잡아둡니다. 그런 다음 model의 입력을 이미지, 출력을 스타일과 컨텐츠 레이어의 출력으로 설정하여 model을 정의합니다. 다시 말해, 입력 이미지를 가져와서 콘텐츠와 스타일 중간 레이어를 출력할 model을 만들었습니다!
+위 코드를 통해, 미리 학습된 이미지 분류 신경망을 로드할 수 있습니다. 그리고 앞서 정의한 관심 레이어를 잡아둡니다. 그런 다음 model의 입력을 이미지, 출력을 스타일과 콘텐츠 레이어의 출력으로 설정하여 model을 정의합니다. 다시 말해, 입력 이미지를 가져와서 콘텐츠와 스타일 중간 레이어를 출력할 model을 만들었습니다!
 
-#### 손실 함수(컨텐츠와 스타일 격차)를 정의 및 생성
+#### 손실 함수(콘텐츠와 스타일 격차)를 정의 및 생성
 
 **콘텐츠 손실관련 :**
 
 콘텐츠 손실 함수는 실제론 꽤나 간단합니다. 적용하고픈 콘텐츠 이미지와 기본 입력 이미지를 신경망으로 통과시킬 수 있습니다. 이는 설계한 model에서 (위에서 설정한 레이어들) 중간 레이어의 출력을 반환됩니다. 그런 다음 그저 이미지들 간의 중간 표현들 사이에 유클리드 거리(Euclidean distance)를 취합니다.
 
-좀 더 수식화하면, 콘텐츠 손실 함수는 입력 이미지 x와 컨텐츠 이미지 p, 두 이미지 사이의 거리를 설명합니다. Cₙₙ을 미리 학습된 깊은 CNN라고 합시다. 즉, [VGG19](https://keras.io/applications/#vgg19)를 사용합니다. X는 어떤 이미지이고 Cₙₙ(X)를 X를 전달받는 신경망이라고 합시다. Fˡᵢⱼ(x)∈ Cₙₙ(x)와 Pˡᵢⱼ(x) ∈ Cₙₙ(x) 는 l 레이어에서 x, p 입력을 갖는 신경망의 각각의 중간 피쳐 표현들이라고 합시다. 그런 다음 컨텐츠 거리(손실)을 수식화하면 아래와 같습니다.
+좀 더 수식화하면, 콘텐츠 손실 함수는 입력 이미지 x와 콘텐츠 이미지 p, 두 이미지 사이의 거리를 설명합니다. Cₙₙ을 미리 학습된 깊은 CNN라고 합시다. 즉, [VGG19](https://keras.io/applications/#vgg19)를 사용합니다. X는 어떤 이미지이고 Cₙₙ(X)를 X를 전달받는 신경망이라고 합시다. Fˡᵢⱼ(x)∈ Cₙₙ(x)와 Pˡᵢⱼ(x) ∈ Cₙₙ(x) 는 l 레이어에서 x, p 입력을 갖는 신경망의 각각의 중간 피쳐 표현들이라고 합시다. 그런 다음 콘텐츠 거리(손실)을 수식화하면 아래와 같습니다.
 
 ![콘텐츠 손실 함수](media/15_10.png)
 
-이러한 콘텐츠 손실을 최소화하기 위해 일반 방식으로 역전파(backpropagation)를 수행합니다. 따라서 특정 레이어(content_layer에 정의된)에서 원본 컨텐츠 이미지로 유사한 반응을 생성할 때까지 초기 이미지를 변화시킵니다.
+이러한 콘텐츠 손실을 최소화하기 위해 일반 방식으로 역전파(backpropagation)를 수행합니다. 따라서 특정 레이어(content_layer에 정의된)에서 원본 콘텐츠 이미지로 유사한 반응을 생성할 때까지 초기 이미지를 변화시킵니다.
 
-이건 꽤나 간단하게 구현될 수 있습니다. 다시 말해, 입력 이미지인 x와 컨텐츠 이미지인 p를 전달받는 신경망의 L 레이어에서 피쳐 맵을 입력으로 받도록하고 콘텐츠 거리(손실)을 반환합니다.
+이건 꽤나 간단하게 구현될 수 있습니다. 다시 말해, 입력 이미지인 x와 콘텐츠 이미지인 p를 전달받는 신경망의 L 레이어에서 피쳐 맵을 입력으로 받도록하고 콘텐츠 거리(손실)을 반환합니다.
 
 ```python
   def get_content_loss(base_content, target):
@@ -177,7 +176,7 @@ def get_model():
 수학적으로, 기본 입력 이미지 `x` 와 스타일 이미지 `a` 의 스타일 손실을 스타일 표현(Gram 매트릭스) 사이의 거리로 설명합니다. 또한 우리는 이미지의 스타일 표현을, 다른 필터를 거친 이미지의 결과값의 상관관계(correlation) 이라고 설명합니다.
 Gram 매트릭스를 Gˡ 로 표현하고, Gˡᵢⱼ 는 l 번째 레이어에서 피쳐맵 i, j 의 내적입니다.
 
-기본 입력 이미지를 위한 스타일을 생성하려면, 컨텐츠 이미지에서 기울기 하강(Gradient Descent)을 수행하여 원래 이미지의 스타일 표현과 일치하는 이미지로 변환합니다. 스타일 이미지의 피쳐 상관관계(correlation) 맵과 입력 이미지 사이의 평균 제곱 거리(MSE)를 최소화함으로써 이 작업을 수행합니다. 총 스타일 손실에 대한 각 계층의 기여는 아래와 같습니다.
+기본 입력 이미지를 위한 스타일을 생성하려면, 콘텐츠 이미지에서 기울기 하강(Gradient Descent)을 수행하여 원래 이미지의 스타일 표현과 일치하는 이미지로 변환합니다. 스타일 이미지의 피쳐 상관관계(correlation) 맵과 입력 이미지 사이의 평균 제곱 거리(MSE)를 최소화함으로써 이 작업을 수행합니다. 총 스타일 손실에 대한 각 계층의 기여는 아래와 같습니다.
 
 ![레이어 스타일 손실 함수](media/15_11.png)
 
@@ -218,7 +217,7 @@ def get_style_loss(base_style, gram_target):
 
 #### 손실과 기울기 계산하기
 
-컨텐츠 및 스타일 이미지를 로드하는 기능을 할 작은 함수를 정의하여 신경망에 이미지들을 입력으로 주고, 우리의 모델에서 컨텐츠 및 스타일 피쳐 표현을 출력할 것입니다.
+콘텐츠 및 스타일 이미지를 로드하는 기능을 할 작은 함수를 정의하여 신경망에 이미지들을 입력으로 주고, 우리의 모델에서 콘텐츠 및 스타일 피쳐 표현을 출력할 것입니다.
 
 ```python
 def get_feature_representations(model, content_path, style_path):
