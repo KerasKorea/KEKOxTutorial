@@ -241,7 +241,7 @@ Autoencoder는 처음에는 이상해보일 수도 있다. 이러한 모델들�
 
 좀 더 자세히, Autoencoder 신경망에 대해 살펴보자. 이 Autoencoder는 다음과 같은 항등 함수를 근사하도록 학습된다.
 
-![equation](https://latex.codecogs.com/gif.download?%5Chuge%20f_%7BW%2Cb%7D%28x%29%20%5Capprox%20x)
+![](https://latex.codecogs.com/gif.latex?%5Chuge%20f_%7BW%2Cb%7D%28x%29%20%5Capprox%20x)
 
 > 역자 추가 설명: 
 >
@@ -267,7 +267,7 @@ Autoencoder는 처음에는 이상해보일 수도 있다. 이러한 모델들�
 
 우리는 Autoencoder 모델의 파라미터(parameter)들을 학습 오류가 최소화되도록 최적화시킨다. 이 때 쓰이는 학습 오류는 조금 특별한 종류인데, 바로 `재구성 오류(reconstruction error)`다. 실전에서는 다음과 같이 전통적인 제곱식으로 오류를 구한다.
 
-![equation](https://latex.codecogs.com/gif.download?%5Chuge%20L%28x%2Cx%27%29%20%3D%20%7C%7Cx-x%27%7C%7C%5E2)
+![](https://latex.codecogs.com/gif.latex?%5Chuge%20L%28x%2Cx%27%29%20%3D%20%7C%7Cx-x%27%7C%7C%5E2)
 
 
 
