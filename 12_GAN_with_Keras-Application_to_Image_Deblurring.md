@@ -21,7 +21,7 @@ GAN에서, 두 개의 신경망 각각 견제하면서 학습을 합니다. 생�
 ![GAN Training Process](https://raw.githubusercontent.com/mike2ox/KEKOxTutorial/issue_12/media/12_2.jpeg)  
 GAN Training Process - [source](https://www.kdnuggets.com/2017/01/generative-adversarial-networks-hot-topic-machine-learning.html)
 
-학습단계에서 3가지 집고 넘어가야할 부분이 있습니다.
+학습은 아래 3가지 스텝으로 이루어집니다.
 - 생성자를 **노이즈(noise)기반의 가짜 입력값 생성**하는데 사용하세요.
 - **식별자를 진짜 입력값과 가짜 입력값 둘 다 학습**시키세요.
 - **전체 모델을 학습 시키세요** : 그 모델은 생산자와 연결된 식별자로 설계되어 있습니다.
