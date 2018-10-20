@@ -34,7 +34,7 @@ GAN Training Process - [source](https://www.kdnuggets.com/2017/01/generative-adv
 
 
 ### 데이터
-이안 굿펠러는 처음에 MNIST 데이터를 생성하는데 GAN 모델을 적용했습니다. 이 글에선, 이미지의 흐린부분을 제거하기 위해 GAN을 사용할 겁니다.
+이안 굿펠러는 처음에 MNIST 데이터를 생성하는데 GAN 모델을 적용했습니다. 이 글에선, 이미지의 흐린부분을 제거하기 위해 GAN을 사용합니다.
 
 데이터 세트는 **GOPRO**를 사용할 겁니다. [가벼운 버전](https://drive.google.com/file/d/1H0PIXvJH4c40pk7ou6nAwoxuR4Qh_Sa2/view?usp=sharing)(9GB) 혹은 [전체 버전](https://drive.google.com/file/d/1SlURvdQsokgsoyTosAaELc4zRjQz9T2U/view?usp=sharing)(35GB)를 다운받을 수 있습니다. 여기엔 인위적으로 흐릿한 다양한 거리의 풍경 이미지가 있습니다. 데이터 세트는 씬(scene)별로 하위 폴더로 나뉘어져 있습니다.
 
