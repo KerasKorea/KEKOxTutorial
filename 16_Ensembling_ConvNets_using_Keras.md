@@ -23,7 +23,7 @@
 
 [Keras](https://keras.io/), 특히 [실용 API](https://keras.io/models/model/), 를 사용해 상대적으로 잘 알려진 논문에서 3가지 작은 CNN(ResNet50, Inception과 비교해) 모델을 새로 만들 것입니다. 각 모델들은 [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html) 학습 데이터 세트를 기반으로 학습을 진행할 겁니다. [3](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf) 그 때 각 모델들은 테스트 세트를 사용해서 평가될 겁니다. 그 후에, 3가지 모델을 앙상블해 평가를 진행할 겁니다. 앙상블이 어떤 단일 모델들보다 테스트 세트에서 더 좋은 성능을 보여줄 거라 기대됩니다.
 
-여러 앙상블 기법 중 한가지로 **스택(Stacking)**이 있습니다. 이는 일반적인 앙상블 기법으로 다른 앙상블 기법을 대표할 수 있습니다. 스택은 여러 학습 알고리즘의 예측을 결합하는 학습 알고리즘을 학습하는걸 포함하고 있다.[1](https://en.wikipedia.org/wiki/Ensemble_learning#Stacking) 예시를 위해, 앙상블에서 모델 결과값의 평균을 취하는 가장 단순한 스택을 사용할 것입니다. 평균화에 매개변수가 필요하지 않으므로, 해당 앙상블을 학습할 필요가 없습니다.
+여러 앙상블 기법 중 한가지로 **스태킹(Stacking)**이 있습니다. 이는 일반적인 앙상블 기법으로 다른 앙상블 기법을 대표할 수 있습니다. 스태킹은 여러 학습 알고리즘의 예측을 결합하는 학습 알고리즘을 학습하는걸 포함하고 있다.[1](https://en.wikipedia.org/wiki/Ensemble_learning#Stacking) 예시를 위해, 앙상블에서 모델 결과값의 평균을 취하는 가장 단순한 스태킹을 사용할 것입니다. 평균화에 매개변수가 필요하지 않으므로, 해당 앙상블을 학습할 필요가 없습니다.
 
 ![This post’s ensemble in a nutshell](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/16_2.png)
 
@@ -252,12 +252,71 @@ nin_cnn_model.load_weights('weights/nin_cnn.30-0.93.hdf5')
 models = [conv_pool_cnn_model, all_cnn_model, nin_cnn_model]
 ```
 
-앙상블 모델의 정의는 매우 간단합니다. 
+앙상블 모델의 정의는 매우 간단합니다. 앞의 세 모델들은 서로 공유하는 동일한 입력 레이어를 사용합니다. 최상단 레이어에서, 앙상블은 세 모델들의 결과의 평균을 `Average()` 머지 레이어(merge layer)를 사용해서 계산합니다.
 
-#### 가능한 앙상블 형태
+```python
+def ensemble(models, model_input):
+    
+    outputs = [model.outputs[0] for model in models]
+    y = Average()(outputs)
+    
+    model = Model(model_input, y, name='ensemble')
+    
+    return model
+ensemble_model = ensemble(models, model_input)
+```
+
+기대한 대로, 앙상블은 어떠한 단일 모델보다 더 낮은 에러율을 보여줬습니다.
+
+```python
+evaluate_error(ensemble_model)
+```
+
+*>>>* 0.2049
+
+#### 가능한 다른 앙상블들
+
+더욱 성능을 향상시키기 위해, 2가지 모델을 결합한 앙상블들의 성능 체크를 가졌습니다. 그들 중 2가지는 단일 모데륻ㄹ보다 더 낮은 에러율을 보였습니다.
+
+```python
+pair_A = [conv_pool_cnn_model, all_cnn_model]
+pair_B = [conv_pool_cnn_model, nin_cnn_model]
+pair_C = [all_cnn_model, nin_cnn_model]
+pair_A_ensemble_model = ensemble(pair_A, model_input)
+evaluate_error(pair_A_ensemble_model)
+```
+
+*>>>* 0.21199999999999999
+
+```python
+pair_B_ensemble_model = ensemble(pair_B, model_input)
+evaluate_error(pair_B_ensemble_model)
+```
+
+*>>>* 0.22819999999999999
+
+```python
+pair_C_ensemble_model = ensemble(pair_C, model_input)
+evaluate_error(pair_C_ensemble_model)
+```
+
+*>>>* 0.2447
 
 ### 결론
 
+개요에서 말했던 내용을 반복하자면 : 모든 모델들은 나름의 약점을 갖고 있습니다. 앙상블을 사용하게 된 이유는 데이터에 대해 서로 다른 가정을 표현하는 모델들을 스태킹함으로써 앙상블로 만들어진 모델의 가정 공간에 없는 더 좋은 가정을 찾을 수 있기 때문입니다.
+
+매우 간단한 앙상블을 사용함으로써, 대부분 경우에서 단일 모델보다 더 낮은 에러율을 성취할 수 있습니다. 이는 앙상블의 효과를 입증합니다.
+
+물론, 머신러닝 업무를 위해 앙상블을 사용할 때 몇가지 고려사항이 있습니다. 앙상블은 여러 모델들을 스태킹하는 것을 의미하기에 이는 각 모델들에 대해 입력 데이터를 사전에 제안할 필요가 있습니다. 이는 수행해야 할 계산량과 그에 따른 평가 시간이 증가함을 의미합니다. 만약 캐글대회에 연구단계에서 앙상블을 사용한다면 평가 시간의 증가는 치명적이지 않습니다. 하지만, 상업적으로 설계할 경우엔 매우 치명적 요인이 됩니다. 다시 말하자면, 또 다른 고려사항은 상업적으로 앙상블을 사용하기 위해 최종 모델의 크기 증가가 제한 요소일 수 있습니다.
+
+---
+> 아래는 원글 작성자의 코멘트입니다.  
+
+주피터 노트북 버전으로 보고 싶다면 [이 링크](https://lawnboymax.github.io/portfolio/keras_ensemble/cnn_ensembling.html)를 참조하세요.
+[제 깃헙](https://github.com/LawnboyMax/keras_ensemblng)에서 주피터 노트북 소스코드를 가져오실 수 있습니다.
+
+만약 이 글을 옮기면서 발생한 오타가 있다면 알려주세요.
 
 ### 참고문서
 * [Ensemble Learning](https://en.wikipedia.org/wiki/Ensemble_learning)
