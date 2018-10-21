@@ -152,6 +152,146 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 <br></br>
 <br></br>
 
+> ### CycleGAN Keras 코드 보기
+> 여기서부터는 원문에 있는 글이 아닌 추가 글입니다. [여기](https://github.com/eriklindernoren/Keras-GAN/tree/master/cyclegan) 의 `CycleGAN` 코드를 사용했습니다. 전체 코드는 링크를 참고해주시고, 저는 코드의 부분들을 가져와서 이야기해보겠습니다.
+>
+> 이야기할 코드에서는 CycleGAN 이라는 클래스를 만듭니다. 그리고 CycleGAN 클래스는 init(), build_generator(), build_discriminator(), train(), sample_images() 함수를 가지고 있습니다. 차례대로 함수를 어떻게 구현했는지 봐야겠죠?
+> <br></br>
+> **1. init()**
+>
+> init() 에서 하는 일을 간단히 이야기한다면, 딥러닝 모델을 학습하기 전까지의 과정이라고 할 수 있을 것 같습니다. **모델의 입력 이미지 사이즈를 결정** 하고, **Discriminator의 output 이미지 사이즈를 계산** 하고, **CycleGAN 의 구조를 잡는 것** 의 역할을 수행합니다.
+>
+```python
+def __init__(self):
+        # 입력 이미지 shape
+        self.img_rows = 128 # 이미지의 가로 픽셀
+        self.img_cols = 128 # 이미지의 세로 픽셀
+        self.channels = 3   # 이미지 채널(색)
+        self.img_shape = (self.img_rows, self.img_cols, self.channels)
+
+        # data loader 설정
+        self.dataset_name = 'apple2orange' # 데이터셋 디렉토리 이름
+        self.data_loader = DataLoader(dataset_name=self.dataset_name,
+                                      img_res=(self.img_rows, self.img_cols))
+
+
+        # Discriminator output 사이즈 계산 (PatchGAN 사용)
+        patch = int(self.img_rows / 2**4)
+        self.disc_patch = (patch, patch, 1)
+
+        # Generator 와 Discriminator 의 첫 번째 레이어 필터 개수
+        self.gf = 32
+        self.df = 64
+
+        # Loss weights
+        self.lambda_cycle = 10.0                    # Cycle-consistency loss
+        self.lambda_id = 0.1 * self.lambda_cycle    # Identity loss
+
+        optimizer = Adam(0.0002, 0.5)
+
+        # Discriminators 를 Build, compile
+        self.d_A = self.build_discriminator()
+        self.d_B = self.build_discriminator()
+        self.d_A.compile(loss='mse',
+            optimizer=optimizer,
+            metrics=['accuracy'])
+        self.d_B.compile(loss='mse',
+            optimizer=optimizer,
+            metrics=['accuracy'])
+
+        #-------------------------
+        # Construct Computational
+        #   Graph of Generators
+        #-------------------------
+
+        # Build the generators
+        self.g_AB = self.build_generator()
+        self.g_BA = self.build_generator()
+
+        # 각 도메인의 이미지를 입력합니다. Keras 의 Input 을 사용
+        img_A = Input(shape=self.img_shape)
+        img_B = Input(shape=self.img_shape)
+
+        # 각각의 서로 다른 도메인으로 이미지를 바꿔(Translate)줌
+        # 사과, 오렌지 도메인이 있다고 할 때 사과는 오렌지처럼, 오렌지는 사과처럼 바꿔줌
+        fake_B = self.g_AB(img_A)
+        fake_A = self.g_BA(img_B)
+        # 이미지의 원래 도메인으로 다시 바꿔(Translate)줌
+        reconstr_A = self.g_BA(fake_B)
+        reconstr_B = self.g_AB(fake_A)
+        # Identity Loss 를 위해
+        img_A_id = self.g_BA(img_A)
+        img_B_id = self.g_AB(img_B)
+
+        # For the combined model we will only train the generators
+        self.d_A.trainable = False
+        self.d_B.trainable = False
+
+        # Discriminators determines validity of translated images
+        valid_A = self.d_A(fake_A)
+        valid_B = self.d_B(fake_B)
+
+        # Combined model trains generators to fool discriminators
+        self.combined = Model(inputs=[img_A, img_B],
+                              outputs=[ valid_A, valid_B,
+                                        reconstr_A, reconstr_B,
+                                        img_A_id, img_B_id ])
+        self.combined.compile(loss=['mse', 'mse',
+                                    'mae', 'mae',
+                                    'mae', 'mae'],
+                            loss_weights=[  1, 1,
+                                            self.lambda_cycle, self.lambda_cycle,
+                                            self.lambda_id, self.lambda_id ],
+                            optimizer=optimizer)
+```
+> **2. build_generator()**
+>
+> build_generator() 는 Generator 의 구조를 만듭니다. 이 코드에서는 U-Net 을 Generator 로 사용했습니다.
+>
+> conv2d 는 input image 의 특성을 추출하기 위해서 downsampling 의 용도로 사용합니다. deconv2d 는 이미지의 스타일을 바꿔(translation)주는 용도로 사용합니다.
+```python
+def build_generator(self):
+        """U-Net Generator"""
+
+        def conv2d(layer_input, filters, f_size=4):
+            """Downsampling 하는 레이어"""
+            d = Conv2D(filters, kernel_size=f_size, strides=2, padding='same')(layer_input)
+            d = LeakyReLU(alpha=0.2)(d)
+            d = InstanceNormalization()(d)
+            return d
+
+        def deconv2d(layer_input, skip_input, filters, f_size=4, dropout_rate=0):
+            """Upsampling 하는 레이어"""
+            u = UpSampling2D(size=2)(layer_input)
+            u = Conv2D(filters, kernel_size=f_size, strides=1, padding='same', activation='relu')(u)
+            if dropout_rate:
+                u = Dropout(dropout_rate)(u)
+            u = InstanceNormalization()(u)
+            u = Concatenate()([u, skip_input])
+            return u
+
+        # 이미지 입력. Keras 의 Input 을 사용.
+        d0 = Input(shape=self.img_shape)
+
+        # Downsampling
+        d1 = conv2d(d0, self.gf)
+        d2 = conv2d(d1, self.gf*2)
+        d3 = conv2d(d2, self.gf*4)
+        d4 = conv2d(d3, self.gf*8)
+
+        # Upsampling
+        u1 = deconv2d(d4, d3, self.gf*4)
+        u2 = deconv2d(u1, d2, self.gf*2)
+        u3 = deconv2d(u2, d1, self.gf)
+
+        u4 = UpSampling2D(size=2)(u3)
+        output_img = Conv2D(self.channels, kernel_size=4, strides=1, padding='same', activation='tanh')(u4)
+
+        return Model(d0, output_img)
+```
+
+
+
 ### 참고문서
 * [김태영의 케라스 블로그](https://tykimos.github.io/)
 * [초짜 대학원생 입장에서 이해하는 Generative Adversarial Nets](http://jaejunyoo.blogspot.com/2017/01/generative-adversarial-nets-1.html)
