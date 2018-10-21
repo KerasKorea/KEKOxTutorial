@@ -2,15 +2,11 @@
 
 [From Keras to ML Kit 원문 바로가기](https://proandroiddev.com/from-keras-to-ml-kit-eeaf578a01df)
 
->  이 튜토리얼의 목적은 Keras모델과 안드로이드를 이용하여 모바일 머신러닝을 구현함에 있습니다. <br>
-머신러닝의 유명한 데이터 셋 MNIST를 이용하여 모델을 학습하고, 학습시킨 모델을 안드로이드에 올려서 <br>
-  전체적인 과정은 다음과 같습니다. <br>
-    1. MNIST데이터 셋을 이용하여 Keras로 예측 모델 만들기
-    2. Keras모델을 TF lite 모델로 변환하기
-    3. 변환된 TF Lite모델을 다운받고 ML Kit에 올리기
-  안드로이드 구현함에 있어서 원작자는 이미지 파일을 미리 업로드 시켜 구현하였습니다. <br>
-  번역자인 저는 원작자와 다른 방식으로 이미지 파일이 아닌 직접 손 글씨를 작성하여 Android에서 예측할 수 있도록 구현하였습니다. 맨 아래 부분에 추가했으니 참고해보세요. 재밌습니다 :)
-
+>  이 튜토리얼의 목적은 Keras 모델과 ML Kit을 이용해 모바일 머신러닝을 구현하는 것입니다. 유명한 머신러닝 데이터 셋인 MNIST를 이용해 모델을 학습시키고, 학습된 모델을 안드로이드에 올릴 것입니다. 전체 과정은 다음과 같습니다. <br>
+    1. MNIST 데이터 셋을 이용해 Keras로 예측 모델 만들기  
+    2. Keras 모델을 TF Lite 모델로 변환하기  
+    3. 변환된 TF Lite 모델 ML Kit에 올리기  
+ 원문에서는 **업로드한 이미지 파일을 예측**하는 방식으로 안드로이드 애플리케이션을 구현했는데, 이 문서에서는 **기기에서 직접 작성한 손 글씨를 예측**하도록 조금 변경했습니다. 맨 아래 부분에 코드와 설명을 추가했으니 참고해보세요. 매우 재밌습니다 :)
 
 
 * Keras
@@ -24,18 +20,18 @@
 
 <br>
 ### From Keras to ML Kit
-> Keras모델을 생성, 학습하고 내보내어 ML Kit에 작동할 수 있도록 만든 End-to-end 예시입니다.
+> Keras 모델을 생성, 학습한 뒤 모바일에서 작동할 수 있도록 만든 End-to-end 튜토리얼입니다.
+
 
 <p>
-이 튜토리얼은 제가 쓴 ML Kit 시리즈 중 에 한 예시입니다.
-<p>
-<u>[TensorFlow 모델 ML Kit 으로 export하기](https://proandroiddev.com/exporting-tensorflow-models-to-ml-kit-bce13b914f31)</u>는 여러분이 Python 코드로 작성한 모델을 export하기 쉽게 작성한 튜토리얼입니다. 이 튜토리얼에서는 온라인에서 볼 수 있는 다른 예시들보다 설치, 과정들이 많지 않습니다.
+이 문서는 제가 쓴 아래의 두 ML Kit 시리즈와 이어지는 튜토리얼입니다.<p>
+<u>[TensorFlow 모델 ML Kit 으로 export하기](https://proandroiddev.com/exporting-tensorflow-models-to-ml-kit-bce13b914f31)</u>는 Python 코드로 작성한 모델을 쉽게 export하는 방법을 작성한 튜토리얼입니다. 이 튜토리얼은 온라인에서 볼 수 있는 다른 예시들보다 설치, 과정들이 간단한 편입니다.
 
 <p>
-<u>[커스텀한 TensorFlow 모델들 ML Kit에 올리기: 입력과 출력 이해하기](https://proandroiddev.com/custom-tensorflow-models-on-ml-kit-understanding-input-and-output-ca0b2c27be5f)</u>는 ML Kit을 사용하여 export시킨 모델을 안드로이드 앱에 로드시켰습니다. 이 튜토리얼에서는 ML Kit 예제 코드를 자세히 살펴보고 적절한 입력 및 출력을 구성하는 방법을 알 수 있습니다.
+<u>[커스텀한 TensorFlow 모델들 ML Kit에 올리기: 입력과 출력 이해하기](https://proandroiddev.com/custom-tensorflow-models-on-ml-kit-understanding-input-and-output-ca0b2c27be5f)</u>는 export한 모델을 ML Kit을 사용해 안드로이드 애플리케이션에 올리는 튜토리얼입니다. 여기서는 ML Kit 코드를 자세히 살펴보고, 적절한 입출력을 구성하는 방법에 대해서 소개했습니다.
 
 <p>
-오늘 저는 다음 질문에 답하려고 노력할 것입니다.
+오늘은 다음 질문에 답하려고합니다.
 
 <br>
 ### How can I use my Keras model with ML Kit?
@@ -43,14 +39,13 @@
 Keras는 TensorFlow 위에서 작동할 수 있는 파이썬 기반의 신경망 라이브러리 오픈소스 입니다. TensorFlow와 완벽하게 호환되면서 TensorFlow의 세부사항을 추상화합니다. 신경망 공부를 시작하게 되면 더 많이 사용하게 될 것입니다.
 
 <p>
-이 튜토리얼에서는 [Keras repository](https://github.com/keras-team/keras/blob/master/examples/mnist_mlp.py)에 있는 기본적인 예제를 저의 [Jupyter Notebook](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/Keras%20Sample.ipynb)을 통해 살펴볼 것 입니다.
-<br>
-이번 예제에서 Keras 원작자는 MNIST 데이터 셋으로부터 손 글씨 숫자를 읽을 수 있는 모델을 만들었습니다. MNIST 데이터 셋은 머신 러닝에서 많이 사용되는 데이터 셋이며, 저는 이것을 이용하여 [myFace Generator 프로젝트](https://proandroiddev.com/deep-learning-nd-face-generator-fa92ddbb8c4a)를 진행했었습니다.
+이 튜토리얼에서는 [Keras repository](https://github.com/keras-team/keras/blob/master/examples/mnist_mlp.py)에 있는 기본적인 예제를 저의 [Jupyter Notebook](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/Keras%20Sample.ipynb)을 통해 살펴보겠습니다. 이번 튜토리얼에서는 머신 러닝에 널리 사용되는 데이터 셋인 MNIST를 사용해 손 글씨 숫자를 읽을 수 있는 모델을 만들겠습니다. (MNIST를 이용해 진행했던 [myFace Generator 프로젝트](https://proandroiddev.com/deep-learning-nd-face-generator-fa92ddbb8c4a)를 살펴보세요!)
 <br>
 ![](./media/106_1.png)
 
 
-자세히 살펴봅시다. 아래의 코드는 Keras로 모델을 생성하는 부분입니다.
+먼저 Keras로 모델을 생성하는 부분을 살펴봅시다.
+
 ```python
 model = Sequential()
 
@@ -63,9 +58,9 @@ model.add(Dense(num_classes, activation='softmax'))
 model.summary()
 ```
 
-이 모델은 세 개의 레이어로 단순하게 구성되어 있습니다. 입력 차원은 784차원이며, 출력 차원은 10개의 클래스에 해당하는 10차원이고, 각각 완전 연결 레이어로 구성되어 있습니다.
-참고로 원본 샘플의 드롭 아웃은 주석 처리했는데 그 이유는 나중에 설명하겠습니다.
-> MNIST데이터 셋의 이미지 크기는 28X28인 2차원입니다. 이를 완전 연결 레이어에 적용시키기 위해선 1X784인 1차원으로 리사이징 해야합니다.
+이 모델은 세 개의 레이어로 단순하게 구성되어 있습니다. 입력은 784차원, 출력은 10개 클래스이며, 완전히 연결된 레이어(fully-connected layers)로 구성되어 있습니다.
+참고로 원본 코드의 드롭 아웃은 주석 처리했는데 그 이유는 나중에 설명하겠습니다.
+> MNIST 데이터 셋의 이미지는 2차원으로 `28X28` 사이즈입니다. 이를 완전히 연결된 레이어에 적용시키기 위해선 1차원인 `1X784`으로 리사이징 해야합니다.
 
 
 ---
@@ -78,7 +73,7 @@ model.summary()
 
 ![](./media/106_2.png)
 
-이 모델의 정확도는 0.98이며 우수하지는 않습니다. 저는 오직 5에폭만 학습시켰고, 드롭 아웃 레이어를 뺏기 때문에 원래의 예제에 비해 정확도가 약간 떨어졌습니다.
+이 모델의 정확도는 0.98이며 우수하지는 않습니다. 저는 오직 5에폭만 학습시켰고, 드롭 아웃 레이어를 주석처리했기 때문에 원래 예제에 비해 정확도가 약간 떨어졌습니다.
 
 ---
 
@@ -104,11 +99,11 @@ Keras모델을 입력 텐서로 감싸고, 출력 텐서를 구해야 합니다.
 
 <br>`freeze_session` 전에, 입력 텐서로 `(1, 784)`벡터의 TensorFlow의 `placeholder`를 정의하였습니다. 그리고 나서 Keras로 만든 `model`을 가지고 입력 텐서를 인자값으로 넣어줍니다. 결과 값은 `output_tensor`입니다.
 
-<br>두번째로, `freeze_session`을 호출합니다. 이것은 링크로 걸어놓은 나의 예전 글에 나와있습니다. 하지만 이번에는 Keras 뒷단으로 부터 TensorFlow세션을 반환하는 `K.get_session()`을 호출합니다.
+<br>두번째로, `freeze_session`을 호출합니다(`freeze_session`은 링크 걸어놓은 [예전 글](https://proandroiddev.com/custom-tensorflow-models-on-ml-kit-understanding-input-and-output-ca0b2c27be5f)에 나와있습니다). 이번에는 Keras 뒷단으로 부터 TensorFlow세션을 반환하는 `K.get_session()`을 호출합니다.
 
 <br>마지막으로, 방금 만든 입력과 출력 텐서를 `toco_convert`메소드에 전달하고, 변수를 고정시켜서 모델을 ```tflite```파일에 저장합니다.
 
-<br>그러나, 원래 모델은 잠시동안 **TF Lite가 지원하지 않는**`Dropout`을 사용하였습니다. 저는 원래의 모델을 내보내는 과정에서 문제가 생겼었는데, 드롭아웃 레이어를 제거하니깐 해결되었습니다. 저는 TensorFlow의 다음 버전에서 이 문제가 해결되길 기대합니다.
+<br>원래 모델은 잠시동안 **TF Lite가 지원하지 않는**`Dropout`을 사용하였습니다. 저는 원래의 모델을 내보내는 과정에서 문제가 생겼었는데, 드롭아웃 레이어를 제거하니깐 해결되었습니다. 저는 TensorFlow의 다음 버전에서 이 문제가 해결되길 기대합니다.
 
 ---
 
@@ -126,19 +121,22 @@ from google.colab import files
 open("nmist_mlp.tflite", "wb").write(tflite_model)
 files.download('nmist_mlp.tflite')
 ```
+
 ---
 ### Running the exported model on Android
 <p>
-우리의 모델이 실제로 작동하는지 보기위해서 Android Studio로 가보겠습니다.
+훈련된 모델이 실제로 작동하는지 보기위해서 Android Studio로 가보겠습니다.
 <p>
-이 모델이 실행되는 액티비티는 <u>[MnistActivity.kt](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/app/src/main/java/work/beltran/mlkitsample/MnistActivity.kt)</u> 에서 열 수 있습니다.
+이 모델이 실행되는 액티비티는 <u>[MnistActivity.kt](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/app/src/main/java/work/beltran/mlkitsample/MnistActivity.kt)</u> 입니다.
 <p>
+
 ```java
 // 입력 : 1x784 텐서
 val inputDims = intArrayOf(1, 784)
 // 출력 : 1x10 텐서
 val outputDims = intArrayOf(1, 10)
 ```
+
 <p>
 이를 테스트하기 위해 손으로 숫자 3을 써서 색상을 뒤집어 회색 스케일 비트 맵으로 변환했습니다.
 > 색상을 뒤집은 이유는 MNIST 데이터 셋의 이미지들이 검은색 배경에 흰색 손 글씨 숫자가 써있기 때문입니다.
@@ -148,6 +146,7 @@ val outputDims = intArrayOf(1, 10)
 <br>
 두번째, 비트맵을 받고 하나의 0과 1 사이의 실수 배열로 변환하는 과정이 필요합니다.
 <p>
+
 ```java
 // ML Kit Input
 val inp = arrayOf(FloatArray(784) { 0f })
@@ -168,18 +167,22 @@ intValues.forEachIndexed { index, i ->
 // Pass the inputs
 val inputs = FirebaseModelInputs.Builder().add(inp).build()
 ```
+
 <p>
 이제 입력을 가지고 모델을 실행할 시간입니다.
 <p>
+
 ```java
 interpreter.run(inputs, dataOptions)
     .continueWith { task ->
          val output = task.result.getOutput<Array<FloatArray>>(0)
     }
 ```
+
 <p>
 출력 배열을 확인했을 때, 다음과 같은 결과를 얻었습니다.
 <p>
+
 ```
 7.771087E-15,
 3.1033683E-13,
@@ -192,6 +195,7 @@ interpreter.run(inputs, dataOptions)
 5.8121117E-7,
 3.0227494E-9
 ```
+
 <p>
 결과 값을 살펴보면, 우리는 출력 배열의 3번째 위치하고 있는 0.999의 값을 얻었습니다. 이것은 **숫자3의 카테고리와 일치합니다!** 우리가 만든 모델이 Android에서 작동하네요!
 > 배열의 위치는 0부터 시작하기 때문에 순서대로 0, 1, 2, 3이여서 3번째 위치라고 표현합니다 <br>
@@ -202,9 +206,10 @@ interpreter.run(inputs, dataOptions)
 
 ---
 
+>  여기부터는 다른 튜토리얼의 일부를 참고해 원문과 조금 다른 안드로이드 애플리케이션을 만든 내용입니다(원문에서는 업로드한 손 글씨 이미지를 예측하지만, 여기서는 기기에 직접 그린 이미지를 예측합니다). 업로드  최종 데모는 아래와 같습니다.<p>
+
 ![](./media/106_6.gif)
 
->  여기부터는 이 튜토리얼의 일부분과 다른 튜토리얼의 일부분을 참고하여 만든 것입니다. 최종 데모는 위의 이미지와 같습니다.<p>
  [[MLkit_MNIST_Keras]](https://colab.research.google.com/drive/1J8HieLqMCIdVmNq1hz7FzuHOW-XduZ00) Keras모델 생성, 학습, 내보내기, 모델을 모바일에 올리기 위한 다운로드 과정을 직접 따라해보며 만든 Colab파일입니다. 별다른 설치없이 바로 실행시킬 수 있습니다.<p>
 이 튜로리얼에서는 전반적인 로직만 살펴 보겠습니다. 최종 구현에 대한 코드는 저의 깃허브 [AI-project/Handwritten digit recognition](https://github.com/SooDevv/AI-project/tree/master/Handwritten%20digit%20recognition)에서 확인할 수 있으며, 안드로이드 구현은 Java를 기반으로 하였습니다. [MNIST with TensorFlow Lite on Android](https://github.com/nex3z/tflite-mnist-android/blob/master/README.md)를 참고하였습니다. <p>
 
@@ -263,6 +268,7 @@ $ App Name
         return new Result(mResult[0], timeCost);
     }
     ```
+    
 <br>
 
   3. **Result Class**
