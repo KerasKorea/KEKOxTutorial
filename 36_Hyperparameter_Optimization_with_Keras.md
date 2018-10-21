@@ -110,3 +110,23 @@ t = ta.Scan(x=x,
 
 이 경우, 나는 2015년에 생산된 MacBook Air를 통하여 실행했으며, 위의 시간은 제가 친구를 만나 커피 한 잔 (또는 두 잔)을 마실 수있는 시간처럼 보입니다.
 
+## Hyperparameter Scanning Visualized
+
+이 기사에서는 위스콘신 유방암 데이터 세트를 사용였고, 최적의 매개 변수 또는 데이터 세트에 대한 사전 지식이없는 것으로 가정하여 실험을 진행하였습니다. 하나의 열을 삭제하고 나머지를 모두 변형하여 각 피쳐의 평균이 0이고 표준 편차가 1이되도록 데이터 세트를 준비했습니다.
+
+1,800번의 순열을 처음 실행한 후, 결과를 살펴보고 매개변수 공간을 어떻게 제한(또는 변경)할지 결정해야 합니다.
+
+![i](https://cdn-images-1.medium.com/max/800/1*yDrJuNQUgEcb8_L2F9ve-g.png)
+
+간단한 순위 순서 상관 관계에서 lr(학습 속도)가 성능 메트릭에 가장 큰 영향을 미친다는 것을 알 수 있습니다. 이 경우 성능 지표는 val_ac(유효성 정확도)입니다. 이 데이터셋의 경우 Positive(양) 수가 많기 때문에 val_ac가 정상입니다.
+
+![i](https://cdn-images-1.medium.com/max/1000/1*XgAAoiQ14z8vz-_PMvEVIA.png)
+
+드롭아웃을 확인하는 또 다른 방법은 커널 밀도 평가입니다. 여기에서는 드롭 아웃 0 또는 0.1 및 val_acc (0.6 마크 전후)에서  val_acc이 약간 더 높아지는 경향을 확인할 수 있습니다. 
+
+![i](https://cdn-images-1.medium.com/max/800/1*beQLnaRNZv35EGWrcuXSjA.png)
+
+다음 스캔의 첫 번째 작업 항목은 높은 드롭아웃 비율을 모두 제거하고 0에서 0.2 사이의 값에 초점을 맞추는 것입니다. 다음으로 learning rate를 더 자세히 살펴 보겠습니다. learning rate는 최적화 프로그램에서 하나의 스케일로 정규화됩니다. 여기서 1은 해당 최적화 알고리즘의 Keras 기본값을 나타냅니다.
+
+![i](https://cdn-images-1.medium.com/max/800/1*7S0ppxrlH-r8Q9i8ILOW6A.png)
+
