@@ -432,6 +432,14 @@ figure11 - figure15는 번역자가 위의 코드를 변형하여 얻은 결과�
 
 <br></br>
 
+다른 도메인으로 translate 후 다시 원래 도메인으로 reconstruction 합니다.
+잘 되는 것 같나요?
+
+원하는 데이터를 모아서 직접 해보세요!
+
+<br></br>
+<br></br>
+
 ### 참고문서
 * [김태영의 케라스 블로그](https://tykimos.github.io/)
 * [초짜 대학원생 입장에서 이해하는 Generative Adversarial Nets](http://jaejunyoo.blogspot.com/2017/01/generative-adversarial-nets-1.html)
