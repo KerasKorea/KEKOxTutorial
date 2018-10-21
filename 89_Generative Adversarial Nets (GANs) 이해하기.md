@@ -228,14 +228,12 @@ def train(epochs=1, batch_size=128):
             y_dis = np.zeros(2*batch_size)
             y_dis[:batch_size] = 0.9
 
-            # Discriminator를 학습시킵니다.
-            discriminator.trainable = True
+            # Discriminator 를 학습시킵니다.
             discriminator.train_on_batch(X, y_dis)
 
             # Generator를 학습시킵니다.
             noise = np.random.normal(0, 1, size=[batch_size, random_dim])
             y_gen = np.ones(batch_size)
-            discriminator.trainable = False
             gan.train_on_batch(noise, y_gen)
 
         if e == 1 or e % 20 == 0:
@@ -260,6 +258,10 @@ if __name__ == '__main__':
 축하합니다. 이 튜토리얼을 마치셨습니다. `GAN(Generative Adversarial Networks)`의 기본을 직관적으로 배웠습니다. 또한 `Keras` 라이브러리의 도움을 받아 첫 번째 모델을 구현했습니다. Python을 사용한 심층 학습에 대해 자세히 알아보려면 DataCamp의 Deep Learning을 Python 과정으로 수강해보세요.
 
 <br></br>
+
+### 참고 사이트
+* [김태영의 케라스 블로그: 한 장 간](https://tykimos.github.io/2017/12/12/One_Slide_GAN/)
+
 > 이 글은 2018 컨트리뷰톤에서 [`Contribute to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.  
 > Translator: [박정현](https://github.com/parkjh688)  
 > Translator email : <parkjh688@gmail.com>
