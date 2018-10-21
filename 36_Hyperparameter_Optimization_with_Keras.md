@@ -30,3 +30,83 @@
 
 자동화 된 하이퍼 매개 변수 최적화 및 관련 도구를 사용하는 것에서 가장 중요한 문제 중 하나는 일반적으로 익숙한 방식에서 점점 멀어져가는 경향이 있다는 것입니다. (모든 복잡한 문제가 그렇듯이) 하이퍼 매개 변후 최적화를 성곡적으로 예측하는 핵심 키는 인간과 기계 간의 협력을 포용하는 데 있습니다. 모든 실험은 (딥러닝의) 연습과 기술 (이 경우 Keras)에 대해 더 많이 배울 수있는 기회입니다. 프로세스 자동화를 통하여 그 기회를 놓치지 마세요. 동시에 우리는 그 과정에서 노골적으로 중복되는 부분을 제거할 수 있어야 합니다. Jupyter에서 shift-enter를 몇 백 번하고 각 반복 사이를 1 ~ 2 분씩 기다리는 것을 생각해 보세요. 요약하자면, 이 시점에서 목표는 올바른 모델을 찾는 완벽하게 자동화된 접근방식이 아니라, 인간에게 부담이 되는 절차적 중복을 최소화 하는 것이어야 합니다. 기계는 기계적으로 작동하지 않고 스스로 작동합니다. 다양한 모델 구성의 결과를 하나씩 분석하는 대신 수천 개 또는 수십만 개씩 분석하고자 합니다. 하루에 80,000초 이상이 소요되며, 그 시간에 제가 관여할 필요없이 수많은 매개 변수를 다룰 수 있습니다. 
 
+## Let’s Get Scannin’
+
+예를들어, 저는 먼저 이 기사에서 다룬 실험 동안 사용한 코드를 제공할 것입니다. 제가 사용한 데이터셋은 [위스콘신 유방암](https://www.kaggle.com/uciml/breast-cancer-wisconsin-data) 데이터 세트입니다.
+
+```python
+# first we have to make sure to input data and params into the function
+def breast_cancer_model(x_train, y_train, x_val, y_val, params):
+
+    # next we can build the model exactly like we would normally do it
+    model = Sequential()
+    model.add(Dense(10, input_dim=x_train.shape[1],
+                    activation=params['activation'],
+                    kernel_initializer='normal'))
+    
+    model.add(Dropout(params['dropout']))
+    
+    # if we want to also test for number of layers and shapes, that's possible
+    hidden_layers(model, params, 1)
+   
+    # then we finish again with completely standard Keras way
+    model.add(Dense(1, activation=params['last_activation'],
+                    kernel_initializer='normal'))
+    
+    model.compile(loss=params['losses'],
+                  # here we add a regulizer normalization function from Talos
+                  optimizer=params['optimizer'](lr=lr_normalizer(params['lr'],params['optimizer'])),
+                  metrics=['acc', fmeasure])
+    
+    history = model.fit(x_train, y_train, 
+                        validation_data=[x_val, y_val],
+                        batch_size=params['batch_size'],
+                        epochs=params['epochs'],
+                        verbose=0)
+    
+    # finally we have to make sure that history object and model are returned
+    return history, model
+```
+
+케라스 모델이 정의되면 초기 매개변수 경계를 결정해야 합니다. 그런 다음 사전은 단일 순열이 한 번 선택되고 선택된 순열을 무시되는 방식으로 프로세스에 공급됩니다.
+
+```python
+# then we can go ahead and set the parameter space
+p = {'lr': (0.5, 5, 10),
+     'first_neuron':[4, 8, 16, 32, 64],
+     'hidden_layers':[0, 1, 2],
+     'batch_size': (2, 30, 10),
+     'epochs': [150],
+     'dropout': (0, 0.5, 5),
+     'weight_regulizer':[None],
+     'emb_output_dims': [None],
+     'shape':['brick','long_funnel'],
+     'optimizer': [Adam, Nadam, RMSprop],
+     'losses': [logcosh, binary_crossentropy],
+     'activation':[relu, elu],
+     'last_activation': [sigmoid]}
+```
+
+손실, 최적화 도구 및 스캔에 포함하려는 활성화함수에 따라 먼저 케라스에서 해당 함수/클래스를 가져와야 합니다. 이제 모델과 파라미터가 준비되었으니 이제 실험을 시작할 때입니다.
+
+```python
+# and run the experiment
+t = ta.Scan(x=x,
+            y=y,
+            model=breast_cancer_model,
+            grid_downsample=0.01, 
+            params=p,
+            dataset_name='breast_cancer',
+            experiment_no='1')
+```
+
+다음 섹션에서 제공하는 통찰력과 관련된 파라미터 사전의 파라미터만 변경했기 때문에 더 이상의 코드를 공유하지는 않을 것입니다. 완벽을 기하기 위해 기사의 끝에 저는 코드와 함께 노트에 대한 링크를 공유하려고 합니다.
+
+이 실험의 첫 번째 라운드에는 많은 순열이 (총 180,000개 이상의) 있기 때문에, 저는 무작위로 전체 중 1%만을 뽑았습니다. 그리고 1,800개의 순열을 남깁니다.
+
+![i](https://cdn-images-1.medium.com/max/800/1*CMOICFCpP-3bbuNWTTJ_BA.png)
+
+![i](https://cdn-images-1.medium.com/max/800/1*ZB-qBLNXY5RVIc9uEN5gYw.gif)
+
+이 경우, 나는 2015년에 생산된 MacBook Air를 통하여 실행했으며, 위의 시간은 제가 친구를 만나 커피 한 잔 (또는 두 잔)을 마실 수있는 시간처럼 보입니다.
+
