@@ -63,3 +63,51 @@ view raw
 <br></br>
 
 ### Data Preparation
+
+예측을 위해 소스에서 수집된 데이터를 파싱해야 합니다. 이 [블로그](https://nicholastsmith.wordpress.com/2017/11/13/cryptocurrency-price-prediction-using-deep-learning-in-tensorflow/)의 PastSampler class를 이용하여 데이터를 분할하여 데이터 리스트와 라벨 리스트를 얻을 수 있습니다. 입력 크기(N)는 256이고 출력 크기(K)는 16입니다. Poloniex에서 수집된 데이터는 5분 단위로 체크 표시됩니다. 이는 입력이 1280분 동안 지속되고 출력이 80분 이상임을 나타냅니다.
+
+<br></br>
+
+```Python
+import numpy as np
+import pandas as pd
+
+class PastSampler:
+    '''
+    학습 데이터(training samples)를 과거 데이터를 이용해서 미래를 예측할 수 있도록 형태를 갖춰줍니다.
+    '''
+
+    def __init__(self, N, K, sliding_window = True):
+        '''
+        N개의 과거 데이터를 이용해 K개의 미래를 예측합니다.
+        '''
+        self.K = K
+        self.N = N
+        self.sliding_window = sliding_window
+
+    def transform(self, A):
+        M = self.N + self.K     #한개의 row당 데이터 개수 (sample + target)
+        #indexes
+        if self.sliding_window:
+            I = np.arange(M) + np.arange(A.shape[0] - M + 1).reshape(-1, 1)
+        else:
+            if A.shape[0]%M == 0:
+                I = np.arange(M)+np.arange(0,A.shape[0],M).reshape(-1,1)
+
+            else:
+                I = np.arange(M)+np.arange(0,A.shape[0] -M,M).reshape(-1,1)
+
+        B = A[I].reshape(-1, M * A.shape[1], A.shape[2])
+        ci = self.N * A.shape[1]    #한 데이터당 feature 개수
+        return B[:, :ci], B[:, ci:] #학습 matrix, 타겟 matrix
+
+#데이터 파일 위치(path)
+dfp = 'data/bitcoin2015to2017.csv'
+
+# 가격 데이터 컬럼(열, columns)
+columns = ['Close']
+df = pd.read_csv(dfp)
+time_stamps = df['Timestamp']
+df = df.loc[:,columns]
+original_df = pd.read_csv(dfp).loc[:,columns]
+```
