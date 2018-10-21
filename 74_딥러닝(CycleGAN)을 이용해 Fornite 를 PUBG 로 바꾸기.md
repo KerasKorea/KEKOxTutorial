@@ -149,7 +149,7 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 
 ![./media/74_5.gif](./media/74_5.gif)
 
-*figure10 : *
+*figure10 : fortnite - pubg CycleGAN 적용 결과*
 <br></br>
 
 하늘은 덜 푸르스름해 보이고, 만화 같은 잔디와 나무들은 PUBG 에서 볼 수 있는 나무와 훨씬 더 가까워 보입니다. 심지어 신경망은 화면 하단에 있는 상태표시창을 PUBG의 총과 탄약 표시기로 교체하는 것도 배웠습니다!
