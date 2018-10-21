@@ -8,7 +8,7 @@
 * Gym
 
 ### Introduction
-![CartPole Game](./media/133_1.gif)
+![CartPole Game](./media/134_1.gif)
 
 *figure1 : CartPole 게임*
 
