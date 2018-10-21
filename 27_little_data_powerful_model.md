@@ -1,20 +1,18 @@
 ## 작은 데이터셋으로 강력한 이미지 분류 모델 설계하기
 
-원문: [Building powerful image classification models using very little data](https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html), Francois Chollet
+원문: [Building powerful image classification models using very little data](https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html) by. Francois Chollet
 
-번역: 허남규, [itsnamgyu@gmail.com](mailto:itsnamgyu@gmail.com)
-
-이 글은 적은 양의 데이터를 가지고 강력한 이미지 분류 모델을 구축하는 방법을 소개합니다. 수백에서 수천 장 정도의 작은 데이터셋을 가지고도 강력한 성능을 낼 수 있는 모델을 만들어볼 것입니다.
+> 이 글은 적은 양의 데이터를 가지고 강력한 이미지 분류 모델을 구축하는 방법을 소개합니다. 수백에서 수천 장 정도의 작은 데이터셋을 가지고도 강력한 성능을 낼 수 있는 모델을 만들어볼 것입니다.
 
 저희는 세 가지 방법을 다룰 것입니다.
 
 - 작은 네트워크를 처음부터 학습 (앞으로 사용할 방법의 평가 기준)
-- 기존 네트워크의 *bottleneck feature* 사용
+- 기존 네트워크의 *병목특징(bottleneck feature)* 사용
 - 기존 네트워크의 상단부 레이어 *fine-tuning*
 
 저희가 다룰 케라스 기능은 다음과 같습니다.
 
-- `ImageDataGenerator`: 실시간 이미지 augmentation
+- `ImageDataGenerator`: 실시간 이미지 증가(augmentation)
 - `flow`: `ImageDataGenerator` 디버깅
 - `fit_generator`: `ImageDataGenerator`를 이용한 케라스 모델 학습
 - `Sequential`: 케라스 내 모델 설계 인터페이스
@@ -69,16 +67,16 @@ data/
 
 #### 데이터 전처리와 Augmentation
 
-모델이 적은 이미지에서 최대한 많은 정보를 뽑아내서 학습할 수 있도록 우선 이미지를 *augment* 시켜보도록 하겠습니다. 이미지를 사용할 때마다 임의로 변형을 가함으로써 마치 훨씬 더 많은 이미지를 보고 공부하는 것과 같은 학습 효과를 내는 겁니다. 이를 통해 과적합 (overfitting), 즉 학습 데이터에만 맞춰지는 것을 방지하고, 새로운 이미지도 잘 분류할 수 있게 합니다.
+모델이 적은 이미지에서 최대한 많은 정보를 뽑아내서 학습할 수 있도록 우선 이미지를 *augment* 시켜보도록 하겠습니다. 이미지를 사용할 때마다 임의로 변형을 가함으로써 마치 훨씬 더 많은 이미지를 보고 공부하는 것과 같은 학습 효과를 내는 겁니다. 이를 통해 과적합 (overfitting), 즉 모델이 학습 데이터에만 맞춰지는 것을 방지하고, 새로운 이미지도 잘 분류할 수 있게 합니다.
 
-이런 전처리 과정을 돕기 위해 케라스는 [`ImageDataGenerator`](https://keras.io/preprocessing/image/#imagedatagenerator-class) 클래스를 제공합니다. 이런 일을 할 수 있죠:
+이런 전처리 과정을 돕기 위해 케라스는 [`ImageDataGenerator`](https://keras.io/preprocessing/image/#imagedatagenerator-class) 클래스를 제공합니다. `ImageDataGenerator`는 이런 일을 할 수 있죠:
 
 - 학습 도중에 이미지에 임의 변형 및 정규화 적용
 - 변형된 이미지를 배치 단위로 불러올 수 있는 `generator` 생성.
 	- `generator`를 생성할 때 `flow(data, labels)`, `flow_from_directory(directory)` 두 가지 함수를 사용합니다.
   - `fit_generator`, `evaluate_generator` 함수를 이용하여 `generator`로 이미지를 불러와서 모델을 학습시킬 수 있습니다.
 
-한번 예시를 살펴봅시다.
+예시를 한번 살펴봅시다.
 
 ```python
 from keras.preprocessing.image import ImageDataGenerator
@@ -104,7 +102,7 @@ datagen = ImageDataGenerator(
 - `horizontal_flip`: True로 설정할 경우, 50% 확률로 이미지를 수평으로 뒤집습니다. 원본 이미지에 수평 비대칭성이 없을 때 효과적입니다. 즉, 뒤집어도 자연스러울 때 사용하면 좋습니다.
 - `fill_mode` 이미지를 회전, 이동하거나 축소할 때 생기는 공간을 채우는 방식
 
-[케라스 공식 문서](https://keras.io/preprocessing/image/)를 보시면 이외에도 인자가 더 많습니다.
+[케라스 공식 문서](https://keras.io/preprocessing/image/)를 보시면 이외에도 다양한 인자가 있습니다.
 
 #### ImageDataGenerator 디버깅
 
@@ -138,7 +136,7 @@ for batch in datagen.flow(x, batch_size=1,
 
 결과는 다음과 같습니다. 저희는 이러한 이미지로 모델을 학습하게 되는 것입니다. 잘못된 학습 예시가 있다면 augmentation 인자를 다시 한 번 조절해보세요.
 
-![변형된 고양이 흑흑](https://blog.keras.io/img/imgclf/cat_data_augmentation.png)
+![변형된 고양이 흑흑흑](https://blog.keras.io/img/imgclf/cat_data_augmentation.png)
 
 ### 작은 CNN 밑바닥부터 학습하기 - 코드 40줄, 정확도 80%
 
@@ -433,3 +431,8 @@ model.fit_generator(
 - [Convnet trained from scratch](https://gist.github.com/fchollet/0830affa1f7f19fd47b06d4cf89ed44d)
 - [Bottleneck features](https://gist.github.com/fchollet/f35fbc80e066a49d65f1688a7e99f069)
 - [Fine-tuning](https://gist.github.com/fchollet/7eb39b44eb9e16e59632d25fb3119975)
+
+> 이 글은 2018 컨트리뷰톤에서 [`Contribute to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.  
+> Translator: [허남규](https://github.com/itsnamgyu)  
+> Translator email : [itsnamgyu@gmail.com](mailto:itsnamgyu@gmail.com)
+
