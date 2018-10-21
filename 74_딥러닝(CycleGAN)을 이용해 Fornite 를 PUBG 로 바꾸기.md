@@ -400,6 +400,38 @@ def train(self, epochs, batch_size=1, sample_interval=50):
 
 <br></br>
 
+figure11 - figure15는 번역자가 위의 코드를 변형하여 얻은 결과입니다. 데이터는 직접 유튜브의 fortnite, pubg 게임 영상으로부터 얻어서 사용하였습니다. 각 batch 마다 변해가는 과정을 보여줄 것입니다. 시간과 좋지 않은 환경으로 인해 튜토리얼 만큼 좋은 결과를 내진 못했습니다. 이 점 참고 바랍니다.
+
+![0_0](./media/74_6.png)
+
+*figure11 : 0번째 batch*
+
+<br></br>
+
+![0_200](./media/74_7.png)
+
+*figure12 : 200번째 batch*
+
+<br></br>
+
+![0_400](./media/74_8.png)
+
+*figure13 : 400번째 batch*
+
+<br></br>
+
+![0_600](./media/74_9.png)
+
+*figure14 : 600번째 batch*
+
+<br></br>
+
+![0_800](./media/74_10.png)
+
+*figure15 : 400번째 batch*
+
+<br></br>
+
 ### 참고문서
 * [김태영의 케라스 블로그](https://tykimos.github.io/)
 * [초짜 대학원생 입장에서 이해하는 Generative Adversarial Nets](http://jaejunyoo.blogspot.com/2017/01/generative-adversarial-nets-1.html)
