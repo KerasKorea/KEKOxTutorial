@@ -9,6 +9,7 @@
 
 ### Introduction
 ![CartPole Game](./media/133_1.gif)
+
 *figure1 : CartPole 게임*
 
 <br></br>
@@ -38,6 +39,7 @@
 <br></br>
 
 ![강화학습](./media/134_2.png)
+
 *figure2 : 강화학습이란?*
 
 <br></br>
@@ -48,7 +50,8 @@
 
 <br></br>
 
-![deepmind_logo](./media/134_3.jpeg)
+![deepmind_logo](./media/134_3.jpg)
+
 *figure3 : DeepMind 로고*
 
 <br></br>
@@ -93,6 +96,7 @@ next_state, reward, done, info = env.step(action)
 ### 단순 신경망을 사용하기 위한 Keras 사용 (Using Keras To Implement a Simple Neural Network)
 
 ![케라스자랑](./media/134_4.jpeg)
+
 *figure4 : 인기 많은 TensorFlow, CNTK or Theano 처럼 Keras.io 는 high-level 의 신경망 API 입니다.*
 
 이 글은 **딥러닝** 이나 **신경망** 에 관한 것이 아닙니다. 따라서 **신경망** 은 입력을 출력에 맵핑하는 블랙 박스 알고리즘으로 간주할 것입니다.
@@ -102,6 +106,7 @@ next_state, reward, done, info = env.step(action)
 <br></br>
 
 ![신경망](./media/134_5.png)
+
 *figure5 : 3개의 입력, 1개의 히든 레이어, 2개의 출력*
 
 <br></br>
@@ -164,6 +169,7 @@ prediction = model.predict(state)
 ### Deep Q Network 만들기 (Deep Q Network Implementation)
 
 ![Deep Q Network](./media/134_6.png)
+
 *figure6 : Deep Q Network*
 
 <br></br>
@@ -198,6 +204,7 @@ CartPole의 경우 점수가 없습니다. 그 보상은 그 선수가 얼마나
 ### 1# 어떻게 우리는 더 오래 생존하기 위해 이러한 직관을 논리적으로 표현할까? (How do we logically represent this intuition to survive longer?)
 
 ![Q-learning의_수학적_표현](./media/134_7.png)
+
 *figure7: Q-learning의 수학적 표현*
 
 <br></br>
@@ -393,6 +400,7 @@ if __name__ == "__main__":
 그리고 처음에 우리의 DQL 에이전트는 임의로 행동함으로써 탐색한다는 것을 기억하세요. 표시된 점수를 통해 진행 상황을 볼 수 있습니다.
 
 ![진행사항1](./media/134_8.png)
+
 *figure8 : 진행사항*
 
 <br></br>
@@ -406,6 +414,7 @@ if __name__ == "__main__":
 수백 편(5분)의 에피소드를 진행한 후(게임을 하는 것을 에피소드라고 위에서 이야기 하였습니다 🙂), 점수를 극대화하기 위해 균형을 맞추는 법을 배우기 시작합니다.
 
 ![진행사항2](./media/134_9.png)
+
 *figue9 : 늘어난 점수*
 
 <br></br>
@@ -413,6 +422,7 @@ if __name__ == "__main__":
 바로 이겁니다, 우리는 숙련된 CartPole 플레이어를 만들었어요! 👍 👍
 
 ![학습중인 CartPole](./media/134_10.gif)
+
 *figure10 : 학습중인 CartPole*
 
 [GitHub](https://github.com/GaetanJUVIN/Deep_QLearning_CartPole)에서 이 게시물에 사용된 코드를 찾을 수 있습니다. game renderer를 켜려면 아래 주석을 풀어야 합니다. :-)
