@@ -12,7 +12,8 @@
 Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에 대한 적용 탐색을 할 것 입니다.
 
 ![74_4.gif](./media/74_4.gif)
-신경망은 PUBG 의 시각적 스타일로 Fortnite 를 재창조하려고 시도합니다.
+
+*figure1 : 신경망은 PUBG 의 시각적 스타일로 Fortnite 를 재창조하려고 시도합니다.*
 
 <br></br>
 만약 여러분이 게이머라면, 여러분은 미친듯한 인기를 누리고 있는 Battle Royale 게임인 Fortnite 와 PUBG에 대해 들어봤을 것입니다. 두 게임 모두 100명의 선수들이 단지 한 명의 생존자가 남아있을 때까지 작은 섬에서 경기를 하는 방식이 매우 유사합니다.
@@ -23,7 +24,8 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 
 <br></br>
 ![Fortnite_and_PUBG](https://cdn-images-1.medium.com/max/1600/1*LNAjmkCJ_yuFiK_syedONw.jpeg)
-카툰같은 비주얼의 Fortnite (왼쪽) 와 조금 더 현실 같은 비주얼의 PUBG (오른쪽)
+
+*figure2 : 카툰같은 비주얼의 Fortnite (왼쪽) 와 조금 더 현실 같은 비주얼의 PUBG (오른쪽)*
 
 
 <br></br>
@@ -41,9 +43,13 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 >
 > ![74_0.png](./media/74_0.png)
 >
+> *figure3 : paired 데이터와 unpaired 데이터*
+>
 > 하지만 paired data 를 얻는 것은 어렵고 비용이 많이 들 수 있습니다. 또한 아래의 이미지같이 말 형태를 놔두고 얼룩말로 무늬만 넣어줄 때, paired data 처럼 똑같은 포즈를 가진 얼룩말을 구하는 것은 쉽지 않습니다.
 >
 > ![74_1.png](./media/74_1.png)
+>
+> *figure4 : CycelGAN 결과*
 >
 > 이런 문제가 있기 때문에 CycleGAN 은 Unpaired Data 를 이용해서 학습하는 방법을 소개합니다.
 
@@ -51,6 +57,9 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 <br></br>
 
 ![original_github](https://cdn-images-1.medium.com/max/1200/1*-w1y7RK4Gq0WXdxaqIl0eQ.jpeg)
+
+*figure5 : CycelGAN 다른 도메인의 결과들*
+
 원본 Github implementation 과 그에 따른 결과는 [여기](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix)서 볼 수 있습니다.
 
 <br></br>
@@ -68,6 +77,8 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 >
 > ![74_2.png](./media/74_2.png)
 >
+> *figure6 : How do they work?*
+>
 > CycleGAN model 은 위 이미지와 같이 G : X → Y and F : Y → X 해주는 두 개의 mapping function 이 있고, F(Y) 를 판별하는 Dx and G(X) 를 판별하는 Dy 가 있습니다.
 >
 > 논문에서는 CycleGAN 은 생성된 이미지의 분포를 대상 도메인의 데이터 분포와 일치시키기 위한 `Adversarial loss` 와 학습된 매핑 G와 F가 서로 모순되는 것을 방지하기 위해 `Cycle consistency loss` 를 포함합니다. 여기서 말하는 <U>모순</U> 은 아래 Cycle consistency loss 에서 설명합니다.
@@ -77,9 +88,12 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 >  ![](https://latex.codecogs.com/gif.latex?L_%7BGAN%7D%28G%2C%20D_Y%2C%20X%2C%20Y%29%20%3D%20%5Cmathbb%7BE%7D_%7By%5Csim%20p_%7Bdata%28y%29%7D%7D%5BlogD_Y%28y%29%5D%20&plus;%20%5Cmathbb%7BE%7D_%7Bx%5Csim%20p_%7Bdata%28x%29%7D%7D%5Blog%281-D_Y%28G%28x%29%29%29%5D)
 >
 > **Cycle consistency loss**
-> Adversarial training 으로 각각 대상 도메인 Y와 X로 동일하게 분포된 출력을 생성하는 mapping G와 F를 배울 수 있지만, large capacity 에서는 네트워크는 동일한 입력 이미지 세트를 대상 도메인에서 이미지의 임의 허용에 맵핑할 수 있으며, 학습된 맵핑 중 하나라도 목표 위반과 일치하는 출력 분포를 유도할 수 있습니다. 이 문제가 위에서 말했던 모순입니다. 따라서 input ![](https://latex.codecogs.com/gif.latex?x_i) 를 우리가 원하는 ![](https://latex.codecogs.com/gif.latex?y_i) 에 맵핑할 수 있다고 보장할 수는 없기 때문에 `Cyvle consistency` 를 사용합니다.
+> Adversarial training 으로 각각 대상 도메인 Y와 X로 동일하게 분포된 출력을 생성하는 mapping G와 F를 배울 수 있지만, large capacity 에서는 네트워크는 동일한 입력 이미지 세트를 대상 도메인에서 이미지의 임의 허용에 맵핑할 수 있으며, 학습된 맵핑 중 하나라도 목표 위반과 일치하는 출력 분포를 유도할 수 있습니다. 이 문제가 위에서 말했던 모순입니다. 따라서 input ![](https://latex.codecogs.com/gif.latex?x_i) 를 우리가 원하는 ![](https://latex.codecogs.com/gif.latex?y_i) 에 맵핑할 수 있다고 보장할 수는 없기 때문에 `Cycle consistency` 를 사용합니다.
 >
 > ![74_3.png](./media/74_3.png)
+>
+> *figure7 : Cycle consistency*
+>
 >  (b) forward cycle-consistency loss: x → G(x) → F (G(x)) ≈ x, and (c) backward cycle-consistency loss: y → F (y) → G(F (y)) ≈ y
 >
 > X 가 G 를 거쳐서 G(X) 가 되고 다시 F 를 거쳐 F(G(X)) 가 된 값이 X 가 되어야하고, 똑같이 Y 가 F 를 거쳐서 F(Y) 가 되고 다시 G 를 거쳐서 G(F(Y)) 가 된 값이 Y가 되야한다는 이야기입니다.
@@ -96,7 +110,8 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 <br></br>
 
 ![cycle_of_model](https://cdn-images-1.medium.com/max/2000/1*pM5wiCnzee-0eLc8Wf9Bag.png)
-“Real Fortnite” 에서 “Fake PUBG” 로, 그리고 또  “Reconstructed Fortnite” 로 도는 주기(Cycle)
+
+*figure8 : “Real Fortnite” 에서 “Fake PUBG” 로, 그리고 또  “Reconstructed Fortnite” 로 도는 주기(Cycle)*
 
 <br></br>
 
@@ -116,7 +131,7 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 
 ![Overview of Generator F2P shown in the previous figure.](https://cdn-images-1.medium.com/max/2000/1*UKStYTQdgoQYVp_ynNIaLA.png)
 
-이전 이미지에 나온 Generator 의 모습
+*figure9 : 이전 이미지에 나온 Generator 의 모습*
 
 <br></br>
 
@@ -133,6 +148,8 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 <br></br>
 
 ![./media/74_5.gif](./media/74_5.gif)
+
+*figure10 : *
 <br></br>
 
 하늘은 덜 푸르스름해 보이고, 만화 같은 잔디와 나무들은 PUBG 에서 볼 수 있는 나무와 훨씬 더 가까워 보입니다. 심지어 신경망은 화면 하단에 있는 상태표시창을 PUBG의 총과 탄약 표시기로 교체하는 것도 배웠습니다!
@@ -157,7 +174,7 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 >
 > 이야기할 코드에서는 CycleGAN 이라는 클래스를 만듭니다. 그리고 CycleGAN 클래스는 init(), build_generator(), build_discriminator(), train(), sample_images() 함수를 가지고 있습니다. 차례대로 함수를 어떻게 구현했는지 봐야겠죠?
 > <br></br>
-> **1. init()**
+> #### **1. init()**
 >
 > init() 에서 하는 일을 간단히 이야기한다면, 딥러닝 모델을 학습하기 전까지의 과정이라고 할 수 있을 것 같습니다. **모델의 입력 이미지 사이즈를 결정** 하고, **Discriminator의 output 이미지 사이즈를 계산** 하고, **CycleGAN 의 구조를 잡는 것** 의 역할을 수행합니다.
 >
@@ -244,11 +261,11 @@ def __init__(self):
                                             self.lambda_id, self.lambda_id ],
                             optimizer=optimizer)
 ```
-> **2. build_generator()**
+> #### **2. build_generator()**
 >
-> build_generator() 는 Generator 의 구조를 만듭니다. 이 코드에서는 U-Net 을 Generator 로 사용했습니다.
+> build_generator() 는 **Generator의 구조** 를 만듭니다. 이 코드에서는 U-Net 을 Generator 로 사용했습니다.
 >
-> conv2d 는 input image 의 특성을 추출하기 위해서 downsampling 의 용도로 사용합니다. deconv2d 는 이미지의 스타일을 바꿔(translation)주는 용도로 사용합니다.
+> conv2d는 downsampling을 통해 input image의 특징을 추출하고, deconv2d는 upsampling을 통해 이미지의 스타일을 바꿔(translation)주는 용도로 사용합니다.
 ```python
 def build_generator(self):
         """U-Net Generator"""
@@ -289,7 +306,31 @@ def build_generator(self):
 
         return Model(d0, output_img)
 ```
+> #### **3. build_discriminator()**
+>
+> build_discriminator()가 하는 일은
+```python
+def build_discriminator(self):
 
+        def d_layer(layer_input, filters, f_size=4, normalization=True):
+            """Discriminator layer"""
+            d = Conv2D(filters, kernel_size=f_size, strides=2, padding='same')(layer_input)
+            d = LeakyReLU(alpha=0.2)(d)
+            if normalization:
+                d = InstanceNormalization()(d)
+            return d
+
+        img = Input(shape=self.img_shape)
+
+        d1 = d_layer(img, self.df, normalization=False)
+        d2 = d_layer(d1, self.df*2)
+        d3 = d_layer(d2, self.df*4)
+        d4 = d_layer(d3, self.df*8)
+
+        validity = Conv2D(1, kernel_size=4, strides=1, padding='same')(d4)
+
+        return Model(img, validity)
+```
 
 
 ### 참고문서
