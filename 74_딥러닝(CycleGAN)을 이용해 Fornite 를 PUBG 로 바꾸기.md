@@ -37,21 +37,21 @@ Image Style Trasfer 를 위한 CycleGAN 이해 및 게임용 그래픽 모듈에
 <br></br>
 
 > `CycleGAN` 의 논문 제목은 [`Unpaired Image-to-Image Translation using Cycle-Consistent Adversarial Networks
-`](https://arxiv.org/pdf/1703.10593.pdf) 입니다. 논문의 제목에서 알 수 있듯이 CycleGAN 은 **Unpaired Data** 데이터를 사용합니다.
+`](https://arxiv.org/pdf/1703.10593.pdf) 입니다. 논문의 제목에서 알 수 있듯이 CycleGAN 은 **Unpaired Data** 를 사용합니다.
 >
-> 아래는 Unpaired 데이터를 사용하는 이유를 설명하기 위한 이미지입니다. 왼쪽은 `Pix2Pix` 에 필요한 `Paired Data`, 오른쪽은 `CycleGAN` 에서 사용하는 `Unpaired Data` 입니다. Pix2Pix 모델에서 신발 윤곽선에 맞는 신발 이미지를 생성할 때는 왼쪽 그림처럼 (신발 윤곽, 완전한 신발이미지) 가 쌍으로(pair,  ![](https://latex.codecogs.com/gif.latex?%7B%5C%7Bx_i%2Cy_i%7D%5C%7D_%7Bi%3D1%7D%5EN) )로 필요합니다.
+> figure3은 Unpaired Data를 사용하는 이유를 설명하기 위한 이미지입니다. 왼쪽은 `Pix2Pix` 에 필요한 `Paired Data`, 오른쪽은 `CycleGAN` 에서 사용하는 `Unpaired Data` 입니다. Pix2Pix 모델에서 신발 윤곽선에 맞는 신발 이미지를 생성할 때는 왼쪽 그림처럼 (신발 윤곽, 완전한 신발이미지) 가 쌍으로(pair,  ![](https://latex.codecogs.com/gif.latex?%7B%5C%7Bx_i%2Cy_i%7D%5C%7D_%7Bi%3D1%7D%5EN) )로 필요합니다.
 >
 > ![74_0.png](./media/74_0.png)
 >
 > *figure3 : paired 데이터와 unpaired 데이터*
 >
-> 하지만 paired data 를 얻는 것은 어렵고 비용이 많이 들 수 있습니다. 또한 아래의 이미지같이 말 형태를 놔두고 얼룩말로 무늬만 넣어줄 때, paired data 처럼 똑같은 포즈를 가진 얼룩말을 구하는 것은 쉽지 않습니다.
+> 하지만 Paired Data를 를 얻는 것은 어렵고 비용이 많이 들 수 있습니다. 또한 아래의 이미지 같이 말 형태를 보존한채 얼룩말로 무늬만 넣어줄 때, Paired Data처럼 똑같은 포즈를 가진 얼룩말을 구하는 것은 쉽지 않습니다.
 >
 > ![74_1.png](./media/74_1.png)
 >
 > *figure4 : CycelGAN 결과*
 >
-> 이런 문제가 있기 때문에 CycleGAN 은 Unpaired Data 를 이용해서 학습하는 방법을 소개합니다.
+> 이런 문제가 있기 때문에 CycleGAN 은 Unpaired Data를 이용해서 학습하는 방법을 소개합니다.
 
 
 <br></br>
