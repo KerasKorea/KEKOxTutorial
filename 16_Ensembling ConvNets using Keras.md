@@ -1,4 +1,4 @@
-## Ensembling ConvNets using Keras
+## Keras를 이용한 CNN Ensemble 기법 (Ensembling ConvNets using Keras)
 
 [원문 링크](https://towardsdatascience.com/ensembling-convnets-using-keras-237d429157eb)
 
@@ -7,23 +7,24 @@
 > 원문에서 나온 코드들을 이해를 돕기 위해 jupyter notebook 파일을 첨부합니다.
 
 * 케라스
-* LSTM
 * Neural Networks layer
+* CNN
+* Ensemble
 
 ![16_0.jpeg](./media/16_0.jpeg)
 
 ## Introduction
-"통계 및 기계 학습에서 앙상블 기법은 단일 구성 학습 알고리즘만으로 얻을 수있는 것보다 더 나은 예측 성능을 얻기 위해 여러 학습 알고리즘을 사용합니다. 일반적으로 무한한 통계 역학의 앙상블과 달리 기계 학습 앙상블은 여러 모델의 구체적인 유한 집합이지만, 대체로 그러한 모델들 사이에 훨씬 더 유연한 구조가 존재할 수 있습니다." \[[1](https://en.wikipedia.org/wiki/Ensemble_learning)\]
+"통계 및 기계 학습에서 앙상블 기법은 단일 구성 학습 알고리즘만으로 얻을 수 있는 것보다 더 나은 예측 성능을 얻기 위해 여러 학습 알고리즘을 사용합니다. 일반적으로 무한한 통계 역학의 앙상블과 달리 기계 학습 앙상블은 여러 모델의 구체적인 유한 집합이지만, 대체로 그러한 모델들 사이에 훨씬 더 유연한 구조가 존재할 수 있습니다." \[[1](https://en.wikipedia.org/wiki/Ensemble_learning)\]
 
-앙상블을 사용하는 이유는 주로 그것이 만들어지는 모형의 가설 공간내에 포함되지 않는 다른 가설을 찾는 것입니다. 경험적으로, 앙상블은 모델 사이의 다양성이 클 때, 더 좋은 결과를 도출하는 경향이 있습니다.\[[2](https://jair.org/index.php/jair/article/view/10239)\]
+앙상블을 사용하는 이유는 주로 그것이 만들어지는 모형의 가설 공간(hypothesis)내에 포함되지 않는 다른 가설을 찾는 것입니다. 경험적으로, 앙상블은 모델 사이의 다양성이 클 때, 더 좋은 결과를 도출하는 경향이 있습니다.\[[2](https://jair.org/index.php/jair/article/view/10239)\]
 
 ## Motivation
 
-여러 큰 규모의 머신러닝 경쟁대회의 결과를 보면, 상위권의 결과는 단일 모델보다는 앙상블 모델로 만들어졌을 가능성이 높습니다. 예를 들어, [ILSVRC2015](http://www.image-net.org/challenges/LSVRC/2015/results)의 단일 모델 아키텍처의 최고 등수는 13위였습니다. 1-12위는 앙상블을 사용하여 구성되었습니다.
+여러 큰 규모의 머신러닝 경쟁대회의 결과를 보면, 상위권의 결과는 단일 모델보다는 앙상블 모델로 만들어졌을 가능성이 높습니다. 예를 들어, [ILSVRC2015](http://www.image-net.org/challenges/LSVRC/2015/results)의 단일 모델 아키텍처의 최고 등수는 13위였습니다. 1-12위는 앙상블 구조들이 차지했습니다.
 
  여러 신경 네트워크를 앙상블로 사용하는 방법에 대한 튜토리얼이나 문서를 보지 못했기 때문에 제가 사용하는 방식을 공유하기로 하였습니다. 
 
- 저는 [케라스](https://keras.io/)의 [API](https://keras.io/models/model/)를 사용하여, 비교적 잘 알려진 논문의 3가지 작은 CNNs(ResNet50, Inception 등) 모델을 새로 만들 것입니다. [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html) 학습 데이터 세트를 활용하여 각 모델을 각각 학습할 것입니다.\[[3](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf)\] 그런다음 각 모델을 테스트 세트를 사용하여 평가할 것입니다. 그 후 3가지 모델 모두를 앙상블에 넣고 평가할 것입니다. 앙상블은 앙상블 내의 각각의 단일 모델보다 더 나은 성능을 낼 것으로 기대됩니다.
+ 저는 [케라스](https://keras.io/)의 [API](https://keras.io/models/model/)를 사용하여, 비교적 잘 알려진 논문의 3가지 작은 CNNs(ResNet50, Inception 등) 모델을 새로 만들 것입니다. [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html) 학습 데이터 세트를 활용하여 각 모델을 각각 학습할 것입니다.\[[3](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf)\] 그런 다음 각 모델을 테스트 세트를 사용하여 평가할 것입니다. 그 후 3가지 모델 모두를 앙상블하여 평가할 것입니다. 앙상블은 앙상블 내의 각각의 단일 모델보다 더 나은 성능을 낼 것으로 기대됩니다.
 
 앙상블에는 여러 가지 방법이 있습니다; 스태킹 역시 그중 하나입니다. 보다 일반적인 방법 중 하나이며 다른 모든 앙상블 기술을 이론적으로 나타낼 수 있습니다. 스태킹은 다른 여러 학습 알고리즘의 예측을 결합하는 알고리즘을 학습하는 것과 관련이 있습니다. \[[1](https://en.wikipedia.org/wiki/Ensemble_learning)\] 이 예제에서는 앙상블에서 각 모델의 결과값의 평균을 취하는 것과 관련된 가장 간단한 스태킹 중 하나를 사용하겠습니다. 평균을 취하는것은 매개 변수를 필요로 하지 않으므로 이 앙상블(모델 만)을 교육 할 필요가 없습니다.
 
@@ -31,7 +32,7 @@
 
 ## Preparing the data
 
-첫번째로 의존 라이브러리를 임포트 합니다.
+첫 번째로 의존 라이브러리를 불러옵니다.
 
 ```python
 from keras.models import Model, Input
@@ -45,9 +46,9 @@ from keras.datasets import cifar10
 import numpy as np
 ```
 
-저는 CIFAR-10 데이터셋을 사용하고 있습니다. 이 데이터셋을 활용하여 잘 동작하게끔 만들어진 아키텍쳐에 대한 문서를 쉽게 찾을수 있기 때문입니다. 인기있는 데이터셋을 사용하면 이 예제를 쉽게 재현할 수 있습니다.
+저는 CIFAR-10 데이터 세트을 사용하고 있습니다. 이 데이터 세트을 활용하여 잘 동작하게끔 만들어진 아키텍쳐에 대한 문서를 쉽게 찾을수 있기 때문입니다. 인기있는 데이터 세트을 사용하면 이 예제를 쉽게 재현할 수 있습니다.
 
-여기선 데이터셋을 가져옵니다. 학습 , 테스트 데이터셋은 모두 정규화 됩니다. 학습 레이블의 벡터는 one-hot-matrix로 변환됩니다. 테스트 레이블은 학습중에 쓰일일이 없기 때문에 변환이 필요없습니다.
+여기선 데이터 세트을 가져옵니다. 학습용 , 테스트용 데이터 세트은 모두 정규화 됩니다. 학습 레이블의 벡터는 one-hot-matrix로 변환됩니다. 테스트 레이블은 학습중에 쓰일일이 없기 때문에 변환이 필요없습니다.
 
 ```python
 (x_train, y_train), (x_test, y_test) = cifar10.load_data()
@@ -56,7 +57,7 @@ x_test = x_test / 255.
 y_train = to_categorical(y_train, num_classes=10)
 ```
 
-데이터셋은 10개의 클래스를 가진 60,000개의 32x32 RGB 이미지들로 구성되어 있습니다. 학습/검증을 위해 50,000개의 이미지가, 테스트를 위해 10,000개의 이미지가 존재합니다.
+데이터 세트은 10개의 클래스를 가진 60,000개의 32x32 RGB 이미지들로 구성되어 있습니다. 학습/검증을 위해 50,000개의 이미지가, 테스트를 위해 10,000개의 이미지가 존재합니다.
 
 ```PYTHON
 print('x_train shape: {} | y_train shape: {}\nx_test shape : {} | y_test shape : {}'.format(x_train.shape, y_train.shape,x_test.shape, y_test.shape))
@@ -110,7 +111,7 @@ def conv_pool_cnn(model_input):
 conv_pool_cnn_model = conv_pool_cnn(model_input)
 ```
 
-단순화를 위하여 각 모델은 동일한 매개 변수를 사용하여 컴파일되고 교육됩니다. 32의 배치 사이즈로 (1 epoch당 1250번의 스텝) 20 epoch을 사용하면 3가지 모델중 어떤 모델이라도 국소 최소치를 얻는 데는 충분할 것으로 보입니다. 훈련 데이터 세트에서 무작위로 선택된 20%의 데이터가 검증에 사용됩니다.
+단순화를 위하여 각 모델은 동일한 매개 변수를 사용하여 컴파일되고 학습됩니다. 32의 배치 사이즈로 (1 epoch당 1250번의 스텝) 20 epoch을 사용하면 3가지 모델 중 어떤 모델이라도 국소 최소치(local minimum)를 얻는 데는 충분할 것으로 보입니다. 훈련 데이터 세트에서 무작위로 선택된 20%의 데이터가 검증에 사용됩니다.
 
 ```python
 def compile_and_train(model, num_epochs): 
@@ -123,7 +124,7 @@ def compile_and_train(model, num_epochs):
     return history
 ```
 
-테슬라 K80 GPU 를 사용할 경우, 각 모델의 한번의 epoch당 1분정도의 시간이 소요욉니다. CPU를 사용한다면, 좀더 많은 시간이 걸릴수 있습니다.
+테슬라 K80 GPU 를 사용할 경우, 각 모델은 1epoch당 1분정도의 시간이 소요됩니다. CPU를 사용한다면, 좀 더 많은 시간이 걸릴 수 있습니다.
 
 ```python
 _ = compile_and_train(conv_pool_cnn_model, num_epochs=20)
@@ -146,11 +147,11 @@ def evaluate_error(model):
 evaluate_error(conv_pool_cnn_model)
 ```
 
->>> 0.2414
+`0.2414`
 
 ## Second model: ALL-CNN-C
 
-다음 CNN 인 ALL-CNN-C는 같은 논문에서 나온 것입니다. \[[4](https://arxiv.org/abs/1412.6806)\] 이 모델은 이전 모델과 매우 유사합니다. 실제로 유일한 차이점은 맥스 풀링 레이어 대신 2의 보폭을 가진 컨벌루션 레이어가 사용된다는 것입니다. `Conv2D (10, (1, 1))` 레이어 바로 다음에 사용되는 활성화 기능이 없다는 점에 유의하십시오. 해당 레이어 바로 다음에서 ReLU 활성화가 사용되면 학습이 제대로 수행되지 않습니다.
+다음 CNN 인  ALL_CNN_C는 첫 번째 모델과 동일한 논문에서 나온 것입니다. \[[4](https://arxiv.org/abs/1412.6806)\] 이 모델은 이전 모델과 매우 유사합니다. 실제로 유일한 차이점은 맥스 풀링 레이어 대신 2의 보폭을 가진 컨벌루션 레이어가 사용된다는 것입니다. `Conv2D (10, (1, 1))` 레이어 바로 다음에 사용되는 활성화 기능이 없다는 점에 유의하십시오. 해당 레이어 바로 다음에서 ReLU 활성화가 사용되면 학습이 제대로 수행되지 않습니다.
 
 ```python
 def all_cnn(model_input):
@@ -180,13 +181,13 @@ _ = compile_and_train(all_cnn_model, num_epochs=20)
 
 두 모델이 서로 매우 유사하기 때문에 오류율은 크게 다르지 않습니다.
 
->>> 0.26090000000000002
+`0.26090000000000002`
 
 ## Third Model: Network In Network CNN
 
 세 번째 CNN은 Network in Network CNN입니다. \[[5](https://arxiv.org/abs/1312.4400)\] 이것은 글로벌 풀링 레이어를 소개한 논문의 CNN입니다. 이전 두 모델보다 작으므로 훈련이 훨씬 빠릅니다. 최종 컨볼루션 레이어 후에 `relu`가 없습니다!
 
-저는 MLP 컨볼루션 레이어 내에서 멀티 레이어 퍼셉트론을 사용하는 대신, 1x1 커널로 컨볼루션 레이어를 사용했습니다. 이 방법은 최적화 할 매개변수가 줄어들어 교육 속도가 빨라지고 더 나은 결과를 얻을 수 있습니다 (FC 레이어를 사용할 때 50 % 이상의 유효성 검사 정확도를 얻을 수 없습니다). 이 논문은 mlpconv 계층에 의해 적용되는 함수가 정상적인 회선 계층에서 계단식 교차 채널 파라메트릭 풀링과 동일하며 1x1 회선 커널을 갖는 회선 계층과 동일하다는 것을 설명합니다. 아키텍쳐에 대한 저의 해석이 올바르지 않으면, 저에게 알려주세요.
+저는 MLP 컨볼루션 레이어 내에서 멀티 레이어 퍼셉트론을 사용하는 대신, 1x1 커널로 컨볼루션 레이어를 사용했습니다. 이 방법은 최적화 할 매개변수가 줄어들어 교육 속도가 빨라지고 더 나은 결과를 얻을 수 있습니다 (FC 레이어를 사용할 때 50 % 이상의 유효성 검사 정확도를 얻을 수 없습니다). 이 논문은 mlpconv 계층에 의해 적용되는 함수가 정상적인 회선 계층에서 계단식 교차 채널 파라메트릭 풀링과 동일하며 1x1 커널을 갖는 컨볼루션 계층과 동일하다는 것을 설명합니다. 아키텍쳐에 대한 저의 해석이 올바르지 않으면, 저에게 알려주세요.
 
 ```python
 def nin_cnn(model_input):
@@ -219,7 +220,7 @@ def nin_cnn(model_input):
 nin_cnn_model = nin_cnn(model_input)
 ```
 
-이 모델은 저의 머신에서 1에폭당 15초로 빠르게 트레이닝 됩니다.
+이 모델은 저의 머신에서 1epoch당 15초로 빠르게 학습됩니다.
 
 ```python
 _ = compile_and_train(nin_cnn_model, num_epochs=20)
@@ -229,13 +230,13 @@ _ = compile_and_train(nin_cnn_model, num_epochs=20)
 
 ![16_4.png](./media/16_4.png)
 
-이 모델은 다른 두 모델보다 좀더 간단하므로, 에러율이 조금 더 높습니다.
+이 모델은 다른 두 모델보다 좀 더 간단하므로, 에러율이 조금 더 높습니다.
 
 ```python
 evaluate_error(nin_cnn_model)
 ```
 
->>> 0. 0.31640000000000001
+`0.31640000000000001`
 
 ## Three Model Ensemble
 
@@ -275,11 +276,11 @@ ensemble_model = ensemble(models, model_input)
 evaluate_error(ensemble_model)
 ```
 
->>> 0.2049
+`0.2049`
 
 ## Other Possible Ensembles
 
-완벽을 기하기 위하여, 우리는 두가지 모델 조합으로 구성된 앙상블의 성능을 확인할 수 있습니다. 이중 두 모델은 단일 모델보다 오류율이 낮습니다.
+완벽을 기하기 위하여, 우리는 두가지 모델 조합으로 구성된 앙상블의 성능을 확인할 수 있습니다. 이 중 두 모델은 단일 모델보다 오류율이 낮습니다.
 
 ```python
 pair_A = [conv_pool_cnn_model, all_cnn_model]
@@ -290,33 +291,36 @@ pair_A_ensemble_model = ensemble(pair_A, model_input)
 evaluate_error(pair_A_ensemble_model)
 ```
 
->>> 0.21199999999999999
+`0.21199999999999999`
 
 ```python
 pair_B_ensemble_model = ensemble(pair_B, model_input)
 evaluate_error(pair_B_ensemble_model)
 ```
 
->>> 0.22819999999999999
+`0.22819999999999999`
 
 ```python
 pair_C_ensemble_model = ensemble(pair_C, model_input)
 evaluate_error(pair_C_ensemble_model)
 ```
 
->>> 0.2447
+`0.2447`
 
 ## Conclusion
 
-소개에서 언급한 내용을 다시 말하자면: 모든 모델은 각자의 약점을 가지고 있습니다. 앙상블을 사용하는 이유는 데이터에 대하여 다른 가설을 가지는 여러 모델을 쌓아 놓음으로써, 각각의 모델의 가설 공간에 없는 더 좋은 가설을 찾을 수 있다는 것입니다.
+소개에서 언급한 내용을 다시 말하자면: 모든 모델은 각자의 약점을 가지고 있습니다. 앙상블을 사용하는 이유는 데이터에 대하여 다른 가설을 가지는 여러 모델을 쌓아 놓음으로써, 각각의 모델의 가설 공간(hypothesis)에 없는 더 좋은 가설을 찾을 수 있다는 것입니다.
 
 매우 기본적인 앙상블을 사용하여도, 대부분의 경우 단일 모델을 사용했을 때보다 더 낮은 오류율을 얻을 수 있었습니다. 이것은 앙상블의 효과를 증명합니다.
 
-물론, 기계 학습 작업을 위해 앙상블을 사용할 때 명심해야 할 몇 가지 실제적인 고려 사항이 있습니다. 앙상블은 여러 모델을 쌓기 때문에 각 모델에 대해 입력 데이터를 순방향 전파해야 함을 의미합니다. 이렇게하면 수행해야 할 계산량이 늘어나고 결과적으로 평가 (예측) 시간이 길어집니다. 연구 나 Kaggle 대회에서 앙상블을 사용하여 평가 시간이 증가하는 것은 그다지 치명적이지 않습니다. 그러나 상용 제품을 설계 할 때는 매우 중요한 요소입니다. 또 다른 고려 사항은 상업용 제품에서 앙상블 사용함으로써 발생하는 최종 모델의 크기 증가입니다.
+물론, 기계 학습 작업을 위해 앙상블을 사용할 때 명심해야 할 몇 가지 실제적인 고려 사항이 있습니다. 앙상블은 여러 모델을 쌓기 때문에 각 모델에 대해 입력 데이터를 순방향 전파해야 함을 의미합니다. 이렇게하면 수행해야 할 계산량이 늘어나고 결과적으로 평가 (예측) 시간이 길어집니다. 연구나 Kaggle 대회에서 앙상블을 사용하여 평가 시간이 증가하는 것은 그다지 치명적이지 않습니다. 그러나 상용 제품을 설계 할 때는 매우 중요한 요소입니다. 또 다른 고려 사항은 상업용 제품에서 앙상블 사용함으로써 발생하는 최종 모델의 크기 증가입니다.
 
 이 포스트의 쥬피터 노트북의 HTML 버전은 [이곳](https://github.com/LawnboyMax/keras_ensemblng/blob/master/keras_ensembling.html)에서 볼 수 있습니다.
 
 쥬피터 노트북의 소스코드는 [이곳](https://github.com/LawnboyMax/keras_ensemblng)에서 확인할 수 있습니다.
 
-이 기사를 쓸때, 몇가지 부분을 변경하여서 (대부분 말투와 오타입니다.) 쥬피터 노트북과 내용이 조금 다를 수 있습니다.  
+이 기사를 쓸 때, 몇가지 부분을 변경하여서 (대부분 말투와 오타입니다.) 쥬피터 노트북과 내용이 조금 다를 수 있습니다.  
 
+이 글은 2018 컨트리뷰톤에서 [`Contributue to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.
+Translator : [김설기](https://github.com/5taku) , [송묵형]()
+Translator Email : [ksulki@gmail.com](mailto:ksulki@gmail.com),[firefinger07@gmail.com](mailto:firefinger07@gmail.com)
