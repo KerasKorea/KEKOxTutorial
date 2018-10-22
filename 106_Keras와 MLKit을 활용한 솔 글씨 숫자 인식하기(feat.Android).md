@@ -46,7 +46,7 @@ Keras는 TensorFlow 위에서 작동할 수 있는 파이썬 기반의 신경망
 
 ![](./media/106_1.png)
 
-<br></br>
+<br>
 
 먼저 Keras로 모델을 생성하는 부분을 살펴봅시다.
 
@@ -70,7 +70,6 @@ model.summary()
 <br>
 
 ---
-<br>
 
 ### Training the model
 학습 과정은 주피터 노트북에서 확인할 수 있습니다. [Keras Sample](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/Keras%20Sample.ipynb)
@@ -130,8 +129,10 @@ open("nmist_mlp.tflite", "wb").write(tflite_model)
 files.download('nmist_mlp.tflite')
 ```
 
----
 <br>
+
+---
+
 
 ### Running the exported model on Android
 훈련된 모델이 실제로 작동하는지 보기위해서 Android Studio로 가보겠습니다.
@@ -212,8 +213,9 @@ interpreter.run(inputs, dataOptions)
 
 **이 시리즈가 TensorFlow, Keras 및 ML Kit가 어떻게 함께 작동하는지 이해하는데 도움이 되었기를 바랍니다.** 추가적인 도움이 필요하다면 도와 드리겠습니다! 저는 모바일 및 머신러닝에서 프리랜서 기회를 찾고 있습니다. <u>http://beltran.work/with-me/</u>
 
----
 <br>
+
+---
 
 
 >  여기부터는 다른 튜토리얼의 일부를 참고해 원문과 조금 다른 안드로이드 애플리케이션을 만든 내용입니다(원문에서는 업로드한 손 글씨 이미지를 예측하지만, 여기서는 기기에 직접 그린 이미지를 예측합니다). 업로드  최종 데모는 아래와 같습니다.
