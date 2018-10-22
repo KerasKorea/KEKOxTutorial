@@ -31,7 +31,9 @@
 
 모든 코드는 저의 GitHub에 있습니다. Google의 Colab을 사용해 [저의 Gitub의 Jupyter Notebook](https://colab.research.google.com/github/margaretmz/deep-learning/blob/master/fashion_mnist_keras.ipynb)을 직접 열어서 실행할 수 있습니다. 빨리 노트북을 열어 튜토리얼을 따라가고 싶다면 이 옵션을 선택해보세요. Colab에 대해 더 알고싶다면 [공식 블로그](https://medium.com/tensorflow/colab-an-easy-way-to-learn-and-use-tensorflow-d74d1686e309) 혹은 [블로그](https://medium.com/@margaretmz/running-jupyter-notebook-with-colab-f4a29a9c7156)를 참고하세요.
 
-<br></br>
+<br>
+
+---
 
 ### 데이터 (Data)
 
@@ -278,6 +280,10 @@ for i, index in enumerate(np.random.choice(x_test.shape[0], size=15, replace=Fal
 ![](../media/10_4.png)
 
 <br></br>
+
+### 참고문서
+* [케라스 공식 홈페이지]()
+* [김태영님의 케라스 블로그](https://tykimos.github.io/)
 
 > 이 글은 2018 컨트리뷰톤에서 [Contribute to Keras](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다. <br>
 > Translator : [김수정](https://github.com/SooDevv) <br>
