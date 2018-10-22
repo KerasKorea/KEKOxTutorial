@@ -3,18 +3,21 @@
 [From Keras to ML Kit 원문 바로가기](https://proandroiddev.com/from-keras-to-ml-kit-eeaf578a01df)
 
 >  이 튜토리얼의 목적은 Keras 모델과 ML Kit을 이용해 모바일 머신러닝을 구현하는 것입니다. 유명한 머신러닝 데이터 셋인 MNIST를 이용해 모델을 학습시키고, 학습된 모델을 안드로이드에 올릴 것입니다.  
-> 전체 과정은 다음과 같습니다. <br>
+> 전체 과정은 다음과 같습니다.
+<br>
     1. MNIST 데이터 셋을 이용해 Keras로 예측 모델 만들기  
     2. Keras 모델을 TF Lite 모델로 변환하기  
     3. 변환된 TF Lite 모델 ML Kit에 올리기  
+  <br>
  원문에서는 **업로드한 이미지 파일을 예측**하는 방식으로 안드로이드 애플리케이션을 구현했는데, 이 문서에서는 **기기에서 직접 작성한 손 글씨를 예측**하도록 조금 변경했습니다. 맨 아래 부분에 코드와 설명을 추가했으니 참고해보세요. 매우 재밌습니다 :)
 
-
+<br>
 * Keras
 * ML Kit
 * TensorFlow Lite
 * Android
 
+<br></br>
 
 ![](./media/106_4.png)
 
@@ -32,6 +35,7 @@
 
 오늘은 다음 질문에 답하려고합니다.
 
+<br></br>
 
 ### How can I use my Keras model with ML Kit?
 
@@ -40,9 +44,9 @@ Keras는 TensorFlow 위에서 작동할 수 있는 파이썬 기반의 신경망
 
 이 튜토리얼에서는 [Keras repository](https://github.com/keras-team/keras/blob/master/examples/mnist_mlp.py)에 있는 기본적인 예제를 저의 [Jupyter Notebook](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/Keras%20Sample.ipynb)을 통해 살펴보겠습니다. 이번 튜토리얼에서는 머신 러닝에 널리 사용되는 데이터 셋인 MNIST를 사용해 손 글씨 숫자를 읽을 수 있는 모델을 만들겠습니다. (MNIST를 이용해 진행했던 [myFace Generator 프로젝트](https://proandroiddev.com/deep-learning-nd-face-generator-fa92ddbb8c4a)를 살펴보세요!)
 
-
 ![](./media/106_1.png)
 
+<br></br>
 
 먼저 Keras로 모델을 생성하는 부분을 살펴봅시다.
 
@@ -63,7 +67,9 @@ model.summary()
 > MNIST 데이터 셋의 이미지는 2차원으로 `28X28` 사이즈입니다. 이를 완전히 연결된 레이어에 적용시키기 위해선 1차원인 `1X784`으로 리사이징 해야합니다.
 
 
+
 ---
+<br>
 
 ### Training the model
 학습 과정은 주피터 노트북에서 확인할 수 있습니다. [Keras Sample](https://github.com/miquelbeltran/deep-learning/blob/master/android-mlkit-sample/Keras%20Sample.ipynb)
@@ -74,10 +80,13 @@ model.summary()
 
 이 모델의 정확도는 0.98이며 우수하지는 않습니다. 저는 오직 5에폭만 학습시켰고, 드롭 아웃 레이어를 주석처리했기 때문에 원래 예제에 비해 정확도가 약간 떨어졌습니다.
 
+
+
 ---
+<br>
 
 ### Exporting a Keras model
-모델 훈련을 마친 후, Keras 모델을 TF Lite모델로 변환해야 합니다. [TensorFlow 모델을 ML Kit으로  export하기](https://proandroiddev.com/exporting-tensorflow-models-to-ml-kit-bce13b914f31)와 같은 과정이지만 추가적인 과정이 필요합니다. 
+모델 훈련을 마친 후, Keras 모델을 TF Lite모델로 변환해야 합니다. [TensorFlow 모델을 ML Kit으로  export하기](https://proandroiddev.com/exporting-tensorflow-models-to-ml-kit-bce13b914f31)와 같은 과정이지만 추가적인 과정이 필요합니다.
 
 
 
@@ -104,6 +113,7 @@ Keras모델을 입력 텐서로 감싸고, 출력 텐서를 구해야 합니다.
 원래 모델은 잠시동안 **TF Lite가 지원하지 않는**`Dropout`을 사용하였습니다. 저는 원래의 모델을 내보내는 과정에서 문제가 생겼었는데, 드롭아웃 레이어를 제거하니깐 해결되었습니다. 저는 TensorFlow의 다음 버전에서 이 문제가 해결되길 기대합니다.
 
 ---
+<br>
 
 
 ### Running on a Google Colab
@@ -120,6 +130,8 @@ files.download('nmist_mlp.tflite')
 ```
 
 ---
+<br>
+
 ### Running the exported model on Android
 훈련된 모델이 실제로 작동하는지 보기위해서 Android Studio로 가보겠습니다.
 
@@ -200,14 +212,18 @@ interpreter.run(inputs, dataOptions)
 **이 시리즈가 TensorFlow, Keras 및 ML Kit가 어떻게 함께 작동하는지 이해하는데 도움이 되었기를 바랍니다.** 추가적인 도움이 필요하다면 도와 드리겠습니다! 저는 모바일 및 머신러닝에서 프리랜서 기회를 찾고 있습니다. <u>http://beltran.work/with-me/</u>
 
 ---
+<br>
+
 
 >  여기부터는 다른 튜토리얼의 일부를 참고해 원문과 조금 다른 안드로이드 애플리케이션을 만든 내용입니다(원문에서는 업로드한 손 글씨 이미지를 예측하지만, 여기서는 기기에 직접 그린 이미지를 예측합니다). 업로드  최종 데모는 아래와 같습니다.
 
 ![](./media/106_6.gif)
 
  [[MLkit_MNIST_Keras]](https://colab.research.google.com/drive/1J8HieLqMCIdVmNq1hz7FzuHOW-XduZ00) Keras모델 생성, 학습, 내보내기, 모델을 모바일에 올리기 위한 다운로드 과정을 직접 따라해보며 만든 Colab파일입니다. 별다른 설치없이 바로 실행시킬 수 있습니다.
- 
+
 이 튜로리얼에서는 전반적인 로직만 살펴 보겠습니다. 최종 구현에 대한 코드는 저의 깃허브 [AI-project/Handwritten digit recognition](https://github.com/SooDevv/AI-project/tree/master/Handwritten%20digit%20recognition)에서 확인할 수 있으며, 안드로이드 구현은 Java를 기반으로 하였습니다. [MNIST with TensorFlow Lite on Android](https://github.com/nex3z/tflite-mnist-android/blob/master/README.md)를 참고하였습니다.
+
+<br></br>
 
 안드로이드 프로젝트의 디렉토리 구성은 다음과 같습니다.  
 
@@ -240,11 +256,13 @@ $ App Name
 보다시피 디렉토리는 단순하게 구성되어 있습니다.
 훈련한 모델을 안드로이드에 올리고, 모델과 유저 인터페이스를 연결하면 끝입니다!  
 
+<br></br>
+
 1. 앞 서 만든 손글씨 숫자 분류 모델을 안드로이드에 올립니다.  
     - `/android/app/src/main/assets`디렉토리에  mnist_mlp.tflite파일을 업로드합니다.
 
 
-소스코드는 분류 모델과 안드로이드를 연결하는 **Classifier** 클래스, 유저와 상호작용하는 **MainActivity**, 최종 결과를 반환하는 **Result** 클래스로 구성되어 있습니다. 좀 더 자세히 살펴볼까요? 
+소스코드는 분류 모델과 안드로이드를 연결하는 **Classifier** 클래스, 유저와 상호작용하는 **MainActivity**, 최종 결과를 반환하는 **Result** 클래스로 구성되어 있습니다. 좀 더 자세히 살펴볼까요?
 
 
   2. **Classifier Class**
@@ -265,11 +283,11 @@ $ App Name
         return new Result(mResult[0], timeCost);
     }
     ```
-    
+
 
   3. **Result Class**
 
- - Classifier class로 부터 받은 결과를 정의하는 클래스 입니다. 
+ - Classifier class로 부터 받은 결과를 정의하는 클래스 입니다.
 
   ```java
   public Result(float[] result, long timeCost) {
