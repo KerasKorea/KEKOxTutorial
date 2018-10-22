@@ -31,7 +31,7 @@
 
 모든 코드는 저의 GitHub에 있습니다. Google의 Colab을 사용해 [저의 Gitub의 Jupyter Notebook](https://colab.research.google.com/github/margaretmz/deep-learning/blob/master/fashion_mnist_keras.ipynb)을 직접 열어서 실행할 수 있습니다. 빨리 노트북을 열어 튜토리얼을 따라가고 싶다면 이 옵션을 선택해보세요. Colab에 대해 더 알고싶다면 [공식 블로그](https://medium.com/tensorflow/colab-an-easy-way-to-learn-and-use-tensorflow-d74d1686e309) 혹은 [블로그](https://medium.com/@margaretmz/running-jupyter-notebook-with-colab-f4a29a9c7156)를 참고하세요.
 
-<br>
+<br></br>
 
 ### 데이터 (Data)
 
@@ -154,11 +154,13 @@ print(x_train.shape[0], 'train set')
 print(x_valid.shape[0], 'validation set')
 print(x_test.shape[0], 'test set')
 ```
-<br>
+<br></br>
 
 ### 모델 (Model)
 
 모델을 구성하고 학습시켜 봅시다.
+
+<br>
 
 #### 모델 아키텍처 만들기 (Create the model architecture)
 
@@ -173,8 +175,6 @@ Keras에서 모델을 정의하기위한 두 가지 API는 다음과 같습니�
 마지막 레이어는 덴스(dense)레이어 로 소프트맥스 활성화가 되어있으며, fashion_mnist에서 10가지 범주의 데이터를 분류합니다.
 > 소프트맥스 함수는 다중 클래스분류 문제에서 출력층에 주로 쓰입니다. <br>
 > 덴스(dense)레이어는 이전 레이어의 모든 뉴런과 결합된 형태의 레이어입니다.
-
-<br>
 
 
 ```python
@@ -251,7 +251,7 @@ score = model.evaluate(x_test, y_test, verbose=0)
 print('\n', 'Test accuracy:', score[1])
 ```
 
-<br>
+<br></br>
 
 ### 예측값 시각화하기 (Visualize the predictions)
 
@@ -277,7 +277,7 @@ for i, index in enumerate(np.random.choice(x_test.shape[0], size=15, replace=Fal
 
 ![](../media/10_4.png)
 
-<br>
+<br></br>
 
 > 이 글은 2018 컨트리뷰톤에서 [Contribute to Keras](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다. <br>
 > Translator : [김수정](https://github.com/SooDevv) <br>
