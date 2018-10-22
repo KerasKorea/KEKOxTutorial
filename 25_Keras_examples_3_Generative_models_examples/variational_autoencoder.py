@@ -1,12 +1,11 @@
-'''Example of VAE on MNIST dataset using MLP
+'''MLP를 사용하고 MNIST 데이터 세트 기반의 VAE 예제
 
-The VAE has a modular design. The encoder, decoder and VAE
-are 3 models that share weights. After training the VAE model,
-the encoder can be used to  generate latent vectors.
-The decoder can be used to generate MNIST digits by sampling the
-latent vector from a Gaussian distribution with mean=0 and std=1.
+VAE는 모듈러(modular) 구조를 띄고 있습니다. 인코더(encoder), 디코더(decoder) 
+그리고 VAE는 가중치를 서로 공유하고 있습니다. VAE 모델을 학습한 후,
+인코더는 은닉 벡터(latent vectors)를 생성하는데, 디코더는 가우시안 분포도(mean=0, std=1)에서 은닉 벡터를
+샘플링함으로써 MNIST 숫자를 생성하는데 사용될 수 있습니다.
 
-# Reference
+# 참고 자료
 
 [1] Kingma, Diederik P., and Max Welling.
 "Auto-encoding variational bayes."
@@ -30,23 +29,23 @@ import argparse
 import os
 
 
-# reparameterization trick
-# instead of sampling from Q(z|X), sample eps = N(0,I)
-# z = z_mean + sqrt(var)*eps
+# 재매개변수화(reparameterization) 기법
+# Q(z|X)에서 샘플링하는 대신에 eps = N(0,I)에서 샘플링을 실행
+# 그때 z = z_mean + sqrt(var)*eps
 def sampling(args):
-    """Reparameterization trick by sampling fr an isotropic unit Gaussian.
+    """등방성 단일 가우시안에서 샘플을 채취하는 재매개변수화 기법
 
     # Arguments:
-        args (tensor): mean and log of variance of Q(z|X)
+        args (tensor): Q(z|X)의 분산의 로그값과 평균값
 
     # Returns:
-        z (tensor): sampled latent vector
+        z (tensor): 샘플링된 은닉 벡터들
     """
 
     z_mean, z_log_var = args
     batch = K.shape(z_mean)[0]
     dim = K.int_shape(z_mean)[1]
-    # by default, random_normal has mean=0 and std=1.0
+    # 기본설정으로, random_normal는 mean=0, std=1.0로 지정되있음. 
     epsilon = K.random_normal(shape=(batch, dim))
     return z_mean + K.exp(0.5 * z_log_var) * epsilon
 
@@ -55,13 +54,13 @@ def plot_results(models,
                  data,
                  batch_size=128,
                  model_name="vae_mnist"):
-    """Plots labels and MNIST digits as function of 2-dim latent vector
+    """2차원 은닉 벡터의 함수로서 라벨과 MNIST 숫자를 표시
 
     # Arguments:
-        models (tuple): encoder and decoder models
-        data (tuple): test data and label
-        batch_size (int): prediction batch size
-        model_name (string): which model is using this function
+        models (tuple): 인코더와 디코더 모델
+        data (tuple): 테스트 데이터와 라벨
+        batch_size (int): 배치 사이즈
+        model_name (string): 사용하려는 모델 이름
     """
 
     encoder, decoder = models
@@ -69,7 +68,7 @@ def plot_results(models,
     os.makedirs(model_name, exist_ok=True)
 
     filename = os.path.join(model_name, "vae_mean.png")
-    # display a 2D plot of the digit classes in the latent space
+     # 은닉공간의 숫자 클래스의 2D 이미지를 표시합니다. 
     z_mean, _, _ = encoder.predict(x_test,
                                    batch_size=batch_size)
     plt.figure(figsize=(12, 10))
@@ -81,12 +80,11 @@ def plot_results(models,
     plt.show()
 
     filename = os.path.join(model_name, "digits_over_latent.png")
-    # display a 30x30 2D manifold of digits
+    # 30X30 2D형태의 숫자들을 표시.
     n = 30
     digit_size = 28
     figure = np.zeros((digit_size * n, digit_size * n))
-    # linearly spaced coordinates corresponding to the 2D plot
-    # of digit classes in the latent space
+    # 은닉공간의 숫자 클래스의 2D 그림에 해당하는 선형 간격 좌표
     grid_x = np.linspace(-4, 4, n)
     grid_y = np.linspace(-4, 4, n)[::-1]
 
@@ -123,7 +121,7 @@ x_test = np.reshape(x_test, [-1, original_dim])
 x_train = x_train.astype('float32') / 255
 x_test = x_test.astype('float32') / 255
 
-# network parameters
+# 신경망 매개변수들
 input_shape = (original_dim, )
 intermediate_dim = 512
 batch_size = 128
@@ -131,32 +129,32 @@ latent_dim = 2
 epochs = 50
 
 # VAE model = encoder + decoder
-# build encoder model
+# 인코더 모델 설계
 inputs = Input(shape=input_shape, name='encoder_input')
-x = Dense(intermediate_dim, activation='relu')(inputs)
+x = Dense(intermediate_dim, activation='relu')(inputs)계
 z_mean = Dense(latent_dim, name='z_mean')(x)
 z_log_var = Dense(latent_dim, name='z_log_var')(x)
 
-# use reparameterization trick to push the sampling out as input
-# note that "output_shape" isn't necessary with the TensorFlow backend
+# 재매개변수 기법을 이용해 샘플링을 입력으로 푸쉬합니다
+# Tensorflow 백엔드에서는 "output_shape"이 필요하지 않습니다.
 z = Lambda(sampling, output_shape=(latent_dim,), name='z')([z_mean, z_log_var])
 
-# instantiate encoder model
+# 인코더 모델을 인스턴스화(instantiate)
 encoder = Model(inputs, [z_mean, z_log_var, z], name='encoder')
 encoder.summary()
 plot_model(encoder, to_file='vae_mlp_encoder.png', show_shapes=True)
 
-# build decoder model
+# 디코더 모델 설계
 latent_inputs = Input(shape=(latent_dim,), name='z_sampling')
 x = Dense(intermediate_dim, activation='relu')(latent_inputs)
 outputs = Dense(original_dim, activation='sigmoid')(x)
 
-# instantiate decoder model
+# 디코더 모델 인스턴스화
 decoder = Model(latent_inputs, outputs, name='decoder')
 decoder.summary()
 plot_model(decoder, to_file='vae_mlp_decoder.png', show_shapes=True)
 
-# instantiate VAE model
+# VAE 모델 인스턴스화
 outputs = decoder(encoder(inputs)[2])
 vae = Model(inputs, outputs, name='vae_mlp')
 
@@ -194,7 +192,7 @@ if __name__ == '__main__':
     if args.weights:
         vae.load_weights(args.weights)
     else:
-        # train the autoencoder
+        # 오토인코더 학습
         vae.fit(x_train,
                 epochs=epochs,
                 batch_size=batch_size,
