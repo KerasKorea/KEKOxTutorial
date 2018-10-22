@@ -63,6 +63,7 @@ keras.datasets API를 사용하여 한 줄의 코드만으로 fashion_minst 데�
 ```python
 !pip install -q -U tensorflow>=1.10.1
 # 원문에서는 1.8.0 버전을 사용했지만 18.08월 기준 1.10 버전이 release되어 1.10.1로 설치했습니다.
+
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
@@ -102,10 +103,13 @@ print("x_train shape:", x_train.shape, "y_train shape:", y_train.shape)
 
  # 이미지 인덱스, 0에서 59,999 사이의 숫자를 선택할 수 있습니다.
  img_index = 5
+
  # y_train 은 에서 9까지의 레이블 포함합니다.
  label_index = y_train[img_index]
+
  # 레이블 출력해 봅니다. 예를들어 2 Pullover
  print ("y = " + str(label_index) + " " +(fashion_mnist_labels[label_index]))
+
  # 학습 데이터 중에서 이미지 한 장을 보여줍니다.
  plt.imshow(x_train[img_index])
  ```
@@ -215,7 +219,7 @@ model.compile(loss='categorical_crossentropy',
 
 ### 모델 학습시키기 (Train the model)
 
-`fit`을 사용하여 배치(batch) 사이즈는 64, 에포크(epochs)는 10으로 모델을 학습시킵니다. `ModelCheckpoint API`를 사용하여 에폭(epoch)마다 모델을 저장할 수 있습니다. 검증 정확도(validation accuracy)가 향상되었을 때 저장하려면 "save_best_only = True"로 설정하면 됩니다.
+`fit`을 사용하여 배치(batch) 사이즈는 64, 에포크(epochs)는 10으로 모델을 학습시킵니다. `ModelCheckpoint API`를 사용하여 에폭(epoch)마다 모델을 저장할 수 있습니다. 검증 정확도(validation accuracy)가 향상되었을 때 저장하려면 `save_best_only = True`로 설정하면 됩니다.
 >배치(batch)는 전체 데이터 셋 중에서 64개씩 학습시키는 것을 말하며, 에포크(epochs)는 전체 데이터셋을 몇번 학습시킬 것인지를 나타냅니다.
 
 ```python
@@ -267,11 +271,9 @@ y_hat = model.predict(x_test)
 figure = plt.figure(figsize=(20, 8))
 for i, index in enumerate(np.random.choice(x_test.shape[0], size=15, replace=False)):
     ax = figure.add_subplot(3, 5, i + 1, xticks=[], yticks=[])
-    # 각각의 이미지를 보여줌
-    ax.imshow(np.squeeze(x_test[index]))
+    ax.imshow(np.squeeze(x_test[index])) # 각각의 이미지를 보여줌
     predict_index = np.argmax(y_hat[index])
-    true_index = np.argmax(y_test[index])
-    # 각각의 이미지에 예측레이블 (실제레이블) 표시
+    true_index = np.argmax(y_test[index]) # 각각의 이미지에 예측레이블 (실제레이블) 표시
     ax.set_title("{} ({})".format(fashion_mnist_labels[predict_index],
                                   fashion_mnist_labels[true_index]),
                                   color=("green" if predict_index == true_index else "red"))
