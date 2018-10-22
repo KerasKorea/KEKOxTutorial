@@ -1,4 +1,4 @@
-## 딥러닝의 Hello World, Fashion-MNIST <br> (Fashion-MNIST with tf.Keras)
+## 딥러닝의 Hello World, Fashion-MNIST
 
 [Fashion-MNIST with tf.Keras 원문 바로 가기](https://medium.com/tensorflow/hello-deep-learning-fashion-mnist-with-keras-50fcff8cd74a)
 
@@ -27,7 +27,7 @@
 
 <br>
 
-#### Colab에서 실행 (Run this notebook in Colab)
+### Colab에서 실행 (Run this notebook in Colab)
 
 모든 코드는 저의 GitHub에 있습니다. Google의 Colab을 사용해 [저의 Gitub의 Jupyter Notebook](https://colab.research.google.com/github/margaretmz/deep-learning/blob/master/fashion_mnist_keras.ipynb)을 직접 열어서 실행할 수 있습니다. 빨리 노트북을 열어 튜토리얼을 따라가고 싶다면 이 옵션을 선택해보세요. Colab에 대해 더 알고싶다면 [공식 블로그](https://medium.com/tensorflow/colab-an-easy-way-to-learn-and-use-tensorflow-d74d1686e309) 혹은 [블로그](https://medium.com/@margaretmz/running-jupyter-notebook-with-colab-f4a29a9c7156)를 참고하세요.
 
@@ -52,7 +52,7 @@ Fashion-MNIST 데이터셋에는 10개의 카테고리가 있습니다.
 
 <br>
 
-#### Fashion_mnist 데이터셋 불러오기 (Import the fashoin_mnist dataset)
+### Fashion_mnist 데이터셋 불러오기 (Import the fashoin_mnist dataset)
 
 데이터셋을 가져와서 학습, 검증, 테스트 셋을 준비합니다.
 
@@ -74,7 +74,7 @@ print("x_train shape:", x_train.shape, "y_train shape:", y_train.shape)
 
 <br>
 
-#### 데이터 시각화 (Visualize the data)
+### 데이터 시각화 (Visualize the data)
 
 제가 Jupyter Notebook에서 가장 좋아하는 기능은 시각화 입니다. matplotlib 라이브러리의 ```imshow()```를 사용해 학습 데이터셋의 이미지를 시각화하여 데이터셋의 이미지 중 하나를 살펴볼 수 있습니다. 각 이미지는 28x28 모양의 흑백 이미지입니다.
 
@@ -111,7 +111,7 @@ print("x_train shape:", x_train.shape, "y_train shape:", y_train.shape)
 
 <br>
 
-#### 데이터 정규화 (Data normalization)
+### 데이터 정규화 (Data normalization)
 
 그런 다음 데이터 크기를 정규화하여 대략적으로 데이터 크기를 동일하게 맞춥니다.
 
@@ -122,7 +122,7 @@ x_test = x_test.astype('float32') / 255
 
 <br>
 
-#### 데이터를 학습/검증/테스트 셋으로 나누기 (Split the data into train/validation/test datasets)
+### 데이터를 학습/검증/테스트 셋으로 나누기 (Split the data into train/validation/test datasets)
 
 데이터를 임포팅하는 과정에서, 60,000개의 학습 셋과 10,000개의 테스트셋을 얻을 수 있습니다. 이제 학습 셋을 학습 셋/검증 셋으로 나누고자 합니다. 딥러닝에서 각 유형의 데이터셋이 사용되는 방법은 다음과 같습니다.
   - Training data(학습 데이터) - 모델을 학습에 사용하는 데이터
@@ -162,7 +162,7 @@ print(x_test.shape[0], 'test set')
 
 <br>
 
-#### 모델 아키텍처 만들기 (Create the model architecture)
+### 모델 아키텍처 만들기 (Create the model architecture)
 
 Keras에서 모델을 정의하기위한 두 가지 API는 다음과 같습니다.
 
@@ -199,7 +199,7 @@ model.summary()
 
 <br>
 
-#### 모델 컴파일하기 (Compile the model)
+### 모델 컴파일하기 (Compile the model)
 
 이제 ```model.compile()```을 사용하여 모델을 학습시키기 전에 학습 프로세스를 구성합니다. 이 과정에서는 손실 함수, 옵티마이저의 종류 및 학습 과 테스트 중 모델을 평가할 지표(metrics)를 정의합니다.
 
@@ -211,7 +211,7 @@ model.compile(loss='categorical_crossentropy',
 
 <br>
 
-#### 모델 학습시키기 (Train the model)
+### 모델 학습시키기 (Train the model)
 
 `fit`을 사용하여 배치(batch) 사이즈는 64, 에포크(epochs)는 10으로 모델을 학습시킵니다. `ModelCheckpoint API`를 사용하여 에폭(epoch)마다 모델을 저장할 수 있습니다. 검증 정확도(validation accuracy)가 향상되었을 때 저장하려면 "save_best_only = True"로 설정하면 됩니다.
 >배치(batch)는 전체 데이터 셋 중에서 64개씩 학습시키는 것을 말하며, 에포크(epochs)는 전체 데이터셋을 몇번 학습시킬 것인지를 나타냅니다.
@@ -230,7 +230,7 @@ model.fit(x_train,
 
 <br>
 
-#### 가장 높은 검증 정확도의 모델 불러오기(Load Model with the best validation accuracy)
+### 가장 높은 검증 정확도의 모델 불러오기(Load Model with the best validation accuracy)
 
 ```python
 # 가장 높은 검증 정확도의 가중치 불러오기
@@ -239,7 +239,7 @@ model.load_weights('model.weights.best.hdf5')
 
 <br>
 
-#### 테스트 정확도 (Test Accuracy)
+### 테스트 정확도 (Test Accuracy)
 
 90% 이상의 테스트 정확도를 얻었습니다!
 
