@@ -76,7 +76,7 @@ with sess.as_default():
 
 ```
 
-이제 모델을 evaluate 합시다
+이제 모델을 평가할 수 있습니다.
 
 ```python
 from keras.metrics import categorical_accuracy as accuracy
@@ -88,7 +88,144 @@ with sess.as_default():
 
 ```
 
-이 경우에, 케라스를 오직 일부 텐서 입력을 일부 텐서 출력으로 맵핑하는 연산을 생성하는 구문 단축키(syntactical shortcut)로만 사용합니다. 이 최적화는 기본 텐서플로우 옵티마이저를 통해 수행됩니다.
+이 경우에, 케라스를 오직 일부 텐서 입력을 일부 텐서 출력으로 맵핑하는 연산을 생성하는 구문 단축키(syntactical shortcut)로만 사용합니다. 이 최적화는 케라스 옵티마이저가 아닌 기본 텐서플로우 옵티마이저를 통해 수행됩니다. 케라스 `model`을 전혀 사용하지 않았습니다!
+
+참고사항 - 기본 텐서플로우 옵티마이저와 케라스 옵티마이저의 상대성능 : 텐서플로우 옵티마이저와 비교해볼떄 '케라스 방식'의 모델 최적화와는 약간의 속도 차이가 있습니다. 약간 반-직관적(counter-intuitively)으로는 케라스는 5~10% 정도 속도가 빨라보입니다. 하지만 모델 최적화에 케라스 옵티마이저를 쓰든지 기본 TF 옵티마이저를 쓰든지 결국엔 크게 차이가 없습니다.
+
+### 훈련과 테스팅동안 다른 동작
+일부 Keras 레이어 (예를 들면, `Dropout`, `BatchNormalization`)는 훈련 시간 및 테스트 시간에 다르게 동작합니다.  레이어가 "학습단계(learning phase)" (train/test)에서 `layer.uses_learning_phase`를 출력하여 그 값(boolean)이 'True'라면, 레이어가 트레이닝 모드와 테스트 모드에서 다르게 동작하고 있다는 것이고 'False'라면 같게 동작한다는 것입니다.
+
+모델에 이러한 레이어가 포함된 경우, 모델에 dropout/etc 적용 여부를 알 수 있도록 `feed_dict`의 파트의 학습단계 값을 지정해야합니다.
+
+Keras 백엔드를 통해 Keras 학습 단계(TensorFlow 텐서 스칼라값)에 접근할 수 있습니다. 
+
+```python
+from keras import backend as K
+print K.learning_phase()
+```
+학습 단계를 사용하려면 `feed_dict`에 "1"(훈련 모드) 또는 "0"(테스트 모드) 값을 전달하세요.
+
+```
+# 훈련 모드
+train_step.run(feed_dict={x: batch[0], labels: batch[1], K.learning_phase(): 1})
+```
+**역자 주: 해당 파라미터값을 1로 설정했기때문에 훈련모드입니다**
+
+예를 들어, 이전 MNIST 예제에 Dropout layers를 추가하는 것은 아래와 같습니다.
+
+```python
+from keras.layers import Dropout
+from keras import backend as K
+
+img = tf.placeholder(tf.float32, shape=(None, 784))
+labels = tf.placeholder(tf.float32, shape=(None, 10))
+
+x = Dense(128, activation='relu')(img)
+x = Dropout(0.5)(x)
+x = Dense(128, activation='relu')(x)
+x = Dropout(0.5)(x)
+preds = Dense(10, activation='softmax')(x)
+
+loss = tf.reduce_mean(categorical_crossentropy(labels, preds))
+
+train_step = tf.train.GradientDescentOptimizer(0.5).minimize(loss)
+with sess.as_default():
+    for i in range(100):
+        batch = mnist_data.train.next_batch(50)
+        train_step.run(feed_dict={img: batch[0],
+                                  labels: batch[1],
+                                  K.learning_phase(): 1})
+
+acc_value = accuracy(labels, preds)
+with sess.as_default():
+    print acc_value.eval(feed_dict={img: mnist_data.test.images,
+                                    labels: mnist_data.test.labels,
+                                    K.learning_phase(): 0})
+```
+
+### 네임 스코프(name scopes)와 디바이스 스코프(device scopes)의 호환성
+
+Keras 레이어와 모델은 TensorFlow 네임 스코프와 완벽하게 호환됩니다. 예를 들어 다음 코드를 보십시오.
+```python
+x = tf.placeholder(tf.float32, shape=(None, 20, 64))
+with tf.name_scope('block1'):
+    y = LSTM(32, name='mylstm')(x)
+```
+
+LSTM 레이어의 가중치는 `block1 / mylstm_W_i, block1 / mylstm_U_i` 등으로 지정됩니다.
+
+디바이스 스코프도 유사하게 동작합니다.
+
+```python
+with tf.device('/gpu:0'):
+    x = tf.placeholder(tf.float32, shape=(None, 20, 64))
+    y = LSTM(32)(x)  # LSTM 레이어에서 모든 연산과 변수는 GPU:0 에 살아있습니다. 
+```
+
+### 그래프 스코프에서의 호환성
+TensorFlow 그래프 스코프 내에서 정의하는 Keras 레이어나 모델은, 특정 그래프의 일부로서 생성된 모든 변수와 연산을 갖습니다. 예를 들면, 다음과 같이 동작합니다.
+
+```python
+from keras.layers import LSTM
+import tensorflow as tf
+
+my_graph = tf.Graph()
+with my_graph.as_default():
+    x = tf.placeholder(tf.float32, shape=(None, 20, 64))
+    y = LSTM(32)(x)  # LSTM 레이어에서 모든 연산과 변수들은 그래프의 일부로서 생성됩니다.
+```
+
+### 변수 스코프(variable scopes)에서의 호환성 
+변수 공유는 **텐서플로우 변수 범위가 아닌** 같은 케라스 레이어(또는 모델) 인스턴스에서 호출될때 가능합니다. 텐서플로우 변수 범위는 케라스 레이어나 모델에 영향을 미치지 않습니다. *케라스의 가중치 공유에 대한 더 자세한 정보는 API의 [가중치 공유](https://keras.io/getting-started/functional-api-guide/#shared-layers) 에서 확인하세요.*
+
+가중치 공유가 케라스에서 어떻게 동작하는지 짧게 요약:  같은 레이어 인스턴스나 모델 인스턴스를 재사용함으로써 가중치를 사용할 수 있습니다. 아래 간단한 예제가 있습니다.
+
+```python
+# 케라스 레이어 인스턴스화
+lstm = LSTM(32)
+
+# 두 TF placeholder 인스턴스화
+x = tf.placeholder(tf.float32, shape=(None, 20, 64))
+y = tf.placeholder(tf.float32, shape=(None, 20, 64))
+
+# '같은' LSTM 가중치 두 tensor 인코딩
+x_encoded = lstm(x)
+y_encoded = lstm(y)
+```
+
+### 학습 가능한 가중치 및 상태 업데이트 수집
+일부 Keras 레이어 (Stateful RNN 및 BatchNormalization 레이어)에는 각 트레이닝 단계에서 실행하야하는 내부 업데이트가 있습니다. 이것들은 텐서 튜플, `layer.updates`의 리스트로 저장됩니다. 각 훈련 단계에서 실행되도록 할당 작업을 생성해야합니다. 아래가 그 예입니다.
+
+```python
+from keras.layers import BatchNormalization
+
+layer = BatchNormalization()(x)
+
+update_ops = []
+for old_value, new_value in layer.updates:
+    update_ops.append(tf.assign(old_value, new_value))
+```
+
+Keras 모델 (Model 인스턴스 또는 Sequential 인스턴스)을 사용하는 경우 `model.udpates`는 동일한 방식으로 동작하며 모델의 모든 기본 레이어에 대한 업데이트를 수집합니다.
+
+또한 `layer.trainable_weights` (또는 `model.trainable_weights`), TensorFlow 변수 인스턴스의 목록을 통해 레이어의 훈련 가중치를 명시적으로 수집할 수 있습니다.
+
+```python
+from keras.layers import Dense
+
+layer = Dense(32)(x)  # 인스턴스화와 레어어 호출 
+print layer.trainable_weights  # TensorFlow 변수 리스트
+```
+
+이를 알면 TensorFlow 옵티마이저를 기반으로 자신만의 트레이닝 루틴을 구현할 수 있습니다.
+
+---------
+
+
+
+
+
+
 
 
 
