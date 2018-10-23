@@ -1,6 +1,8 @@
 # 케라스(Keras) 튜토리얼 - 텐서플로우의 간소화된 인터페이스로서
 ## 텐서플로우 워크플로우로서 케라스 사용하기 완전 가이드 
 
+> 이 튜토리얼은 Keras 공식 튜토리얼 Keras as a simplified interface to TensorFlow: tutorial 을 번역하였습니다. [원문 링크 바로가기](https://blog.keras.io/keras-as-a-simplified-interface-to-tensorflow-tutorial.html)
+
 만약 텐서플로우가 당신이 사용하는 주요 프레임워크이고 당신의 삶을 간단하게 만들 간단한 고레벨(high-level) 모델 인터페이스를 찾고 있다면, 이 튜토리얼은 당신을 위한 것입니다.
 
 케라스 레이어와 모델은 순수 텐서플로우 텐서들과 완전 호환되므로, Keras는 TensorFlow를 위한 훌륭한 모델 정의 부가 기능(add-on)이며 다른 텐서플로우 라이브러리와 함께 사용할 수도 있습니다. 
@@ -387,4 +389,9 @@ model_exporter.export(export_path, tf.constant(export_version), sess)
 
 이 가이드에서 다루는 새로운 주제를 보고 싶습니까? [Twitter](https://twitter.com/fchollet)를 참고하세요. 
 
+--------
+
+> 이 글은 2018 컨트리뷰톤에서 [Contribute to Keras](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다. <br>
+ > Translator : [오시영](https://github.com/ohahohah) <br>
+ > Translator email : [ohahohah.dev@gmail.com](mailto:ohahohah.dev@gmail.com)
 
