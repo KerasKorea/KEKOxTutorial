@@ -32,25 +32,31 @@
 이번 블로그 포스트의 나머지 부분에서는 케라스, 파이썬(Python) 그리고 딥러닝(Deep Learning)을 사용하여 
 이미지를 분류하기 위해 합성곱 신경망(Convolutional Neural Network)을 학습하는 법에 대해 알아보도록 하겠습니다. 
 
-### The MiniGoogLeNet deep learning architecture
+### MiniGoogLeNet 딥러닝 아키텍처
 
-![MiniGoogLeNet architecture](https://www.pyimagesearch.com/wp-content/uploads/2017/10/miniception_architecture.png)
+![MiniGoogLeNet architecture](https://www.pyimagesearch.com/wp-content/uploads/2017/10/miniception_architecture.png)      
 
-**Figure 1**: The MiniGoogLeNet architecture is a small version of it’s bigger brother, GoogLeNet/Inception. Image credit to @ericjang11 and @pluskid.
+**Figure 1**: MiniGoogLeNet 아키텍처는 GoogLeNet/Inception의 축소된 버전입니다. 
+이미지 크레딧 [@ericjang11](https://twitter.com/ericjang11), [@pluskid](https://twitter.com/pluskid).
 
-In Figure 1 above we can see the individual convolution (left), inception (middle), and downsample (right) modules, followed by the overall MiniGoogLeNet architecture (bottom), constructed from these building blocks. We will be using the MiniGoogLeNet architecture in our multi-GPU experiments later in this post.
+**Figure 1**에서는 각각의 합성곱(좌측), 인셉션(Inception, 중앙) 그리고 다운 샘플(Downsample, 우측) 모듈들을 확인할 수 있고,
+그 다음 위 모듈들의 조합으로 만들어진 MiniGoogLeNet 아키텍처(하단)를 볼 수 있습니다. 
+해당 모델은 포스트의 후반부의 다중 GPU 실험에 사용될 예정입니다. 
 
-The Inception module in MiniGoogLenet is a variation of the original Inception module designed by Szegedy et al.
+MiniGoogLeNet에서 사용된 인셉션 모듈은 [Szegedy et al.](https://arxiv.org/abs/1409.4842)이 설계한 인셉션 모듈의 변형입니다. 
 
-I first became aware of this “Miniception” module from a tweet by @ericjang11 and @pluskid where they beautifully visualized the modules and associated MiniGoogLeNet architecture.
+저는 [@ericjang11](https://twitter.com/ericjang11)과 [@pluskid](https://twitter.com/pluskid)가 MiniGoogLeNet과 관련 모듈들을
+아름답게 시각화한 트윗을 통해 이 "Miniception"모듈을 처음 알게 되었습니다. 
 
-After doing a bit of research, I found that this graphic was from Zhang et al.’s 2017 publication, Understanding Deep Learning Requires Re-Thinking Generalization.
+그리고 약간의 조사 후에, 저는 이 그림이 Zhang et al.이 2017년에 출판한 논문 [*Understanding Deep Learning Requires Re-Thinking Generalization*](https://arxiv.org/abs/1611.03530)에 나온다는 것을 발견했습니다. 
 
-I then proceeded to implement the MiniGoogLeNet architecture in Keras + Python — I even included it as part of Deep Learning for Computer Vision with Python.
+그런 다음 저는 MiniGoogLeNet 아키텍처를 케라스와 파이썬을 이용해 구현하였고, 이 내용을 제 책인
+[*Deep Learning for Computer Vision with Python*](https://www.pyimagesearch.com/deep-learning-computer-vision-python-book/)에 싣기도 하였습니다!
 
-A full review of the MiniGoogLeNet Keras implementation is outside the scope of this blog post, so if you’re interested in how the network works (and how to code it), please refer to my book.
+케라스로 MiniGoogLeNet을 구현하는 것에 대한 자세한 내용은 이번 포스트에서 다루는 내용의 범위를 벗어나기 때문에,
+해당 모델의 원리(그리고 구현하는 법)에 관심이 있으시다면 제 책을 참고하시길 바랍니다. 
 
-Otherwise, you can use the “Downloads” section at the bottom of this blog post to download the source code.
+그렇지 않으면 원문의 하단에 있는 ***"다운로드"*** 섹션에서 소스 코드를 다운로드할 수 있습니다. 
 
 ### Training a deep neural network with Keras and multiple GPUs
 
