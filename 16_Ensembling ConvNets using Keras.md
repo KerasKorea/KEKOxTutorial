@@ -63,7 +63,7 @@ y_train = to_categorical(y_train, num_classes=10)
 print('x_train shape: {} | y_train shape: {}\nx_test shape : {} | y_test shape : {}'.format(x_train.shape, y_train.shape,x_test.shape, y_test.shape))
 ```
 
->>> x_train shape: (50000, 32, 32, 3) | y_train shape: (50000, 10)
+>>> x_train shape: (50000, 32, 32, 3) | y_train shape: (50000, 10)  
 >>> x_test shape : (10000, 32, 32, 3) | y_test shape : (10000, 1)
 
 세개의 모델에서 같은 형태의 데이터를 사용할 것이므로, 모든 모델에서 사용할 단일 입력 레이어를 정의하는것이 좋습니다.
