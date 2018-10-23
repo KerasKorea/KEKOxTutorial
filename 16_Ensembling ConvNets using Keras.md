@@ -57,7 +57,7 @@ x_test = x_test / 255.
 y_train = to_categorical(y_train, num_classes=10)
 ```
 
-데이터 세트은 10개의 클래스를 가진 60,000개의 32x32 RGB 이미지들로 구성되어 있습니다. 학습/검증을 위해 50,000개의 이미지가, 테스트를 위해 10,000개의 이미지가 존재합니다.
+데이터 세트는 10개의 클래스를 가진 60,000개의 32x32 RGB 이미지들로 구성되어 있습니다. 학습/검증을 위해 50,000개의 이미지를, 테스트를 위해 10,000개의 이미를 사용합니다.
 
 ```PYTHON
 print('x_train shape: {} | y_train shape: {}\nx_test shape : {} | y_test shape : {}'.format(x_train.shape, y_train.shape,x_test.shape, y_test.shape))
