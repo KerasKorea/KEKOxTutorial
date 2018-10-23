@@ -270,7 +270,7 @@ def ensemble(models, model_input):
 ensemble_model = ensemble(models, model_input)
 ```
 
-예상대로 앙상블은 모든 단일 모델보다 오류율이 낮습니다.
+예상대로 앙상블은 모든 단일 모델보다 에러율이 낮습니다.
 
 ```python
 evaluate_error(ensemble_model)
