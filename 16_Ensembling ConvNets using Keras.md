@@ -179,7 +179,7 @@ _ = compile_and_train(all_cnn_model, num_epochs=20)
 
 ![16_3.png](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/16_3.png)
 
-두 모델이 서로 매우 유사하기 때문에 오류율은 크게 다르지 않습니다.
+두 모델이 서로 매우 유사하기 때문에 에러율은 크게 다르지 않습니다.
 
 `0.26090000000000002`
 
