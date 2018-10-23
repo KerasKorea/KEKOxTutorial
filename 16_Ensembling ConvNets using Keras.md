@@ -11,7 +11,7 @@
 * CNN
 * Ensemble
 
-![16_0.jpeg](./media/16_0.jpeg)
+![16_0.jpeg](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/16_0.jpeg)
 
 ## Introduction
 "통계 및 기계 학습에서 앙상블 기법은 단일 구성 학습 알고리즘만으로 얻을 수 있는 것보다 더 나은 예측 성능을 얻기 위해 여러 학습 알고리즘을 사용합니다. 일반적으로 무한한 통계 역학의 앙상블과 달리 기계 학습 앙상블은 여러 모델의 구체적인 유한 집합이지만, 대체로 그러한 모델들 사이에 훨씬 더 유연한 구조가 존재할 수 있습니다." \[[1](https://en.wikipedia.org/wiki/Ensemble_learning)\]
@@ -28,7 +28,7 @@
 
 앙상블에는 여러 가지 방법이 있습니다; 스태킹 역시 그중 하나입니다. 보다 일반적인 방법 중 하나이며 다른 모든 앙상블 기술을 이론적으로 나타낼 수 있습니다. 스태킹은 다른 여러 학습 알고리즘의 예측을 결합하는 알고리즘을 학습하는 것과 관련이 있습니다. \[[1](https://en.wikipedia.org/wiki/Ensemble_learning)\] 이 예제에서는 앙상블에서 각 모델의 결과값의 평균을 취하는 것과 관련된 가장 간단한 스태킹 중 하나를 사용하겠습니다. 평균을 취하는것은 매개 변수를 필요로 하지 않으므로 이 앙상블(모델 만)을 교육 할 필요가 없습니다.
 
-![16_1.png](./media/16_1.png)
+![16_1.png](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/16_1.png)
 
 ## Preparing the data
 
@@ -132,7 +132,7 @@ _ = compile_and_train(conv_pool_cnn_model, num_epochs=20)
 
 이 모델은 약 79%의 유효성 검사 정확도를 달성합니다.
 
-![16_2.png](./media/16_2.png)
+![16_2.png](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/16_2.png)
 
 모델을 평가하는 가장 단순한 방법은 테스트 세트의 에러율을 계산하는 것입니다.
 
@@ -177,7 +177,7 @@ _ = compile_and_train(all_cnn_model, num_epochs=20)
 
 이 모델은 약 75%의 유효성 검사 정확도를 달성합니다.
 
-![16_3.png](./media/16_3.png)
+![16_3.png](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/16_3.png)
 
 두 모델이 서로 매우 유사하기 때문에 오류율은 크게 다르지 않습니다.
 
@@ -228,7 +228,7 @@ _ = compile_and_train(nin_cnn_model, num_epochs=20)
 
 이 모델은 약 65%의 유효성 검사 정확도를 달성합니다.
 
-![16_4.png](./media/16_4.png)
+![16_4.png](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/16_4.png)
 
 이 모델은 다른 두 모델보다 좀 더 간단하므로, 에러율이 조금 더 높습니다.
 
@@ -321,6 +321,6 @@ evaluate_error(pair_C_ensemble_model)
 
 이 기사를 쓸 때, 몇가지 부분을 변경하여서 (대부분 말투와 오타입니다.) 쥬피터 노트북과 내용이 조금 다를 수 있습니다.  
 
-> 이 글은 2018 컨트리뷰톤에서 [`Contributue to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.
-> Translator : [김설기](https://github.com/5taku) , [mike2ox](https://github.com/mike2ox) (Moonhyeok Song)
-> Translator Email : [ksulki@gmail.com](ksulki@gmail.com),[firefinger07@gmail.com](mailto:firefinger07@gmail.com)
+> 이 글은 2018 컨트리뷰톤에서 [`Contributue to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.  
+> Translator : [김설기](https://github.com/5taku) , [mike2ox](https://github.com/mike2ox) (Moonhyeok Song)  
+> Translator Email : [ksulki@gmail.com](ksulki@gmail.com),[firefinger07@gmail.com](mailto:firefinger07@gmail.com)  
