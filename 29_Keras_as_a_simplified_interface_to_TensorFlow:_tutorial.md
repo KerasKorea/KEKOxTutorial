@@ -278,12 +278,65 @@ y = model(x)
 
 참고 : Keras 모델을 호출하면 아키텍처와 가중치를 모두 재사용합니다. 텐서의 모델을 호출할떄, 입력 텐서 위에 새로운 TF연산을 생성하고 이 연산은 이미 모델에 있는 TF 변수 인스턴스를 재사용합니다.
 
+---------
+## III. 멀티 GPU 및 분산 트레이닝
+### Keras 모델의 일부를 다른 GPU에 할당
+TensorFlow 디바이스 스코프는 Keras 레이어 및 모델과 완벽하게 호환되므로, 이를 사용하여 그래프의 특정 부분을 다른 GPU에 할당할 수 있습니다. 다음은 간단한 예입니다.
 
+```python
+with tf.device('/gpu:0'):
+    x = tf.placeholder(tf.float32, shape=(None, 20, 64))
+    y = LSTM(32)(x)  # 이 LSTM 레이어의 모든 연산은 GPU:0에 저장될 것임
 
+with tf.device('/gpu:1'):
+    x = tf.placeholder(tf.float32, shape=(None, 20, 64))
+    y = LSTM(32)(x)  # 이 LSTM 레이어의 모든 연산은 GPU:1에 저장될 것임
+```
+LSTM 레이어에서 생성된 변수는 GPU에 저장되지 않습니다. 모든 TensorFlow 변수는 생성된 디바이스 스코프와 관계없이 항상 CPU에 올라가 있습니다. TensorFlow는 백그라운드에서 장치간 변수 전송(device-to-device variable transfer)을 처리합니다. 
 
+동일한 모델의 여러 복제본을 서로 다른 GPU에서 교육하고 다른 복제본간에 동일한 가중치를 공유하려는 경우,
+먼저 하나의 디바이스 스코프에서 해당 모델(또는 레이어)를 인스턴스화 한 다음, 다른 GPU 디바이스 스코프에 있는 같은 모델의 인스턴스를 여러 번 호출하면 됩니다. 다음과 같습니다.
 
+```python
+with tf.device('/cpu:0'):
+    x = tf.placeholder(tf.float32, shape=(None, 784))
 
+    # CPU:0에 있는 공유된 모델
+    # 트레이닝 도중에는 실제로 실행되지 않음
+    # 연산 템플릿이나  연산 템플릿 및 공유된 변수의 저장소로서 동작함
+    model = Sequential()
+    model.add(Dense(32, activation='relu', input_dim=784))
+    model.add(Dense(10, activation='softmax'))
 
+# 복제본 0
+with tf.device('/gpu:0'):
+    output_0 = model(x)  # 이 복제본의 모든 연산은 GPU:0에 있음
+
+# 복제본 1
+with tf.device('/gpu:1'):
+    output_1 = model(x)  #  이 복제본의 모든 연산은 GPU:1에 있음
+
+# CPU에서 결과 병합(merge)
+with tf.device('/cpu:0'):
+    preds = 0.5 * (output_0 + output_1)
+
+# `preds` 텐서만 실행하여 GPU의 두 복제본만 실행되도록 함
+# (CPU에 병합 연산 추가)
+output_value = sess.run([preds], feed_dict={x: data})
+```
+
+### 분산 트레이닝
+클러스터에 링크된 TF 세션을 Keras에 등록하여 TensorFlow 분산 트레이닝을 쉽게 활용할 수 있습니다.
+
+```python
+server = tf.train.Server.create_local_server()
+sess = tf.Session(server.target)
+
+from keras import backend as K
+K.set_session(sess)
+```
+
+분산 설정에서 TensorFlow를 사용하는 방법에 대한 자세한 내용은 [이 튜토리얼](https://www.tensorflow.org/guide/)를 참조하십시오.
 
 
 
