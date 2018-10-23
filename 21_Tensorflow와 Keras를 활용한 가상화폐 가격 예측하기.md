@@ -246,7 +246,7 @@ model.fit(training_datas, training_labels,verbose=1, batch_size=batch_size,valid
 
 <br></br>
 
-내가 빌드한 첫 번째 모델은 CNN 입니다. 위의 코드에서는 사용할 GPU 개수를 "1"로 설정합니다(나는 4개의 GPU를 가지고 있지만, 당신은 원하는 만큼의 GPU를 상용할 수 있습니다). 왜냐하면 Tensorflow로 여러개의 GPUs를 사용하는 것은 그다지 잘 돌아가지 않기 때문에, 사용할 GPU를 1개로 제한하는 것이 더 현명한 방법일지도 모릅니다. 당신이 GPU가 없다고해도 걱정하지마세요. GPU를 설정하는 코드를 가뿐히 무시하기만 하면 됩니다.
+내가 빌드한 첫 번째 모델은 CNN 입니다. 위의 코드에서는 사용할 GPU 개수를 "1"로 설정합니다(저는 4개의 GPU를 가지고 있지만, 당신은 원하는 만큼의 GPU를 상용할 수 있습니다). 왜냐하면 Tensorflow로 여러개의 GPUs를 사용하는 것은 그다지 잘 돌아가지 않기 때문에, 사용할 GPU를 1개로 제한하는 것이 더 현명한 방법일지도 모릅니다. 당신이 GPU가 없다고해도 걱정하지마세요. GPU를 설정하는 코드를 가뿐히 무시하기만 하면 됩니다.
 
 ```Python
 os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
@@ -274,7 +274,7 @@ model.compile(loss='mse', optimizer='adam')
 
 <br></br>
 
-파일의 마지막에, 나는 두개의 callback 함수를 호출할 것입니다. 한 개는 CSVLogger 다른 하나는 ModelCheckpoint 입니다. 첫 번째 CSVLogger 함수는 training, validation 을 트랙킹하는 것을 도와줄 것입니다. 두 번째 ModelCheckpoint 함수는 매 epoch 마다 모델의 가중치(weight)를 저장해 줍니다.
+파일의 마지막에, 저는 두개의 callback 함수를 호출할 것입니다. 한 개는 CSVLogger 다른 하나는 ModelCheckpoint 입니다. 첫 번째 CSVLogger 함수는 training, validation 을 트랙킹하는 것을 도와줄 것입니다. 두 번째 ModelCheckpoint 함수는 매 epoch 마다 모델의 가중치(weight)를 저장해 줍니다.
 
 ```Python
 model.fit(training_datas, training_labels,verbose=1, batch_size=batch_size,validation_data=(validation_datas,validation_labels), epochs = epochs, callbacks=[CSVLogger(output_file_name+'.csv', append=True),ModelCheckpoint('weights/'+output_file_name+'-{epoch:02d}-{val_loss:.5f}.hdf5', monitor='val_loss', verbose=1,mode='min')]
@@ -380,7 +380,7 @@ Gated Recurrent Unit(Gated Recurrent Unit)은 RNN의 또 다른 변형입니다.
 
 ![GRU](./media/21_2.png)
 
-*GRU Illustration (retrieved from http://www.jackdermody.net/brightwire/article/GRU_Recurrent_Neural_Networks)*
+*figre3 : GRU Illustration (retrieved from http://www.jackdermody.net/brightwire/article/GRU_Recurrent_Neural_Networks)*
 
 <br></br>
 
@@ -552,7 +552,7 @@ ground_true_df = ground_true_df.loc[(ground_true_df["times"].dt.year == 2017 )&(
 ```
 <br></br>
 
-pyplot을 이용해서 플롯을 그립니다. 예상 가격은 16분 기준이기 때문에, 그것들 모두를 연결하지 않는 것이 결과가 더 쉽게 이해될 것입니다. 따라서 여기서 예측 데이터는 세 번째 행의 "ro"가 나타내는 빨간색 점으로 표시됩니다. 아래 figure3에 보이는 그래프의 파란색 선은 실제 데이터를 나타내며 빨간색 점은 예상되는 비트코인 가격을 나타냅니다.
+pyplot을 이용해서 플롯을 그립니다. 예상 가격은 16분 기준이기 때문에, 그것들 모두를 연결하지 않는 것이 결과가 더 쉽게 이해될 것입니다. 따라서 여기서 예측 데이터는 세 번째 행의 "ro"가 나타내는 빨간색 점으로 표시됩니다. 아래 figure4에 보이는 그래프의 파란색 선은 실제 데이터를 나타내며 빨간색 점은 예상되는 비트코인 가격을 나타냅니다.
 
 ```pythonn
 plt.figure(figsize=(20,10))
@@ -566,20 +566,144 @@ plt.show()
 
 ![result](./media/21_3.png)
 
-*figure3: Best Result Plot for Bitcoin Price Prediction With 2-Layered CNN*
+*figure4: Best Result Plot for Bitcoin Price Prediction With 2-Layered CNN*
 
 <br></br>
 
-figure3에서 볼 수 있듯이, 예측된 값은 비트코인의 실제 가격과 매우 유사합니다. 가장 좋은 모델을 선택하기 위해, 저는 아래 figure4 표를 만들어서 네트워크의 몇 가지 구성을 테스트하기로 결정했습니다.
+figure4에서 볼 수 있듯이, 예측된 값은 비트코인의 실제 가격과 매우 유사합니다. 가장 좋은 모델을 선택하기 위해, 저는 아래 figure5 표를 만들어서 네트워크의 몇 가지 구성을 테스트하기로 결정했습니다.
 
 <br></br>
 
 ![table](./media/21_4.png)
 
-*figure4 : Prediction Results for Different Models*
+*figure5 : Prediction Results for Different Models*
 
 <br></br>
+
+figure5에 보이는 표는 100번의 학습 epochs에서 가장 우수한 validation loss(손실)를 도출하는 모델을 보여줍니다. 우리는 LeakyReLU가 ReLU보다 더 적은 손실을 발생시키는 것으로 볼 수 있습니다. 하지만 활성함수(activation function)로 LeakyReLU를 사용한 4-layer(레이어) CNN이 큰 validation loss를 발생시킵니다. 이것은 다시 validation이 필요할 수 있는 모델의 잘못된 배치 때문일 수 있습니다. 또한 표를 보고 CNN 모델은 LSTM, GRU 보다 퍼포먼스는 조금 나쁘지만 굉장히 빠르게 학습 (2초/ epoch, GPU사용)될 수 있다는 것을 알 수 있습니다. 3-layer CNN이 데이터의 지역적 특징을 잘 잡아내는 것처럼 보이지만, 가장 좋은 모델은 LSTM을 tanh와 LeakyReLU를 사용한 것입니다.
+
 <br></br>
+
+![LSTM with tanh and Leaky ReLu](./media/21_5.png)
+
+*figure6 : LSTM with tanh and Leaky ReLu as activation function*
+
+<br></br>
+
+![LSTM with tanh and Leaky ReLu](./media/21_6.png)
+
+*figure7 : 3-layered CNN with Leaky ReLu as activation function.*
+
+<br></br>
+
+비록 예측된 결과가 좋아보여도, overfittinng(과적합)의 걱정이 있습니다. LSTM을 LeakyReLU로 학습할 때의 loss(손실)과 validation(검증)의 loss에는 갭이 있습니다(5.97E-06 vs 3.92E-05). 이 손실을 최소화 하기 위해서 Regularization(정규화)가 필요합니다.
+
+<br></br>
+
+#### Regularization
+
+가장 좋은 regularization 전략을 찾기 위해서, 저는 L1 regularization, L2 regularization 으로 몇 개의 실험을 했습니다. 첫 번쨰로 우리는 LSTM에 데이터를 쉽게 피팅시킬 수 있는 새로운 기능을 정의해야 합니다. 저는 bias를 벡터에 대한 regularization인 bias regularizer를 예로 들겠습니다.
+
+To find out the best regularization strategy, I ran several experiments with different L1 and L2 values. First we need to define a new function that facilitate fitting the data into LSTM. Here, I’ll use bias regularizer that regularizes over the bias vector as an example.
+<br></br>
+
+```pythonn
+def fit_lstm(reg):
+    global training_datas, training_labels, batch_size, epochs,step_size,nb_features, units
+    model = Sequential()
+    model.add(CuDNNLSTM(units=units, bias_regularizer=reg, input_shape=(step_size,nb_features),return_sequences=False))
+    model.add(Activation('tanh'))
+    model.add(Dropout(0.2))
+    model.add(Dense(output_size))
+    model.add(LeakyReLU())
+    model.compile(loss='mse', optimizer='adam')
+    model.fit(training_datas, training_labels, batch_size=batch_size, epochs = epochs, verbose=0)
+    return model
+```
+<br></br>
+
+실험은 모델을 30번 각각 30 epochs씩 진행합니다.
+
+<br></br>
+
+```python
+def experiment(validation_datas,validation_labels,original_datas,ground_true,ground_true_times,validation_original_outputs, validation_output_times, nb_repeat, reg):
+    error_scores = list()
+    #get only the close data
+    ground_true = ground_true[:,:,0].reshape(-1)
+    ground_true_times = ground_true_times.reshape(-1)
+    ground_true_times = pd.to_datetime(ground_true_times, unit='s')
+    validation_output_times = pd.to_datetime(validation_output_times.reshape(-1), unit='s')
+    for i in range(nb_repeat):
+        model = fit_lstm(reg)
+        predicted = model.predict(validation_datas)
+        predicted_inverted = []
+        scaler.fit(original_datas[:,0].reshape(-1,1))
+        predicted_inverted.append(scaler.inverse_transform(predicted))
+        # since we are appending in the first dimension
+        predicted_inverted = np.array(predicted_inverted)[0,:,:].reshape(-1)
+        error_scores.append(mean_squared_error(validation_original_outputs[:,:,0].reshape(-1),predicted_inverted))
+    return error_scores
+
+regs = [regularizers.l1(0),regularizers.l1(0.1), regularizers.l1(0.01), regularizers.l1(0.001), regularizers.l1(0.0001),regularizers.l2(0.1), regularizers.l2(0.01), regularizers.l2(0.001), regularizers.l2(0.0001)]
+nb_repeat = 30
+results = pd.DataFrame()
+for reg in regs:
+
+    name = ('l1 %.4f,l2 %.4f' % (reg.l1, reg.l2))
+    print "Training "+ str(name)
+    results[name] = experiment(validation_datas,validation_labels,original_datas,ground_true,ground_true_times,validation_original_outputs, validation_output_times, nb_repeat,reg)
+
+results.describe().to_csv('result/lstm_bias_reg.csv')
+results.describe()
+view rawdef experiment(validation_datas,validation_labels,original_datas,ground_true,ground_true_times,validation_original_outputs, validation_output_times, nb_repeat, reg):
+    error_scores = list()
+    #get only the close data
+    ground_true = ground_true[:,:,0].reshape(-1)
+    ground_true_times = ground_true_times.reshape(-1)
+    ground_true_times = pd.to_datetime(ground_true_times, unit='s')
+    validation_output_times = pd.to_datetime(validation_output_times.reshape(-1), unit='s')
+    for i in range(nb_repeat):
+        model = fit_lstm(reg)
+        predicted = model.predict(validation_datas)
+        predicted_inverted = []
+        scaler.fit(original_datas[:,0].reshape(-1,1))
+        predicted_inverted.append(scaler.inverse_transform(predicted))
+        # since we are appending in the first dimension
+        predicted_inverted = np.array(predicted_inverted)[0,:,:].reshape(-1)
+        error_scores.append(mean_squared_error(validation_original_outputs[:,:,0].reshape(-1),predicted_inverted))
+    return error_scores
+
+regs = [regularizers.l1(0),regularizers.l1(0.1), regularizers.l1(0.01), regularizers.l1(0.001), regularizers.l1(0.0001),regularizers.l2(0.1), regularizers.l2(0.01), regularizers.l2(0.001), regularizers.l2(0.0001)]
+nb_repeat = 30
+results = pd.DataFrame()
+for reg in regs:
+
+    name = ('l1 %.4f,l2 %.4f' % (reg.l1, reg.l2))
+    print "Training "+ str(name)
+    results[name] = experiment(validation_datas,validation_labels,original_datas,ground_true,ground_true_times,validation_original_outputs, validation_output_times, nb_repeat,reg)
+
+results.describe().to_csv('result/lstm_bias_reg.csv')
+results.describe()
+view raw
+```
+
+<br></br>
+
+만약 당신이 Jupyter notebook을 사용하고 있다면, 아래의 figure8에 보이는 표를 결과로부터 바로 확인해볼 수 있습니다.
+
+![Result of Running Bias Regularizer](./media/21_7.png)
+
+*figure8 : Result of Running Bias Regularizer*
+
+<br></br>
+
+비교를 위해 결과를 시각화하기 위해, boxplot을 사용하면 됩니다:
+
+```python
+results.describe().boxplot()
+plt.show()
+```
 
 #### 참고자료
 [RNN과 LSTM을 이해해보자!](https://ratsgo.github.io/natural%20language%20processing/2017/03/09/rnnlstm/)
