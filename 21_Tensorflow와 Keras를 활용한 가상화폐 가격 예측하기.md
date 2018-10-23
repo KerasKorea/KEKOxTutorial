@@ -1,5 +1,5 @@
 ## Tensorflow와 Keras를 활용한 가상화폐 가격 예측하기 💸
-[원문 링크](https://medium.com/@gtnjuvin/my-journey-into-deep-q-learning-with-keras-and-gym-3e779cc12762)
+[원문 링크](https://medium.com/@huangkh19951228/predicting-cryptocurrency-price-with-tensorflow-and-keras-e1674b0dc58a)
 > 이 튜토리얼은 Tensorflow와 Keras를 활용해서 가상화폐 가격을 예측해봅니다.
 
 * Keras
@@ -64,7 +64,7 @@ view raw
 
 ### Data Preparation
 
-예측을 위해 소스에서 수집된 데이터를 파싱해야 합니다. 이 [블로그](https://nicholastsmith.wordpress.com/2017/11/13/cryptocurrency-price-prediction-using-deep-learning-in-tensorflow/)의 PastSampler class를 이용하여 데이터를 분할하여 데이터 리스트와 라벨 리스트를 얻을 수 있습니다. 입력 크기(N)는 256이고 출력 크기(K)는 16입니다. Poloniex에서 수집된 데이터는 5분 단위로 체크 표시됩니다. 이는 입력이 1280분 동안 지속되고 출력이 80분 이상임을 나타냅니다.
+예측을 위해 소스에서 수집된 데이터를 파싱해야 합니다. 이 [블로그](https://nicholastsmith.wordpress.com/2017/11/13/cryptocurrency-price-prediction-using-deep-learning-in-tensorflow/)의 PastSampler 클래 이용하여 데이터를 분할하여 데이터 리스트와 라벨 리스트를 얻을 수 있습니다. 입력 크기(N)는 256이고 출력 크기(K)는 16입니다. Poloniex에서 수집된 데이터는 5분 단위로 체크 표시됩니다. 이는 입력이 1280분 동안 지속되고 출력이 80분 이상임을 나타냅니다.
 
 <br></br>
 
@@ -111,3 +111,354 @@ time_stamps = df['Timestamp']
 df = df.loc[:,columns]
 original_df = pd.read_csv(dfp).loc[:,columns]
 ```
+
+<br></br>
+
+PastSampler 클래스를 만든 후 수집된 데이터에 적용했습니다. 원래 데이터의 범위는 0에서 10000 사이이므로, 신경망이 데이터를 더 쉽게 이해할 수 있도록 데이터 스케일링이 필요합니다.
+
+<br></br>
+
+```Python
+file_name='bitcoin2015to2017_close.h5'
+
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
+# normalization
+for c in columns:
+    df[c] = scaler.fit_transform(df[c].values.reshape(-1,1))
+
+#Features are input sample dimensions(channels)
+A = np.array(df)[:,None,:]
+original_A = np.array(original_df)[:,None,:]
+time_stamps = np.array(time_stamps)[:,None,None]
+
+#Make samples of temporal sequences of pricing data (channel)
+NPS, NFS = 256, 16         #과거 데이터, 미래 데이터 개수
+ps = PastSampler(NPS, NFS, sliding_window=False)
+B, Y = ps.transform(A)
+input_times, output_times = ps.transform(time_stamps)
+original_B, original_Y = ps.transform(original_A)
+
+import h5py
+with h5py.File(file_name, 'w') as f:
+    f.create_dataset("inputs", data = B)
+    f.create_dataset('outputs', data = Y)
+    f.create_dataset("input_times", data = input_times)
+    f.create_dataset('output_times', data = output_times)
+    f.create_dataset("original_datas", data=np.array(original_df))
+    f.create_dataset('original_inputs',data=original_B)
+    f.create_dataset('original_outputs',data=original_Y)
+```
+
+<br></br>
+<br></br>
+
+#### Building Models
+
+##### CNN
+1D CNN(Convolutional Neural Network)은 커널이 입력데이터 위를 슬라이딩하면서 지역적인(위치의) 특징을 잘 잡아냅니다. figure1을 한 번 보세요.
+
+<br></br>
+
+![CNN Illustration](./media/21_0.png)
+
+*figure1 : CNN Illustration (retrieved from http://cs231n.github.io/convolutional-networks/)*
+
+<br></br>
+
+```Python
+import pandas as pd
+import numpy as numpy
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, Activation, Flatten
+from keras.layers import Conv1D, MaxPooling1D, LeakyReLU, PReLU
+from keras.utils import np_utils
+from keras.callbacks import CSVLogger, ModelCheckpoint
+import h5py
+import os
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session
+
+
+# 한 개의 GPU만을 사용하도록 설정
+os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+set_session(tf.Session(config=config))
+
+
+with h5py.File(''.join(['bitcoin2015to2017_close.h5']), 'r') as hf:
+    datas = hf['inputs'].value
+    labels = hf['outputs'].value
+
+
+output_file_name='bitcoin2015to2017_close_CNN_2_relu'
+
+step_size = datas.shape[1]
+batch_size= 8
+nb_features = datas.shape[2]
+
+epochs = 100
+
+# 데이터를 train, validation 으로 나눔
+training_size = int(0.8* datas.shape[0])
+training_datas = datas[:training_size,:]
+training_labels = labels[:training_size,:]
+validation_datas = datas[training_size:,:]
+validation_labels = labels[training_size:,:]
+#build model
+
+# 2 layers
+model = Sequential()
+
+
+model.add(Conv1D(activation='relu', input_shape=(step_size, nb_features), strides=3, filters=8, kernel_size=20))
+model.add(Dropout(0.5))
+model.add(Conv1D( strides=4, filters=nb_features, kernel_size=16))
+
+'''
+# 3 Layers
+model.add(Conv1D(activation='relu', input_shape=(step_size, nb_features), strides=3, filters=8, kernel_size=8))
+#model.add(LeakyReLU())
+model.add(Dropout(0.5))
+model.add(Conv1D(activation='relu', strides=2, filters=8, kernel_size=8))
+#model.add(LeakyReLU())
+model.add(Dropout(0.5))
+model.add(Conv1D( strides=2, filters=nb_features, kernel_size=8))
+# 4 layers
+model.add(Conv1D(activation='relu', input_shape=(step_size, nb_features), strides=2, filters=8, kernel_size=2))
+#model.add(LeakyReLU())
+model.add(Dropout(0.5))
+model.add(Conv1D(activation='relu', strides=2, filters=8, kernel_size=2))
+#model.add(LeakyReLU())
+model.add(Dropout(0.5))
+model.add(Conv1D(activation='relu', strides=2, filters=8, kernel_size=2))
+#model.add(LeakyReLU())
+model.add(Dropout(0.5))
+model.add(Conv1D( strides=2, filters=nb_features, kernel_size=2))
+'''
+model.compile(loss='mse', optimizer='adam')
+model.fit(training_datas, training_labels,verbose=1, batch_size=batch_size,validation_data=(validation_datas,validation_labels), epochs = epochs, callbacks=[CSVLogger(output_file_name+'.csv', append=True),ModelCheckpoint('weights/'+output_file_name+'-{epoch:02d}-{val_loss:.5f}.hdf5', monitor='val_loss', verbose=1,mode='min')])
+```
+
+<br></br>
+
+내가 빌드한 첫 번째 모델은 CNN 입니다. 위의 코드에서는 사용할 GPU 개수를 "1"로 설정합니다(나는 4개의 GPU를 가지고 있지만, 당신은 원하는 만큼의 GPU를 상용할 수 있습니다). 왜냐하면 Tensorflow로 여러개의 GPUs를 사용하는 것은 그다지 잘 돌아가지 않기 때문에, 사용할 GPU를 1개로 제한하는 것이 더 현명한 방법일지도 모릅니다. 당신이 GPU가 없다고해도 걱정하지마세요. GPU를 설정하는 코드를 가뿐히 무시하기만 하면 됩니다.
+
+```Python
+os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
+os.environ['CUDA_VISIBLE_DEVICES'] ='1'
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+```
+
+<br></br>
+
+CNN 모델을 만들기 위한 코드는 아주 간단합니다. dropout 레이어는 overfitting(과적합)을 막아줍니다. loss function(손실함수)는 Mean Squared Error(MSE)로 정의했습니다. optimizer는 Adam을 사용할거에요.
+
+```Python
+model = Sequential()
+model.add(Conv1D(activation='relu', input_shape=(step_size, nb_features), strides=3, filters=8, kernel_size=20))
+model.add(Dropout(0.5))
+model.add(Conv1D( strides=4, filters=nb_features, kernel_size=16))
+model.compile(loss='mse', optimizer='adam')
+```
+
+<br></br>
+
+당신이 걱정해야할 단 한가지는 각 레이어의 입력, 출력 차원(dimension)입니다. 특정 convolutional 계층의 출력을 계산하는 공식은 다음과 같습니다:
+
+> **Output time step = (Input time step — Kernel size) / Strides + 1**
+
+<br></br>
+
+파일의 마지막에, 나는 두개의 callback 함수를 호출할 것입니다. 한 개는 CSVLogger 다른 하나는 ModelCheckpoint 입니다. 첫 번째 CSVLogger 함수는 training, validation 을 트랙킹하는 것을 도와줄 것입니다. 두 번째 ModelCheckpoint 함수는 매 epoch 마다 모델의 가중치(weight)를 저장해 줍니다.
+
+```Python
+model.fit(training_datas, training_labels,verbose=1, batch_size=batch_size,validation_data=(validation_datas,validation_labels), epochs = epochs, callbacks=[CSVLogger(output_file_name+'.csv', append=True),ModelCheckpoint('weights/'+output_file_name+'-{epoch:02d}-{val_loss:.5f}.hdf5', monitor='val_loss', verbose=1,mode='min')]
+```
+
+<br></br>
+<br></br>
+
+#### LSTM
+
+Long Short Term Memory(LSTM) 네트워크는 Recurrent Neural Network(RNN)의 일종입니다. vanilla RNN의 `vanishing gradient problem`을 해결하기 위해 만들어졌습니다. LSTM은 더 긴 시간 동안 입력을 기억할 수 있다고 주장합니다.
+
+<br></br>
+
+> RNN의 `vanishing gradient problem`은 관련된 정보와 그 정보를 참조해야되는 지점(정보를 사용하는 지점)의 사이가 멀어서 Backpropagation(역전파)를 할 때, gradient가 줄어들어 학습 능력이 저하되는 문제입니다. LSTM은 기존의 vanilla RNN에 cell state를 추가하여 과거의 정보가 얼마만큼 유지될 것인지 등을 조절해서 vanishing gradeint problem을 해결합니다.
+
+<br></br>
+
+![LSTM](./media/21_1.png)
+
+*figure2 : LSTM Illustration (retrieved from http://colah.github.io/posts/2015-08-Understanding-LSTMs/)*
+
+<br></br>
+
+```Python
+import pandas as pd
+import numpy as numpy
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, Activation, Flatten,Reshape
+from keras.layers import Conv1D, MaxPooling1D
+from keras.utils import np_utils
+from keras.layers import LSTM, LeakyReLU
+from keras.callbacks import CSVLogger, ModelCheckpoint
+import h5py
+import os
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session
+
+
+
+os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+set_session(tf.Session(config=config))
+
+with h5py.File(''.join(['bitcoin2015to2017_close.h5']), 'r') as hf:
+    datas = hf['inputs'].value
+    labels = hf['outputs'].value
+
+
+
+
+step_size = datas.shape[1]
+units= 50
+second_units = 30
+batch_size = 8
+nb_features = datas.shape[2]
+epochs = 100
+output_size=16
+output_file_name='bitcoin2015to2017_close_LSTM_1_tanh_leaky_'
+# 데이터를 train, validation 으로 나눔
+training_size = int(0.8* datas.shape[0])
+training_datas = datas[:training_size,:]
+training_labels = labels[:training_size,:,0]
+validation_datas = datas[training_size:,:]
+validation_labels = labels[training_size:,:,0]
+
+
+#build model
+model = Sequential()
+model.add(LSTM(units=units,activation='tanh', input_shape=(step_size,nb_features),return_sequences=False))
+model.add(Dropout(0.8))
+model.add(Dense(output_size))
+model.add(LeakyReLU())
+model.compile(loss='mse', optimizer='adam')
+model.fit(training_datas, training_labels, batch_size=batch_size,validation_data=(validation_datas,validation_labels), epochs = epochs, callbacks=[CSVLogger(output_file_name+'.csv', append=True),ModelCheckpoint('weights/'+output_file_name+'-{epoch:02d}-{val_loss:.5f}.hdf5', monitor='val_loss', verbose=1,mode='min')])
+```
+
+<br></br>
+
+LSTM은 커널 크기, strides, 입력 사이즈 및 출력 사이즈 간의 관계를 신경 쓸 필요가 없으므로 구현이 CNN보다 상대적으로 쉽습니다. 입력 및 출력의 사이즈가 네트워크에서 올바르게 정의되었는지만 확인하세요!
+
+```Python
+model = Sequential()
+model.add(LSTM(units=units,activation='tanh', input_shape=(step_size,nb_features),return_sequences=False))
+model.add(Dropout(0.8))
+model.add(Dense(output_size))
+model.add(LeakyReLU())
+model.compile(loss='mse', optimizer='adam')
+```
+
+<br></br>
+<br></br>
+
+#### GRU
+
+Gated Recurrent Unit(Gated Recurrent Unit)은 RNN의 또 다른 변형입니다. GRU의 네트워크 구조는 1개의 reset, forget 게이트가 있어서 LSTM보다 덜 정교하지만 GRU의 성능은 LSTM과 동일합니다. 따라서 LSTM 보다 효율성이 더 높다는 주장이 있습니다. (이 튜토리얼에서도 LSTM는 약 45초/epoch, GRU는 40초/epoch 채 걸리지 않기 때문에 주장이 맞다고 할 수 있습니다.)
+
+<br></br>
+
+![GRU](./media/21_2.png)
+
+*GRU Illustration (retrieved from http://www.jackdermody.net/brightwire/article/GRU_Recurrent_Neural_Networks)*
+
+<br></br>
+
+```Python
+import pandas as pd
+import numpy as numpy
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, Activation, Flatten,Reshape
+from keras.layers import Conv1D, MaxPooling1D, LeakyReLU
+from keras.utils import np_utils
+from keras.layers import GRU,CuDNNGRU
+from keras.callbacks import CSVLogger, ModelCheckpoint
+import h5py
+import os
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session
+
+
+
+os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+set_session(tf.Session(config=config))
+
+with h5py.File(''.join(['bitcoin2015to2017_close.h5']), 'r') as hf:
+    datas = hf['inputs'].value
+    labels = hf['outputs'].value
+
+
+output_file_name='bitcoin2015to2017_close_GRU_1_tanh_relu_'
+
+step_size = datas.shape[1]
+units= 50
+batch_size = 8
+nb_features = datas.shape[2]
+epochs = 100
+output_size=16
+#split training validation
+training_size = int(0.8* datas.shape[0])
+training_datas = datas[:training_size,:]
+training_labels = labels[:training_size,:,0]
+validation_datas = datas[training_size:,:]
+validation_labels = labels[training_size:,:,0]
+
+#build model
+model = Sequential()
+model.add(GRU(units=units, input_shape=(step_size,nb_features),return_sequences=False))
+model.add(Activation('tanh'))
+model.add(Dropout(0.2))
+model.add(Dense(output_size))
+model.add(Activation('relu'))
+model.compile(loss='mse', optimizer='adam')
+model.fit(training_datas, training_labels, batch_size=batch_size,validation_data=(validation_datas,validation_labels), epochs = epochs, callbacks=[CSVLogger(output_file_name+'.csv', append=True),ModelCheckpoint('weights/'+output_file_name+'-{epoch:02d}-{val_loss:.5f}.hdf5', monitor='val_loss', verbose=1,mode='min')])
+```
+
+<br></br>
+
+간단하게 LSTM을 빌드하는 두 번째 코드라인을 GRU로 바꾸기만 하면 됩니다.
+
+```Python
+model.add(LSTM(units=units,activation='tanh', input_shape=(step_size,nb_features),return_sequences=False))
+```
+
+을
+
+```Python
+model.add(GRU(units=units,activation='tanh', input_shape=(step_size,nb_features),return_sequences=False))
+```
+
+로 바꾸세요!
+
+<br></br>
+<br></br>
+
+
+
+#### 참고자료
+[RNN과 LSTM을 이해해보자!](https://ratsgo.github.io/natural%20language%20processing/2017/03/09/rnnlstm/)
