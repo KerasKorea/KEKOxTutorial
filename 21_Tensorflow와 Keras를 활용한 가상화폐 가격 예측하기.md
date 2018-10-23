@@ -458,7 +458,128 @@ model.add(GRU(units=units,activation='tanh', input_shape=(step_size,nb_features)
 <br></br>
 <br></br>
 
+#### Result Plotting
 
+결과가 세 가지 모델과 모두 비슷하기 때문에 CNN 버전만 보여 드리겠습니다. 먼저 모델을 재구성하고 학습된 가중치를 모델에 로드해야 합니다.
+
+<br></br>
+
+```Python
+from keras import applications
+from keras.models import Sequential
+from keras.models import Model
+from keras.layers import Dropout, Flatten, Dense, Activation
+from keras.callbacks import CSVLogger
+import tensorflow as tf
+from scipy.ndimage import imread
+import numpy as np
+import random
+from keras.layers import LSTM
+from keras.layers import Conv1D, MaxPooling1D, LeakyReLU
+from keras import backend as K
+import keras
+from keras.callbacks import CSVLogger, ModelCheckpoint
+from keras.backend.tensorflow_backend import set_session
+from keras import optimizers
+import h5py
+from sklearn.preprocessing import MinMaxScaler
+import os
+import pandas as pd
+# import matplotlib
+
+import matplotlib.pyplot as plt
+
+os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+
+with h5py.File(''.join(['bitcoin2015to2017_close.h5']), 'r') as hf:
+    datas = hf['inputs'].value
+    labels = hf['outputs'].value
+    input_times = hf['input_times'].value
+    output_times = hf['output_times'].value
+    original_inputs = hf['original_inputs'].value
+    original_outputs = hf['original_outputs'].value
+    original_datas = hf['original_datas'].value
+
+
+scaler=MinMaxScaler()
+#split training validation
+training_size = int(0.8* datas.shape[0])
+training_datas = datas[:training_size,:,:]
+training_labels = labels[:training_size,:,:]
+validation_datas = datas[training_size:,:,:]
+validation_labels = labels[training_size:,:,:]
+validation_original_outputs = original_outputs[training_size:,:,:]
+validation_original_inputs = original_inputs[training_size:,:,:]
+validation_input_times = input_times[training_size:,:,:]
+validation_output_times = output_times[training_size:,:,:]
+
+ground_true = np.append(validation_original_inputs,validation_original_outputs, axis=1)
+ground_true_times = np.append(validation_input_times,validation_output_times, axis=1)
+step_size = datas.shape[1]
+batch_size= 8
+nb_features = datas.shape[2]
+
+model = Sequential()
+
+# 2 layers
+model.add(Conv1D(activation='relu', input_shape=(step_size, nb_features), strides=3, filters=8, kernel_size=20))
+# model.add(LeakyReLU())
+model.add(Dropout(0.25))
+model.add(Conv1D( strides=4, filters=nb_features, kernel_size=16))
+model.load_weights('weights/bitcoin2015to2017_close_CNN_2_relu-44-0.00030.hdf5')
+model.compile(loss='mse', optimizer='adam')
+```
+
+<br></br>
+
+데이터 프레임에 실제 가격(실제 가격)과 비트코인의 예상 가격이 존재합니다. 시각화를 위해 표시된 수치는 2017년 8월과 그 이후의 데이터만 보여줍니다.
+
+<br></br>
+
+```pythonn
+ground_true_df = pd.DataFrame()
+ground_true_df['times'] = ground_true_times
+ground_true_df['value'] = ground_true
+
+prediction_df = pd.DataFrame()
+prediction_df['times'] = validation_output_times
+prediction_df['value'] = predicted_inverted
+
+prediction_df = prediction_df.loc[(prediction_df["times"].dt.year == 2017 )&(prediction_df["times"].dt.month > 7 ),: ]
+ground_true_df = ground_true_df.loc[(ground_true_df["times"].dt.year == 2017 )&(ground_true_df["times"].dt.month > 7 ),:]
+```
+<br></br>
+
+pyplot을 이용해서 플롯을 그립니다. 예상 가격은 16분 기준이기 때문에, 그것들 모두를 연결하지 않는 것이 결과가 더 쉽게 이해될 것입니다. 따라서 여기서 예측 데이터는 세 번째 행의 "ro"가 나타내는 빨간색 점으로 표시됩니다. 아래 figure3에 보이는 그래프의 파란색 선은 실제 데이터를 나타내며 빨간색 점은 예상되는 비트코인 가격을 나타냅니다.
+
+```pythonn
+plt.figure(figsize=(20,10))
+plt.plot(ground_true_df.times,ground_true_df.value, label = 'Actual')
+plt.plot(prediction_df.times,prediction_df.value,'ro', label='Predicted')
+plt.legend(loc='upper left')
+plt.show()
+```
+
+<br></br>
+
+![result](./media/21_3.png)
+
+*figure3: Best Result Plot for Bitcoin Price Prediction With 2-Layered CNN*
+
+<br></br>
+
+figure3에서 볼 수 있듯이, 예측된 값은 비트코인의 실제 가격과 매우 유사합니다. 가장 좋은 모델을 선택하기 위해, 저는 아래 figure4 표를 만들어서 네트워크의 몇 가지 구성을 테스트하기로 결정했습니다.
+
+<br></br>
+
+![table](./media/21_4.png)
+
+*figure4 : Prediction Results for Different Models*
+
+<br></br>
+<br></br>
 
 #### 참고자료
 [RNN과 LSTM을 이해해보자!](https://ratsgo.github.io/natural%20language%20processing/2017/03/09/rnnlstm/)
