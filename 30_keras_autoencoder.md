@@ -633,7 +633,9 @@ plt.show()
 [3]:http://arxiv.org/abs/1512.03385
 
 
-
+> 이 글은 2018 컨트리뷰톤에서 Contributue to Keras 프로젝트로 진행했습니다.
+Translator : wjddlsy (Jungin Yoon)
+Translator Email : asdff2002@gmail.com
 
 
 
