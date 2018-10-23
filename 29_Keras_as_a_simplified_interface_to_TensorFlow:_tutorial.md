@@ -338,10 +338,52 @@ K.set_session(sess)
 
 분산 설정에서 TensorFlow를 사용하는 방법에 대한 자세한 내용은 [이 튜토리얼](https://www.tensorflow.org/guide/)를 참조하십시오.
 
+------
+## IV.TensorFlow-serving을 사용하여 모델 내보내기
 
+TensorFlow Serving은 Google에서 개발한 프로덕션 환경에서 TensorFlow 모델을 제공하기위한 라이브러리입니다.
 
+모든 Keras 모델은 TensorFlow 워크플로우로서 트레이닝 여부에 관계없이 'TensorFlow-serving'(TF-serving의 제한사항때문에 하나의 입출력값만 있을때)으로 내보낼 수 있습니다. 실제로 Theano로 Keras 모델을 트레이닝한 다음, TensorFlow Keras 백엔드로 전환하고 모델을 내보낼 수도 있습니다. 
 
+어떻게 동작하는지에 대한 설명입니다.
 
+그래프가 Keras 학습 단계 (학습 시간과 테스트 시간에 다른 동작)를 사용하는 경우, 모델을 내보내기(export) 전에 가장 먼저해야 할 일은 그래프에 학습 단계 값을 설정하는 것입니다. (예 : test 모드인 경우 0) 이것은 1) Keras 백엔드에 지속적인 학습 단계를 등록하고 2) 나중에 모델을 다시 빌드하여 수행됩니다.
+
+다음은 이 간단한 두 단계에 대한 실행입니다.
+
+```python
+from keras import backend as K
+
+K.set_learning_phase(0)  # 모든 새로운 연산은 이제 테스트 모드임
+
+# 빠른 리빌딩을 위해, 모델을 직렬화(serialize)하고 가중치를 얻기
+config = previous_model.get_config()
+weights = previous_model.get_weights()
+
+# 학습단계에서 0으로 하드 코딩된 모델 리빌딩
+from keras.models import model_from_config
+new_model = model_from_config(config)
+new_model.set_weights(weights)
+```
+
+이제 [공식 Tutorial에 있는 지침](https://github.com/tensorflow/serving/blob/master/tensorflow_serving/g3doc/serving_basic.md)에 따라 TensorFlow-serving를 사용하여 모델을 내보낼 수 있습니다.
+
+```python
+from tensorflow_serving.session_bundle import exporter
+
+export_path = ... # where to save the exported graph
+export_version = ... # version number (integer)
+
+saver = tf.train.Saver(sharded=True)
+model_exporter = exporter.Exporter(saver)
+signature = exporter.classification_signature(input_tensor=model.input,
+                                              scores_tensor=model.output)
+model_exporter.init(sess.graph.as_graph_def(),
+                    default_graph_signature=signature)
+model_exporter.export(export_path, tf.constant(export_version), sess)
+```
+
+------------
 
 
 
