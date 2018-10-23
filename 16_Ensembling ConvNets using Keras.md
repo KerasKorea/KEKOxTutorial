@@ -280,7 +280,7 @@ evaluate_error(ensemble_model)
 
 ## Other Possible Ensembles
 
-완벽을 기하기 위하여, 우리는 두가지 모델 조합으로 구성된 앙상블의 성능을 확인할 수 있습니다. 이 중 두 모델은 단일 모델보다 오류율이 낮습니다.
+완벽을 기하기 위하여, 우리는 두가지 모델 조합으로 구성된 앙상블의 성능을 확인할 수 있습니다. 이 중 두 모델은 단일 모델보다 에러율이 낮습니다.
 
 ```python
 pair_A = [conv_pool_cnn_model, all_cnn_model]
