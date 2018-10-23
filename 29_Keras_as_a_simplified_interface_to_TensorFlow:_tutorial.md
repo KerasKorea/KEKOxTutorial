@@ -385,5 +385,6 @@ model_exporter.export(export_path, tf.constant(export_version), sess)
 
 ------------
 
+이 가이드에서 다루는 새로운 주제를 보고 싶습니까? [Twitter](https://twitter.com/fchollet)를 참고하세요. 
 
 
