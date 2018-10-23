@@ -604,7 +604,6 @@ figure5에 보이는 표는 100번의 학습 epochs에서 가장 우수한 valid
 
 가장 좋은 regularization 전략을 찾기 위해서, 저는 L1 regularization, L2 regularization 으로 몇 개의 실험을 했습니다. 첫 번쨰로 우리는 LSTM에 데이터를 쉽게 피팅시킬 수 있는 새로운 기능을 정의해야 합니다. 저는 bias를 벡터에 대한 regularization인 bias regularizer를 예로 들겠습니다.
 
-To find out the best regularization strategy, I ran several experiments with different L1 and L2 values. First we need to define a new function that facilitate fitting the data into LSTM. Here, I’ll use bias regularizer that regularizes over the bias vector as an example.
 <br></br>
 
 ```pythonn
