@@ -692,18 +692,60 @@ view raw
 
 만약 당신이 Jupyter notebook을 사용하고 있다면, 아래의 figure8에 보이는 표를 결과로부터 바로 확인해볼 수 있습니다.
 
+<br></br>
+
 ![Result of Running Bias Regularizer](./media/21_7.png)
 
 *figure8 : Result of Running Bias Regularizer*
 
 <br></br>
 
-비교를 위해 결과를 시각화하기 위해, boxplot을 사용하면 됩니다:
-
 ```python
 results.describe().boxplot()
 plt.show()
 ```
 
+<br></br>
+
+비교를 위해 결과를 시각화하기 위해, boxplot을 사용하면 됩니다:
+
+![Result of Running Bias Regularizer](./media/21_8.png)
+
+*figure9*
+
+<br></br>
+
+비교에 따르면 bias 벡터에 대한 계수 0.01의 L2 정규화기가 최선의 결과를 도출하는 것으로 보입니다.
+activation, bias, 커널, recurrent 매트릭스 등의 모든 regularizer 중에서 최상의 조합을 확인하려면 모든 매트릭스를 하나씩 테스트해야 하는데, 이는 현재 하드웨어 구성으로는 어려워 보입니다. 결과적으로, 저는 그것을 미래 계획으로 남길 것입니다.
+
+<br></br>
+<br></br>
+
+#### Conclusion
+
+당신은 아래의 튜토리얼을 진행하면서 아래의 5가지를 배웠습니다.
+
+1. 실시간 비트코인 데이터 수집 방법.
+2. 학습 및 테스트를 위한 데이터 준비 방법.
+3. 딥러닝을 사용하여 비트코인의 가격을 예측하는 방법.
+4. 예측 결과를 시각화하는 방법.
+5. 모델에 정규화를 적용하는 방법.
+
+이 튜토리얼의 향후 작업은 최고의 모델에 맞는 최고의 hyperparameter(하이퍼파라미터)를 찾고, 소셜 미디어를 사용하여 추세를 보다 정확하게 예측하는 것입니다. 제가 미디엄으로 게시하는 것은 이번이 처음입니다. 실수나 질문이 있을 경우 주저하지 말고 아래에 코멘트를 남겨 주십시오.
+
+더 많은 정보를 원하시면, 제 [Github](https://github.com/khuangaf/CryptocurrencyPrediction)을 참조하시고, 더 위대한 딥러닝 블로그 포스트들을 위해 twitter에서 저를 follow 하는 것을 잊지마세요!
+
+<br></br>
+<br></br>
+
 #### 참고자료
 [RNN과 LSTM을 이해해보자!](https://ratsgo.github.io/natural%20language%20processing/2017/03/09/rnnlstm/)
+[원문 github 코드](https://github.com/khuangaf/CryptocurrencyPrediction)
+
+<br></br>
+
+> 이 글은 2018 컨트리뷰톤에서 Contribute to Keras 프로젝트로 진행했습니다.
+>
+> Translator: 박정현
+>
+> Translator email : parkjh688@gmail.com
