@@ -321,6 +321,6 @@ evaluate_error(pair_C_ensemble_model)
 
 이 기사를 쓸 때, 몇가지 부분을 변경하여서 (대부분 말투와 오타입니다.) 쥬피터 노트북과 내용이 조금 다를 수 있습니다.  
 
-이 글은 2018 컨트리뷰톤에서 [`Contributue to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.
-Translator : [김설기](https://github.com/5taku) , [송묵형]()
-Translator Email : [ksulki@gmail.com](mailto:ksulki@gmail.com),[firefinger07@gmail.com](mailto:firefinger07@gmail.com)
+> 이 글은 2018 컨트리뷰톤에서 [`Contributue to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.
+> Translator : [김설기](https://github.com/5taku) , [mike2ox](https://github.com/mike2ox) (Moonhyeok Song)
+> Translator Email : [ksulki@gmail.com](ksulki@gmail.com),[firefinger07@gmail.com](mailto:firefinger07@gmail.com)
