@@ -13,21 +13,21 @@
 저는 처음 케라스(Keras)를 사용하기 시작했을 때 케라스의 API와 사랑에 빠지게 되었습니다. 
 케라스의 API는 scikit-learn처럼 간단하고 우아하지만, 동시에 최첨단의 심층 신경망(Deep Neural Network, DNN)들을 구현하고 학습시킬 수 있을 만큼 강력하기 때문입니다. 
 
-하지만, 케라스를 사용하며 한 가지 가장 아쉬운 점은 바로 멀티 GPU 환경에서 케라스를 사용하는 것이 까다로울 수 있다는 것입니다.   
+하지만, 케라스를 사용하며 한 가지 아쉬운 점이 있다면 바로 멀티 GPU 환경에서 케라스를 사용하는 것이 까다로울 수 있다는 것입니다.   
 
 만약 테아노(Theano)를 사용하는 유저들이라면, 이 주제는 테아노에서는 불가능한 것에 대해 다루기 때문에 신경쓰지 않으셔도 됩니다.
 텐서플로우(TensorFlow)를 사용한다면 가능성은 있지만, 멀티 GPU를 사용하여 네트워크를 학습시키려면 수 많은 보일러플레이트 코드와 
 수정이 필요할 수 있다는 단점이 있죠. 
 
-저는 케라스로 멀티 GPU 학습을 할 때는 MXNet 백엔드를 사용하는 것(혹은 MXNet 라이브러리를 직접 사용)을 선호했었지만, 
-그러기 위해서는 더 많은 환경설정 작업이 필요했습니다.
+그래서 저는 지금까지 케라스로 멀티 GPU 학습을 할 때는 MXNet 백엔드를 사용하는 것(심지어 MXNet 라이브러리를 직접 사용하는 것)을 선호했었지만, 
+이 역시 여전히 많은 환경설정 작업이 필요했습니다.
 
-하지만 이 모든 것은 **케라스 v2.0.9**에서 멀티 GPU를 텐서플로우 백엔드에서 지원한다는
-[François Chollet의 발표](https://twitter.com/fchollet/status/918205049225936896)와 함께 바뀌었습니다.
-대부분의 공로는 [@kuza55](https://twitter.com/kuza55)와 그의 [keras-extras](https://github.com/kuza55/keras-extras) 리포지토리에 있습니다.
+그러나 이 모든 것은 **케라스 v2.0.9**에서 멀티 GPU를 텐서플로우 백엔드에서 지원한다는
+[François Chollet의 발표](https://twitter.com/fchollet/status/918205049225936896)와 함께 바뀌었습니다 
+([@kuza55](https://twitter.com/kuza55)와 그의 [keras-extras](https://github.com/kuza55/keras-extras) 리포지토리 덕분입니다).
 
-저는 위의 멀티 GPU 기능을 거의 근 1년간 사용하고 테스트해오고 있었습니다. 
-그리고 이제 이 기능이 케라스에 공식적으로 포함되게 되어 매우 기쁩니다!
+저는 [@kuza55](https://twitter.com/kuza55)의 멀티 GPU 기능을 근 1년간 사용해오고 있었고,
+이제 이 기능이 케라스에 공식적으로 포함되었다는 소식을 듣게 되어 매우 기쁩니다!
 
 이번 블로그 포스트의 나머지 부분에서는 케라스, 파이썬(Python) 그리고 딥러닝(Deep Learning)을 사용하여 
 이미지를 분류하기 위해 합성곱 신경망(Convolutional Neural Network)을 학습하는 법에 대해 알아보도록 하겠습니다. 
@@ -39,8 +39,8 @@
 **Figure 1**: MiniGoogLeNet 아키텍처는 GoogLeNet/Inception의 축소된 버전입니다. 
 이미지 크레딧 [@ericjang11](https://twitter.com/ericjang11), [@pluskid](https://twitter.com/pluskid).
 
-**Figure 1**에서는 각각의 합성곱(좌측), 인셉션(Inception, 중앙) 그리고 다운 샘플(Downsample, 우측) 모듈들을 확인할 수 있고,
-그 다음 위 모듈들의 조합으로 만들어진 MiniGoogLeNet 아키텍처(하단)를 볼 수 있습니다. 
+**Figure 1**에서는 합성곱(좌측), 인셉션(Inception, 중앙) 그리고 다운 샘플(Downsample, 우측)에 해당하는 각 모듈들을 확인할 수 있고,
+하단에서그 모듈들의 조합으로 만들어진 MiniGoogLeNet 아키텍처를 볼 수 있습니다. 
 해당 모델은 포스트의 후반부의 다중 GPU 실험에 사용될 예정입니다. 
 
 MiniGoogLeNet에서 사용된 인셉션 모듈은 [Szegedy et al.](https://arxiv.org/abs/1409.4842)이 설계한 인셉션 모듈의 변형입니다. 
@@ -56,20 +56,21 @@ MiniGoogLeNet에서 사용된 인셉션 모듈은 [Szegedy et al.](https://arxiv
 케라스로 MiniGoogLeNet을 구현하는 것에 대한 자세한 내용은 이번 포스트에서 다루는 내용의 범위를 벗어나기 때문에,
 해당 모델의 원리(그리고 구현하는 법)에 관심이 있으시다면 제 책을 참고하시길 바랍니다. 
 
-그렇지 않으면 원문의 하단에 있는 ***"다운로드"*** 섹션에서 소스 코드를 다운로드할 수 있습니다. 
+그렇지 않다면 원문의 하단에 있는 ***"다운로드"*** 섹션에서 소스 코드를 다운로드할 수 있습니다. 
 
-### Training a deep neural network with Keras and multiple GPUs
+### 케라스와 멀티 GPU로 심층 신경망 학습하기
 
-Let’s go ahead and get started training a deep learning network using Keras and multiple GPUs.
+이제 케라스와 멀티 GPU를 사용하여 심층 신경망을 학습해 보겠습니다.  
 
-To start, you’ll want to ensure that you have Keras 2.0.9 (or greater) installed and updated in your virtual environment (we use a virtual environment named dl4cv inside my book):
+해당 튜토리얼을 진행하려면, 먼저 가상 환경에 설치된 **케라스의 버전이 2.0.9 이상인지 확인**해야 합니다 
+(제 책에서는 `dl4cv`라는 이름의 가상 환경을 사용합니다). 
 
 ```python
 $ workon dl4cv
 $ pip install --upgrade keras
 ```
 
-From there, open up a new file, name it train.py , and insert the following code:
+이제 `train.py`라는 새 파일을 만들고, 아래와 같이 코드를 작성합니다. 
 
 ```python
 # set the matplotlib backend so figures can be saved in the background
@@ -91,11 +92,13 @@ import numpy as np
 import argparse
 ```
 
-If you’re using a headless server, you’ll want to configure the matplotlib backend on Lines 3 and 4 by uncommenting the lines. This will enable your matplotlib plots to be saved to disk. If you are not using a headless server (i.e., your keyboard + mouse + monitor are plugged in to your system, you can keep the lines commented out).
+헤드리스 서버를 사용하는 경우, 3, 4번째 행의 코드로 maplotlib의 백엔드를 설정해야 합니다. 
+이렇게 하면 matplotlib의 그림을 디스크에 저장할 수 있게됩니다.
+헤드리스 서버를 사용하지 않는다면(즉, 키보드와 마우스 그리고 모니터가 시스템에 연결되어 있는 경우) 위의 코드를 그대로 사용하셔도 됩니다. 
 
-From there we import our required packages for this script.
+백엔드 설정이 끝나면, 이 스크립트에 필요한 패키지들을 가져옵니다. 
 
-Line 7 imports the MiniGoogLeNet from my pyimagesearch  module (included with the download available in the “Downloads” section).
+7행에서는 MiniGoogLeNet을 제 `pyimagesearch`모듈에서 가져옵니다 (원문의 ***"다운로드"*** 섹션에서 받으실 수 있습니다).
 
 Another notable import is on Line 13 where we import the CIFAR10 dataset. This helper function will enable us to load the CIFAR-10 dataset from disk with just a single line of code.
 
