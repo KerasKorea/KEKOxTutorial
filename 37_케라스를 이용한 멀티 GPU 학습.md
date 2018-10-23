@@ -29,8 +29,8 @@
 저는 [@kuza55](https://twitter.com/kuza55)의 멀티 GPU 기능을 근 1년간 사용해오고 있었고,
 이제 이 기능이 케라스에 공식적으로 포함되었다는 소식을 듣게 되어 매우 기쁩니다!
 
-이번 블로그 포스트의 나머지 부분에서는 케라스, 파이썬(Python) 그리고 딥러닝(Deep Learning)을 사용하여 
-이미지를 분류하기 위해 합성곱 신경망(Convolutional Neural Network)을 학습하는 법에 대해 알아보도록 하겠습니다. 
+이번 블로그 포스트의 나머지 부분에서는 케라스, 파이썬(Python) 그리고 딥러닝을 사용하여 
+이미지를 분류하기 위해 합성곱 신경망(Convolutional Neural Network, CNN)을 학습하는 법에 대해 알아보도록 하겠습니다. 
 
 ### MiniGoogLeNet 딥러닝 아키텍처
 
@@ -39,7 +39,7 @@
 **Figure 1**: MiniGoogLeNet 아키텍처는 GoogLeNet/Inception의 축소된 버전입니다. 
 이미지 크레딧 [@ericjang11](https://twitter.com/ericjang11), [@pluskid](https://twitter.com/pluskid).
 
-**Figure 1**에서는 합성곱(좌측), 인셉션(Inception, 중앙) 그리고 다운 샘플(Downsample, 우측)에 해당하는 각 모듈들을 확인할 수 있고,
+**Figure 1**에서는 합성곱(Convolution, 좌측), 인셉션(Inception, 중앙) 그리고 다운 샘플(Downsample, 우측)에 해당하는 각 모듈들을 확인할 수 있고,
 하단에서그 모듈들의 조합으로 만들어진 MiniGoogLeNet 아키텍처를 볼 수 있습니다. 
 해당 모델은 포스트의 후반부의 다중 GPU 실험에 사용될 예정입니다. 
 
@@ -65,7 +65,7 @@ MiniGoogLeNet에서 사용된 인셉션 모듈은 [Szegedy et al.](https://arxiv
 해당 튜토리얼을 진행하려면, 먼저 가상 환경에 설치된 **케라스의 버전이 2.0.9 이상인지 확인**해야 합니다 
 (제 책에서는 `dl4cv`라는 이름의 가상 환경을 사용합니다). 
 
-```python
+```
 $ workon dl4cv
 $ pip install --upgrade keras
 ```
@@ -92,17 +92,18 @@ import numpy as np
 import argparse
 ```
 
-헤드리스 서버를 사용하는 경우, 3, 4번째 행의 코드로 maplotlib의 백엔드를 설정해야 합니다. 
-이렇게 하면 matplotlib의 그림을 디스크에 저장할 수 있게됩니다.
+헤드리스 서버를 사용하는 경우, 3, 4번째 행의 코드로 `matplotlib`의 백엔드를 설정해야 합니다. 
+이렇게 하면 `matplotlib`의 그림을 디스크에 저장할 수 있게됩니다.
 헤드리스 서버를 사용하지 않는다면(즉, 키보드와 마우스 그리고 모니터가 시스템에 연결되어 있는 경우) 위의 코드를 그대로 사용하셔도 됩니다. 
 
 백엔드 설정이 끝나면, 이 스크립트에 필요한 패키지들을 가져옵니다. 
 
 7행에서는 MiniGoogLeNet을 제 `pyimagesearch`모듈에서 가져옵니다 (원문의 ***"다운로드"*** 섹션에서 받으실 수 있습니다).
 
-Another notable import is on Line 13 where we import the CIFAR10 dataset. This helper function will enable us to load the CIFAR-10 dataset from disk with just a single line of code.
+또 한가지 주목할 만한 점은, 13행에서 [CIFAR-10 데이터 세트](https://www.cs.toronto.edu/~kriz/cifar.html)를 가져오는 부분입니다.
+케라스를 사용하면 단 한줄의 코드만으로 CIFAR-10 데이터 세트를 디스크에서 로드할 수 있습니다. 
 
-Now let’s parse our command line arguments:
+이제, 스크립트에 필요한 인자들을 파싱하기 위한 명령줄 인터페이스를 작성해 보겠습니다.  
 
 ```python
 # construct the argument parse and parse the arguments
@@ -117,13 +118,15 @@ args = vars(ap.parse_args())
 G = args["gpus"]
 ```
 
-We use argparse  to parse one required and one optional argument on Lines 20-25:
+파싱에는 `argparse` 모듈을 사용하며, 하나의 *필수* 인자와 하나의 *선택적* 인자를 파싱해올 것입니다.
 
---output : The path to the output plot after training is complete.
---gpus : The number of GPUs used for training.
-After loading the command line arguments, we store the number of GPUs as G  for convenience (Line 28).
+* `--output` : 학습이 완료된 후 관련 플롯들을 저장할 경로입니다.
+* `--gpus` : 학습에 사용될 GPU의 개수입니다.
 
-From there, we initialize two important variables used to configure our training process, followed by defining poly_decay , a learning rate schedule function equivalent to Caffe’s polynomial learning rate decay:
+명령줄 인자들을 로드한 후에는, 편의를 위해 GPU의 개수를 변수 `G`에 저장합니다.  
+
+이제 학습 프로세스를 구성하는데 사용되는 두 가지 중요한 변수를 초기화하고,
+이어서 [카페(Caffe)의 학습률의 다항적 감소(Polynomial learning rate decay)](https://stackoverflow.com/questions/30033096/what-is-lr-policy-in-caffe)에 해당하는 `poly_decay` 학습률 스케줄러를 정의합니다. 
 
 ```python
 # definine the total number of epochs to train for along with the
