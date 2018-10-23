@@ -53,6 +53,12 @@
 
 
 
+![](https://cdn-images-1.medium.com/max/1600/1*yc8qGb3XMoHo4V2Pb5Gt8w.png)
+
+(의역) "야레야레.. 온라인 신용카드 결제 승인은 간단하게 나지 않는다고?!"
+
+
+
 [Nilson Report](https://www.nilsonreport.com/upload/content_promo/The_Nilson_Report_10-17-2016.pdf)에 따르면, 신용카드 사기로 인한 연간 피해액은 국제적으로 218억 달러에 달합니다(2015년 기준). 당신이 사기꾼이라면 아마 매우 운이 좋다고 생각할지도 모르겠습니다. 같은 해에 미국에서는 100달러당 12센트를 도둑맞았으니까요. 우리의 친구 미셸은 이 때문에 심각한 문제들을 해결해야 할지도 모릅니다.
 
 
@@ -280,7 +286,7 @@ Autoencoder는 처음에는 이상해보일 수도 있습니다. 이러한 모�
 
 
 
-처음에는 이렇게 하는 것이 대수롭지 않게 보일 수도 있지만, 우리가 특정한 데이터의 압축된 표상(representation)을 학습시키고 그 구조(structure)를 찾고 싶어한다는 점이 중요합니다. 이것은 모델 안에 있는 은닉 유닛(hidden unit)의 수를 제한하는 방법을 통해 가능합니다. 이런 종류의 autoencoder들은 *미완성(undercomplete)*이라 불립니다.
+처음에는 이렇게 하는 것이 대수롭지 않게 보일 수도 있지만, 우리가 특정한 데이터의 압축된 표상(representation)을 학습시키고 그 구조(structure)를 찾고 싶어한다는 점이 중요합니다. 이것은 모델 안에 있는 은닉 유닛(hidden unit)의 수를 제한하는 방법을 통해 가능합니다. 이런 종류의 autoencoder들은 *미완성(undercomplete)* 이라 불립니다.
 
 
 
