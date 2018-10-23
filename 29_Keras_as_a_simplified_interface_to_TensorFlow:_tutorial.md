@@ -221,6 +221,64 @@ print layer.trainable_weights  # TensorFlow 변수 리스트
 
 ---------
 
+## II : TensorFlow에서 Keras 모델 사용
+
+### TensorFlow 워크플로우에서 사용할 Keras Sequential 모델 변환
+당신의 TensorFlow 프로젝트에서 재사용하려는 Keras Sequential 모델을 발견했다면(예를 들어, [사전 훈련된 가중치가 있는 VGG16 이미지 분류기](https://gist.github.com/auth/github/callback?return_to=https://gist.github.com/baraldilorenzo/07d7802847aaad0a35d3&browser_session_id=fc1be80a01c8f9891f2b3014603d4540d13c7cca&code=0454cedef462695746de&state=73cf1fe9c2b34855e963de4e898c49a7dd64c2cc205fa16fc5ff8f86c2cbe335)라면), 어떻게 진행해야할까요?
+
+우선, Theano로 훈련된 컨볼루션을 포함한 사전훈련된 가중치(`Convolution2D` 또는 `Convolution1D` 레이어)가 포함되어 있다면 가중치를 로드할 때 컨볼루션 커널을 뒤집어야합니다. 이것은 Theano와 TensorFlow가 서로 다른 방식으로 컨볼루션을 구현하기 때문입니다 (실제로 TensorFlow는 Caffe와 같은 방식으로 상관 관계를 구현합니다). [이 경우, 당신이 해야할일에 대한 간단한 가이드가 있습니다](https://github.com/keras-team/keras/wiki/Converting-convolution-kernels-from-Theano-to-TensorFlow-and-vice-versa).
+
+다음 Keras 모델에서 특정 TensorFlow 텐서 인 `my_input_tensor`를 입력값으로 사용하도록 수정한다고 가정해봅시다. 이 입력 텐서는 예를 들어 데이터 피더 연산이거나 이전의 TensorFlow 모델의 출력일 수 있습니다.
+
+```
+# 원본 케라스 모델 
+model = Sequential()
+model.add(Dense(32, activation='relu', input_dim=784))
+model.add(Dense(10, activation='softmax'))
+```
+
+`keras.layers.InputLayer`를 사용하여 사용자 정의 TensorFlow 플레이스홀더 위에 Sequential 모델을 작성한 다음 나머지 모델을 빌드하면됩니다. 
+
+from keras.layers import InputLayer
+
+```
+#  수정된 케라스 모델
+model = Sequential()
+model.add(InputLayer(input_tensor=custom_input_tensor,
+                     input_shape=(None, 784)))
+
+# 위와 같이 남은 모델 빌드
+model.add(Dense(32, activation='relu'))
+model.add(Dense(10, activation='softmax'))
+```
+
+이 단계에서 `model.load_weights (weights_file)`를 호출하여 사전 훈련된 가중치를 로드할 수 있습니다.
+
+그런 다음 Sequential 모델의 출력 텐서를 수집할 것입니다.
+```python
+output_tensor = model.output
+```
+
+이제 `output_tensor` 과 기타등등 위에 새로운 TensorFlow 작업을 추가 할 수 있습니다.
+
+### TensorFlow 텐서에서 Keras 모델 호출하기
+
+Keras 모델은 레이어와 동일한 역할을 하므로 TensorFlow 텐서에서 호출할 수 있습니다.
+```python
+from keras.models import Sequential
+
+model = Sequential()
+model.add(Dense(32, activation='relu', input_dim=784))
+model.add(Dense(10, activation='softmax'))
+
+# 이렇게도 동작합니다!
+x = tf.placeholder(tf.float32, shape=(None, 784))
+y = model(x)
+```
+
+참고 : Keras 모델을 호출하면 아키텍처와 가중치를 모두 재사용합니다. 텐서의 모델을 호출할떄, 입력 텐서 위에 새로운 TF연산을 생성하고 이 연산은 이미 모델에 있는 TF 변수 인스턴스를 재사용합니다.
+
+
 
 
 
