@@ -40,6 +40,7 @@ sequence-to-sequence(Seq2Seq) 학습은 한 도메인(예: 영어 문장)에서 
 
 ![seq2seq-teacher-forcing](https://raw.githubusercontent.com/KerasKorea/KEKOxTutorial/master/media/28_1.png)
 
+
 추론 방식(즉: 알 수 없는 입력 시퀀스를 해석하려고 할 때)에선 약간 다른 처리를 거치게 됩니다.
 
 - 1) 입력 시퀀스를 상태 벡터들로 바꿉니다.
