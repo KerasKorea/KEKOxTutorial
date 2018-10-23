@@ -19,14 +19,18 @@
 텐서플로우(TensorFlow)를 사용한다면 가능성은 있지만, 멀티 GPU를 사용하여 네트워크를 학습시키려면 수 많은 보일러플레이트 코드와 
 수정이 필요할 수 있다는 단점이 있죠. 
 
+저는 케라스로 멀티 GPU 학습을 할 때는 MXNet 백엔드를 사용하는 것(혹은 MXNet 라이브러리를 직접 사용)을 선호했었지만, 
+그러기 위해서는 더 많은 환경설정 작업이 필요했습니다.
 
-I preferred using the mxnet backend (or even the mxnet library outright) to Keras when performing multi-GPU training, but that introduced even more configurations to handle.
+하지만 이 모든 것은 **케라스 v2.0.9**에서 멀티 GPU를 텐서플로우 백엔드에서 지원한다는
+[François Chollet의 발표](https://twitter.com/fchollet/status/918205049225936896)와 함께 바뀌었습니다.
+대부분의 공로는 [@kuza55](https://twitter.com/kuza55)와 그의 [keras-extras](https://github.com/kuza55/keras-extras) 리포지토리에 있습니다.
 
-All of that changed with François Chollet’s announcement that multi-GPU support using the TensorFlow backend is now baked in to Keras v2.0.9. Much of this credit goes to @kuza55 and their keras-extras repo.
+저는 위의 멀티 GPU 기능을 거의 근 1년간 사용하고 테스트해오고 있었습니다. 
+그리고 이제 이 기능이 케라스에 공식적으로 포함되게 되어 매우 기쁩니다!
 
-I’ve been using and testing this multi-GPU function for almost a year now and I’m incredibly excited to see it as part of the official Keras distribution.
-
-In the remainder of today’s blog post I’ll be demonstrating how to train a Convolutional Neural Network for image classification using Keras, Python, and deep learning.
+이번 블로그 포스트의 나머지 부분에서는 케라스, 파이썬(Python) 그리고 딥러닝(Deep Learning)을 사용하여 
+이미지를 분류하기 위해 합성곱 신경망(Convolutional Neural Network)을 학습하는 법에 대해 알아보도록 하겠습니다. 
 
 ### The MiniGoogLeNet deep learning architecture
 
