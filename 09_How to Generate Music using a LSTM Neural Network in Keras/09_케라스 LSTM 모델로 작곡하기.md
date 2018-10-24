@@ -1,6 +1,5 @@
 ## 케라스 LSTM 모델로 작곡하기(How to Generate Music using a LSTM Neural Network in Keras)
 [원문 링크](https://towardsdatascience.com/how-to-generate-music-using-a-lstm-neural-network-in-keras-68786834d4c5)
-
 > 이 문서는 순환신경망(RNN)인 `LSTM`과 Python 음악 툴킷인 `music21`을 이용해 작곡하는 방법을 설명합니다.
 2018년 8월을 기준으로, 동작하지 않는 코드는 동작하지 않는 부분을 동작하도록 변형하였기 때문에 코드는 원문과 같지 않을 수 있습니다. 또한 그대로 번역한 것이 아닌 필요한 설명과 합쳐서 다시 쓴 글이기 때문에 원문과 다를 수 있습니다. 모든 이미지들은 원문에서 가져온 이미지입니다.
 원문에서 나온 코드의 이해를 돕기 위해 코드에 주석을 붙인 jupyter notebook 파일을 첨부합니다.
@@ -33,10 +32,12 @@
 > 이 문서에서는 Anaconda 패키지를 사용하여 가상환경을 만들어서 사용했고, Anaconda를 사용하면 music21을 설치할 필요가 없습니다.
 >
 > Anaconda 가상환경에서 music21을 설치하려고 한다면 아래와 같이 이미 설치되어 있다는 메세지가 나올 것입니다.
+
 >
 >(issue_09)  junghyun@MacBook-Pro-4/~/KEKOxTutorial/issue_09/  pip install music21
 Requirement already satisfied: music21 in /anaconda3/lib/python3.6/site-packages (5.1.0)
 >
+
 > music21을 설치할 때는 꼭 최신 버전을 설치하세요! python2 -> python3 으로 코드 포팅 과정에서 버그 이슈가 있었기 때문에, 해당 이슈가 해결이된 가장 최신의 라이브러리를 다운 받아야 합니다.
 
 #### Keras

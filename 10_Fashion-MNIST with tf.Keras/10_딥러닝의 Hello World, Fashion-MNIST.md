@@ -19,10 +19,14 @@
 <br>
 
 [Fashion-MNIST](https://github.com/zalandoresearch/fashion-mnist)는 기존의 [MNIST](http://yann.lecun.com/exdb/mnist/) 데이터셋(10개 카테고리의 손으로 쓴 숫자)을 대신해 사용할 수 있습니다. 그 이유는 MNIST와 동일한 이미지 크기(28x28)이며 동일한 학습 셋 (60,000), 테스트 셋(10,000)으로 나눌 수 있기 때문입니다. 따라서 딥러닝의 "hello world" 튜토리얼이라고 할 수 있습니다.
+
 >기계학습 분야에서 유명한 데이터셋인 MNIST(손글씨 숫자 이미지)는 0부터 9까지의 숫자 이미지로 구성되어 있습니다. 학습 이미지가 60,000장, 테스트 이미지가 10,000장으로 준비되어 있고, Fashion-MNIST와 마찬가지로 28x28 크기의 회색조 이미지입니다.
+
+<br>
 
 [Keras](https://keras.io/)는 인기있는 고수준(high-level)의 딥러닝 API으로 알려져있습니다. 독립적인 오픈 소스 프로젝트일 뿐만 아니라 TensorFlow로 빌드 될 수 있으며, ```tf.keras```를 임포트해 훌륭한 Keras 프로그램을 작성할 수 있습니다. ```tf.keras```를 사용하면 실행 및 ```tf.data```와 같은 기능을 활용할 수 있습니다. 여기서는 기초를 다룰 것 입니다.
 
+<br>
 저는 몇가지의 딥러닝 용어에 관해 검토할 것입니다. 만약 당신이 딥러닝 입문자라면, 저의 튜토리얼과 저수준(low-level)의 TensorFlow API을 사용한 훨씬 오래된 [MNIST 튜토리얼](https://www.tensorflow.org/tutorials/)을 비교하고 대조해서 보길 권합니다. 얼마나 쉬운 일이 일어났는지 볼 수 있기 때문입니다.  
 
 <br>
@@ -77,6 +81,7 @@ print("x_train shape:", x_train.shape, "y_train shape:", y_train.shape)
 
 <br>
 
+
 ### 데이터 시각화 (Visualize the data)
 
 제가 Jupyter Notebook에서 가장 좋아하는 기능은 시각화 입니다. matplotlib 라이브러리의 ```imshow()```를 사용해 학습 데이터셋의 이미지를 시각화하여 데이터셋의 이미지 중 하나를 살펴볼 수 있습니다. 각 이미지는 28x28 모양의 흑백 이미지입니다.
@@ -116,6 +121,7 @@ print("x_train shape:", x_train.shape, "y_train shape:", y_train.shape)
  ![](../media/10_2.png)
 
 <br>
+
 
 ### 데이터 정규화 (Data normalization)
 
@@ -217,6 +223,7 @@ model.compile(loss='categorical_crossentropy',
 
 <br>
 
+
 ### 모델 학습시키기 (Train the model)
 
 `fit`을 사용하여 배치(batch) 사이즈는 64, 에포크(epochs)는 10으로 모델을 학습시킵니다. `ModelCheckpoint API`를 사용하여 에폭(epoch)마다 모델을 저장할 수 있습니다. 검증 정확도(validation accuracy)가 향상되었을 때 저장하려면 `save_best_only = True`로 설정하면 됩니다.
@@ -238,6 +245,7 @@ model.fit(x_train,
 
 ### 가장 높은 검증 정확도의 모델 불러오기(Load Model with the best validation accuracy)
 
+
 ```python
 # 가장 높은 검증 정확도의 가중치 불러오기
 model.load_weights('model.weights.best.hdf5')
@@ -258,6 +266,7 @@ print('\n', 'Test accuracy:', score[1])
 ```
 
 <br></br>
+
 
 ### 예측값 시각화하기 (Visualize the predictions)
 
