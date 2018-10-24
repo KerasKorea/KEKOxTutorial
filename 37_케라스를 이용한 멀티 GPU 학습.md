@@ -412,17 +412,19 @@ sys     7m48.890s
 
 ### 요약
 
-In today’s blog post we learned how to use multiple GPUs to train Keras-based deep neural networks.
+오늘 블로그 포스트에서는 케라스 기반의 심층 신경망을 훈련시키기 위해 여러 개의 GPU를 사용하는 방법을 배워봤습니다. 
 
-Using multiple GPUs enables us to obtain quasi-linear speedups.
+여러 개의 GPU를 사용하면 선형에 가까운 시간 단축을 얻을 수 있습니다.
 
-To validate this, we trained MiniGoogLeNet on the CIFAR-10 dataset.
+이를 증명하기 위해, 우리는 MiniGoogLeNet을 CIFAR-10 데이터 세트에 대해 학습시켜 보았습니다.
 
-Using a single GPU we were able to obtain 63 second epochs with a total training time of 74m10s.
+단일 GPU를 사용하여 학습을 진행한 경우, 매 에폭마다 63초, 총 74분 10초의 시간이 걸렸지만,
+멀티 GPU를 사용한 경우 전체 학습 시간을 19분 3초까지 줄일 수 있었습니다. 
 
-However, by using multi-GPU training with Keras and Python we decreased training time to 16 second epochs with a total training time of 19m3s.
-
-Enabling multi-GPU training with Keras is as easy as a single function call — I recommend you utilize multi-GPU training whenever possible. In the future I imagine that the multi_gpu_model  will evolve and allow us to further customize specifically which GPUs should be used for training, eventually enabling multi-system training as well.
+함수를 한번 호출하는 것만으로 케라스에서 멀티 GPU 학습을 할 수 있기 때문에, 
+저는 가능하다면 언제든지 여러 개의 GPU를 사용해 학습을 하시는 것을 추천합니다. 
+저는 앞으로 `multi_gpu_model`이 학습에 사용될 GPU를 특정할 수 있는 수준까지 발전하여,
+결국 멀티 시스템 트레이닝까지 가능하게 할 것이라 생각합니다. 
 
 ### 딥러닝을 더 깊게 배워볼 준비가 되셨나요? 저만 따라오세요.
 
