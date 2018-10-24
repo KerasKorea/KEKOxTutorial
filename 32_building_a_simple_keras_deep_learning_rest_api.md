@@ -116,7 +116,7 @@ def predict():
             image = flask.request.files["image"].read()
             image = Image.open(io.BytesIO(image))
 
-            # 분류를 위해 이미지를 사전 처리합니다.
+            # 분류를 위해 이미지를 전처리합니다.
             image = prepare_image(image, target=(224, 224))
 
             # 입력 이미지를 분류하고 클라이언트로부터 반환되는 예측치들의 리스트를 초기화 합니다.
