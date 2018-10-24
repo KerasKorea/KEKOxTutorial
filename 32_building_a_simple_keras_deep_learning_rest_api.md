@@ -25,7 +25,7 @@
 
 ---
 #### 개발 환경 구축
-우선 Keras가 컴퓨터에 이미 구성 / 설치되어 있다고 가정하려 합니다. 만약 아닐 경우, [공식 설치 지침](https://keras.io/#installation)에 따라 Keras를 설치하세요.
+우선 Keras가 컴퓨터에 이미 구성/설치되어 있다고 가정합니다. 만약 아닐 경우, [공식 설치 지침](https://keras.io/#installation)에 따라 Keras를 설치하세요.
 
 여기서부터, python 웹 프레임워크인 [Flask](http://flask.pocoo.org/)를 설치해야 API 엔드포인트를 구축할 수 있습니다. 또한, API도 사용할 수 있도록 [요청](http://docs.python-requests.org/en/master/)이 필요합니다.
 
