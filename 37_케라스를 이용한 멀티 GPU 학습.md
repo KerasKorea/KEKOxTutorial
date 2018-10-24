@@ -329,7 +329,7 @@ plt.close()
 참고해 보시는 것을 추천합니다.
 
 
-### Keras multi-GPU results
+### 멀티 GPU 학습 결과
 
 이제 우리의 노력의 결과를 확인해볼 차례입니다.
 
@@ -410,7 +410,7 @@ sys     7m48.890s
 이는 기계 학습의 확률적인 부분에 기인한 것으로, 만약 이러한 과정을 수백 번 반복하여 평균을 산출하면, 
 거의 동일한 성능을 보일 것입니다.
 
-### Summary
+### 요약
 
 In today’s blog post we learned how to use multiple GPUs to train Keras-based deep neural networks.
 
@@ -424,7 +424,7 @@ However, by using multi-GPU training with Keras and Python we decreased training
 
 Enabling multi-GPU training with Keras is as easy as a single function call — I recommend you utilize multi-GPU training whenever possible. In the future I imagine that the multi_gpu_model  will evolve and allow us to further customize specifically which GPUs should be used for training, eventually enabling multi-system training as well.
 
-### Ready to take a deep dive into deep learning? Follow my lead.
+### 딥러닝을 더 깊게 배워볼 준비가 되셨나요? 저만 따라오세요.
 
 If you’re interested in learning more about deep learning (and training state-of-the-art neural networks on multiple GPUs), be sure to take a look at my new book, Deep Learning for Computer Vision with Python.
 
