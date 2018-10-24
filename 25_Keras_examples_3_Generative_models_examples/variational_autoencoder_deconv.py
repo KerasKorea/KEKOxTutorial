@@ -56,7 +56,7 @@ def plot_results(models,
                  data,
                  batch_size=128,
                  model_name="vae_mnist"):
-    """2차원 은닉 벡터의 함수로서 라벨과 MNIST 숫자를 표시
+    """2차원 은닉 벡터의 함수로서 라벨과 MNIST 숫자를 표시합니다.
 
     # Arguments:
         models (tuple): 인코더와 디코더 모델
@@ -131,7 +131,7 @@ latent_dim = 2
 epochs = 30
 
 # VAE model = encoder + decoder
-# 인코더 모델 설계
+# 인코더 모델을 설계합니다
 inputs = Input(shape=input_shape, name='encoder_input')
 x = inputs
 for i in range(2):
@@ -145,7 +145,7 @@ for i in range(2):
 # 디코더 모델을 설계하기 위해 입력값의 형태를 가져오기.
 shape = K.int_shape(x)
 
-# Q(z|X)에서 은닉 벡터 생성하기
+# Q(z|X)에서 은닉 벡터을 생성합니다.
 x = Flatten()(x)
 x = Dense(16, activation='relu')(x)
 z_mean = Dense(latent_dim, name='z_mean')(x)
@@ -155,12 +155,12 @@ z_log_var = Dense(latent_dim, name='z_log_var')(x)
 # Tensorflow 백엔드에서는 "output_shape"이 필요하지 않습니다.
 z = Lambda(sampling, output_shape=(latent_dim,), name='z')([z_mean, z_log_var])
 
-# 인코더 모델을 인스턴스화(instantiate)
+# 인코더 모델을 인스턴스화(instantiate) 합니다.
 encoder = Model(inputs, [z_mean, z_log_var, z], name='encoder')
 encoder.summary()
 plot_model(encoder, to_file='vae_cnn_encoder.png', show_shapes=True)
 
-# 디코더 모델 설계
+# 디코더 모델를 설계합니다.
 latent_inputs = Input(shape=(latent_dim,), name='z_sampling')
 x = Dense(shape[1] * shape[2] * shape[3], activation='relu')(latent_inputs)
 x = Reshape((shape[1], shape[2], shape[3]))(x)
@@ -179,12 +179,12 @@ outputs = Conv2DTranspose(filters=1,
                           padding='same',
                           name='decoder_output')(x)
 
-# 디코더 모델 인스턴스화
+# 디코더 모델을 인스턴스화 합니다.
 decoder = Model(latent_inputs, outputs, name='decoder')
 decoder.summary()
 plot_model(decoder, to_file='vae_cnn_decoder.png', show_shapes=True)
 
-# VAE 모델 인스턴스화
+# VAE 모델을 인스턴스화 합니다.
 outputs = decoder(encoder(inputs)[2])
 vae = Model(inputs, outputs, name='vae')
 
@@ -218,7 +218,7 @@ if __name__ == '__main__':
     if args.weights:
         vae.load_weights(args.weights)
     else:
-        # 오토인코더 학습
+        # 오토인코더을 학습합니다.
         vae.fit(x_train,
                 epochs=epochs,
                 batch_size=batch_size,

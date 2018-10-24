@@ -45,7 +45,7 @@ def sampling(args):
     z_mean, z_log_var = args
     batch = K.shape(z_mean)[0]
     dim = K.int_shape(z_mean)[1]
-    # 기본설정으로, random_normal는 mean=0, std=1.0로 지정되있음. 
+    # 기본설정으로, random_normal는 mean=0, std=1.0로 지정되있습니다. 
     epsilon = K.random_normal(shape=(batch, dim))
     return z_mean + K.exp(0.5 * z_log_var) * epsilon
 
@@ -54,7 +54,7 @@ def plot_results(models,
                  data,
                  batch_size=128,
                  model_name="vae_mnist"):
-    """2차원 은닉 벡터의 함수로서 라벨과 MNIST 숫자를 표시
+    """2차원 은닉 벡터의 함수로서 라벨과 MNIST 숫자를 표시합니다
 
     # Arguments:
         models (tuple): 인코더와 디코더 모델
@@ -80,7 +80,7 @@ def plot_results(models,
     plt.show()
 
     filename = os.path.join(model_name, "digits_over_latent.png")
-    # 30X30 2D형태의 숫자들을 표시.
+    # 30X30 2D형태의 숫자들을 표시합니다.
     n = 30
     digit_size = 28
     figure = np.zeros((digit_size * n, digit_size * n))
@@ -139,22 +139,22 @@ z_log_var = Dense(latent_dim, name='z_log_var')(x)
 # Tensorflow 백엔드에서는 "output_shape"이 필요하지 않습니다.
 z = Lambda(sampling, output_shape=(latent_dim,), name='z')([z_mean, z_log_var])
 
-# 인코더 모델을 인스턴스화(instantiate)
+# 인코더 모델을 인스턴스화(instantiate) 합니다.
 encoder = Model(inputs, [z_mean, z_log_var, z], name='encoder')
 encoder.summary()
 plot_model(encoder, to_file='vae_mlp_encoder.png', show_shapes=True)
 
-# 디코더 모델 설계
+# 디코더 모델을 설계합니다.
 latent_inputs = Input(shape=(latent_dim,), name='z_sampling')
 x = Dense(intermediate_dim, activation='relu')(latent_inputs)
 outputs = Dense(original_dim, activation='sigmoid')(x)
 
-# 디코더 모델 인스턴스화
+# 디코더 모델을 인스턴스화 합니다.
 decoder = Model(latent_inputs, outputs, name='decoder')
 decoder.summary()
 plot_model(decoder, to_file='vae_mlp_decoder.png', show_shapes=True)
 
-# VAE 모델 인스턴스화
+# VAE 모델을 인스턴스화 합니다.
 outputs = decoder(encoder(inputs)[2])
 vae = Model(inputs, outputs, name='vae_mlp')
 
@@ -192,7 +192,7 @@ if __name__ == '__main__':
     if args.weights:
         vae.load_weights(args.weights)
     else:
-        # 오토인코더 학습
+        # 오토인코더를 학습합니다.
         vae.fit(x_train,
                 epochs=epochs,
                 batch_size=batch_size,

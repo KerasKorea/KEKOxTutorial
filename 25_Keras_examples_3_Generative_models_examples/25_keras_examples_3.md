@@ -20,7 +20,7 @@
 케라스로 Deep Dream.
 
 [neural_doodle.py](neural_doodle.py)
-신경망으로 낙서하기.
+Keras를 이용해 신경망으로 낙서하기
 
 [neural_style_transfer.py](neural_style_transfer.py)
 Neural style transfer.
