@@ -36,7 +36,7 @@
 ```
 
 #### Keras REST API 설계
-우리의 Keras REST API는 `run_keras_server.py`라는 단일 파일에 자체적으로 포함되어 있습니다. 단순화를 위해 단일 파일안에 설치하도록 했습니다. 구현도 쉽게 모듈화 할 수 있습니다.
+Keras REST API는 `run_keras_server.py`라는 단일 파일에 자체적으로 포함되어 있습니다. 단순화를 위해 단일 파일안에 설치하도록 했습니다. 구현도 쉽게 모듈화 할 수 있습니다.
 
 `run_keras_server.py`에서 3가지 함수를 발견하실 수 있습니다 :
 - `load_model` : 학습된 Keras 모델을 불러오고 인퍼런스를 위해 준비하는데 사용합니다.  
