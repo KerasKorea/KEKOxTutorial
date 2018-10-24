@@ -41,7 +41,7 @@
 
 **Figure 1**에서는 합성곱(Convolution, 좌측), 인셉션(Inception, 중앙) 그리고 다운 샘플(Downsample, 우측)에 해당하는 각 모듈들을 확인할 수 있고,
 하단에서그 모듈들의 조합으로 만들어진 MiniGoogLeNet 아키텍처를 볼 수 있습니다. 
-해당 모델은 포스트의 후반부의 다중 GPU 실험에 사용될 예정입니다. 
+해당 모델은 포스트 후반부의 다중 GPU 실험에 사용될 예정입니다. 
 
 MiniGoogLeNet에서 사용된 인셉션 모듈은 [Szegedy et al.](https://arxiv.org/abs/1409.4842)이 설계한 인셉션 모듈의 변형입니다. 
 
@@ -126,7 +126,7 @@ G = args["gpus"]
 명령줄 인자들을 로드한 후에는, 편의를 위해 GPU의 개수를 변수 `G`에 저장합니다.  
 
 이제 학습 프로세스를 구성하는데 사용되는 두 가지 중요한 변수를 초기화하고,
-이어서 [카페(Caffe)의 학습률의 다항적 감소(Polynomial learning rate decay)](https://stackoverflow.com/questions/30033096/what-is-lr-policy-in-caffe)에 해당하는 `poly_decay` 학습률 스케줄러를 정의합니다. 
+이어서 [학습률을 다항적으로 감소시키는](https://stackoverflow.com/questions/30033096/what-is-lr-policy-in-caffe) `poly_decay` 학습률 스케줄러를 정의합니다.
 
 ```python
 # definine the total number of epochs to train for along with the
@@ -148,13 +148,14 @@ def poly_decay(epoch):
 	return alpha
 ```
 
-We set  NUM_EPOCHS = 70  — this is the number of times (epochs) our training data will pass through the network (Line 32).
+에폭(Epoch)은 `NUM_EPOCHS = 70`로 설정되며, 이는 네트워크가 학습 데이터 전체를 총 몇 번 학습하는지 결정합니다.
 
-We also initialize the learning rate INIT_LR = 5e-3 , a value that was found experimentally in previous trials (Line 33).
+또한 초기 학습률은 실험을 통해 찾은 `INIT_LR = 5e-3`로 설정합니다. 
 
-From there, we define the poly_decay  function which is the equivalent of Caffe’s polynomial learning rate decay (Lines 35-46). Essentially this function updates the learning rate during training, effectively reducing it after each epoch. Setting the  power = 1.0  changes the decay from polynomial to linear.
+그 후에 정의되는 `poly_decay`는, 학습 도중 매 에폭 이후에 효과적으로 학습률을 감소시키는 역할을 합니다. 
+만약 `power = 1.0`로 설정하면, 학습률은 다항적이 아닌 선형적으로 감소하게 됩니다. 
 
-Next we’ll load our training + testing data and convert the image data from integer to float:
+다음은 학습 및 테스트 데이터 세트를 로드한 후, 이미지 데이터를 정수형에서 실수형으로 변환하는 작업입니다. 
 
 ```python
 # load the training and testing data, converting the images from
@@ -165,7 +166,8 @@ trainX = trainX.astype("float")
 testX = testX.astype("float")
 ```
 
-From there we apply mean subtraction to the data:
+그 후, 데이터의 각 원소에서 데이터 전체의
+[평균값을 빼줍니다](http://ufldl.stanford.edu/wiki/index.php/Data_Preprocessing#Per-example_mean_subtraction). 
 
 ```python
 # apply mean subtraction to the data
@@ -174,9 +176,11 @@ trainX -= mean
 testX -= mean
 ```
 
-On Line 56, we calculate the mean of all training images followed by Lines 57 and 58 where we subtract the mean from each image in the training and testing sets.
+위 코드 블록의 두 번째 행에서 학습 데이터 세트 전체의 평균값을 구해주며, 
+세 번째, 네 번째 행에서 각각 학습과 테스트 세트 이미지에서 위에서 구한 평균값을 빼줍니다. 
 
-Then, we perform “one-hot encoding”, an encoding scheme I discuss in more detail in my book:
+그 다음은 원핫 인코딩(One-hot encoding)을 할 차례입니다.
+원핫 인코딩에 대한 자세한 설명은 제 책에 나와있습니다. 
 
 ```python
 # convert the labels from integers to vectors
@@ -184,6 +188,9 @@ lb = LabelBinarizer()
 trainY = lb.fit_transform(trainY)
 testY = lb.transform(testY)
 ```
+
+원핫 인코딩은 단일 정수인 범주형 라벨을 벡터로 변환해주어
+범주형 교차 엔트로피(Categorical cross-entropy) 손실 함수(Loss function)를 사용할 수 있게 해줍니다. 
 
 One-hot encoding transforms categorical labels from a single integer to a vector so we can apply the categorical cross-entropy loss function. We’ve taken care of this on Lines 61-63.
 
