@@ -4,27 +4,23 @@
 
 Kaggle은 최근 데이터 과학자들에게 Kernel (Kaggle의 클라우드 기반 notebook 플랫폼)에 GPU를 적용할 수 있도록 하였습니다. 저는 이것이 더 많은 intensive model을 구축하고 학습하는 방법을 배울 수 있는 절호의 기회라고 생각했습니다. 
 
- [Kaggle Learn](https://www.kaggle.com/learn/deep-learning), [Keras documentation](https://keras.io/) 그리고 [freeCodeCamp](https://www.freecodecamp.org/)의 좋은 자연어 데이터와 함께라면,  [random forests](https://www.kaggle.com/mrisdal/exploring-survival-on-the-titanic)를  recurrent neural network로 발전시키는데 필요한 모든 것을 가지고 있습니다. 
+ [Kaggle Learn](https://www.kaggle.com/learn/deep-learning), [Keras documentation](https://keras.io/) 그리고 [freeCodeCamp](https://www.freecodecamp.org/)의 좋은 자연어 데이터와 함께라면, [random forests](https://www.kaggle.com/mrisdal/exploring-survival-on-the-titanic)를  recurrent neural network로 발전시킬 수 있습니다. 
 
 
 ![img](https://cdn-images-1.medium.com/max/2000/1*msHP2gE21HCHibUquIAB1A.png)
 
-​				freeCodeCamp’s dataset on Kaggle Datasets.
+​				<freeCodeCamp’s dataset on Kaggle Datasets>
 
 이 블로그 포스트에서, Kaggle 데이터셋에 게시 된 [freeCodeCamp의 Gitter 채팅 로그 데이터셋](https://www.kaggle.com/freecodecamp/all-posts-public-main-chatroom)에서 새로운 텍스트 출력을 생성하는 LSTM network를 학습하는 방법에 대해 설명하겠습니다. 
 
  [Python notebook kernel](https://www.kaggle.com/mrisdal/intro-to-lstms-w-keras-gpu-for-text-generation/notebook)에서 제 코드를 볼 수 있습니다. 
 
-이제 6시간의 실행시간 동안 Kernels-Kaggle의 클라우드 기반 호스팅 노트북 플랫폼에서 GPU를 사용할 수 있으므로, Kaggle에서 이전보다 훨씬 많은 intensive 모델을 학습시킬 수 있습니다. 
-
-Now that you can use **GPUs** in Kernels — Kaggle’s, cloud-based hosted notebook platform— with **6 hours of run time**, you can train much more computationally intensive models than ever before on Kaggle.
-
-
+이제 6시간의 실행시간 동안 Kernels-Kaggle의 클라우드 기반 호스팅 노트북 플랫폼에서 GPU를 사용할 수 있으므로, Kaggle에서 이전보다 훨씬 많은 intensive 모델을 학습시킬 수 있습니다.
 
 ```python
 import tensorflow as tf
 print(tf.test.gpu_device_name())
-# See https://www.tensorflow.org/tutorials/using_gpu#allowing_gpu_memory_growth
+# 참조 https://www.tensorflow.org/tutorials/using_gpu#allowing_gpu_memory_growth
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 ```
@@ -163,9 +159,7 @@ print(next_chars[:10])
 
 
 
- `'hi folks. just doing the new signee stuf'`의 다음 문자가 단어 "stuff"의 마지막 글자인 `f`임을 알 수 있습니다.  그리고 시퀀스  `'folks. just doing the new signee stuff. '` 의 다음 문자는 "hello" 단어의 `h`입니다. 이런 방식으로, `next_chars`
-
-You can see how the next character following the first sequence `'hi folks. just doing the new signee stuf'` is the character `f` to finish the word "stuff". And the next character following the sequence `'folks. just doing the new signee stuff. '` is the character `h` to start the word "hello". In this way, it should be clear now how `next_chars` is the "data labels" or ground truth for our sequences in `sentences` and our model trained on this labeled data will be able to generate *new next characters* as predictions given sequence input.
+ `'hi folks. just doing the new signee stuf'`의 다음 문자가 단어 "stuff"의 마지막 글자인 `f`임을 알 수 있습니다.  그리고 시퀀스  `'folks. just doing the new signee stuff. '` 의 다음 문자는 "hello" 단어의 `h`입니다. 이런 방식으로, `next_chars`가 `sentences` 내 시퀀스에 대한 "데이터 라벨" 또는 ground truth가 되도록 해야하고, 이 labled data에 대해 학습된 모델은 주어진 시퀀스 입력에 대한 *새로운 다음 문자* 를 예측으로 생성해낼 수 있습니다. 
 
 #### Represent the sequence data as sparse boolean tensors
 
@@ -213,18 +207,18 @@ model.add(Dense(len(chars)))
 model.add(Activation('softmax'))
 ```
 
-이제 모델을 컴파일할 수 있습니다. 
-
-Now we can compile our model. We’ll use `RMSprop` with a learning rate of `0.1` to optimize the weights in our model (you can experiment with different learning rates here) and `categorical_crossentropy` as our loss function. Cross entropy is the same as log loss commonly used as the evaluation metric in binary classification competitions on Kaggle (except in our case there are more than two possible outcomes).
+이제 모델을 컴파일할 수 있습니다. 모델의 가중치를 최적화하기 위해 학습속도(learning rate)가 0.1인 `RMSprop`을 사용하고(여기서 다른 학습 속도로도 실험할 수 있습니다),`categorical_crossentropy`는 손실 함수로 사용합니다. 교차 엔트로피(cross entropy)는 Kaggle에서 이진 분류 competition에서 사용하는 로그 손실과 동일합니다(우리의 경우에는 두 가지 이상의 가능한 결과가 있는 경우는 제외). 
 
 ```
 optimizer = RMSprop(lr=0.01)
 model.compile(loss='categorical_crossentropy', optimizer=optimizer)
 ```
 
-Now our model is ready. Before we feed it any data, the cell below defines a couple of helper functions [with code modified from this script](https://github.com/keras-team/keras/blob/master/examples/lstm_text_generation.py). The first one, `sample()`, samples an index from an array of probabilities with some `temperature`. Quick pause to ask, what is temperature exactly?
+이제 모델이 준비되었습니다. 데이터를 넣어보기 전에 아래의 셀은 [이 스크립트에서 수정된 코드](https://github.com/keras-team/keras/blob/master/examples/lstm_text_generation.py)로 몇가지 헬퍼(helper) 함수를 정의합니다. 첫 번째 함수인 `sample()`은 일정한 `temperature` 의 확률 배열에서 인덱스를 샘플링합니다. 잠깐 질문시간입니다, `temperature`은 정확히 무엇일까요? 
 
-> **Temperature** *is a scaling factor applied to the outputs of our dense layer before applying the* `*softmax*`*activation function. In a nutshell, it defines how conservative or "creative" the model's guesses are for the next character in a sequence. Lower values of* `*temperature*` *(e.g.,* `*0.2*`*) will generate "safe" guesses whereas values of* `*temperature*` *above* `*1.0*` *will start to generate "riskier" guesses. Think of it as the amount of surpise you'd have at seeing an English word start with "st" versus "sg". When temperature is low, we may get lots of "the"s and "and"s; when temperature is high, things get more unpredictable.*
+> **Temperature** *은 활성화 함수인* * `*softmax*`*를 적용하기 전에 dense layer의 출력에 적용되는 scaling factor 입니다. 간단히 말해서, 시퀀스의 다음 문자에 대한 모델의 추측이 얼마나 보수적인지 또는 "창의적인지" 정의합니다.* `*temperature*`*의 낮은 값(예*. `*0.2*`*)는 "안전한" 추측값을 생성하지만* `*1.0*`*을 넘는*  `*temperature*`*의 값은 "위험한" 추측을 생성하기 시작합니다.* *"st"로 시작하는 영어단어와 "sg"로 시작하는 영어단어를 보았을 때 추측의 양을 생각해봅시다. temperature가 낮으면 많은 "the"와 "and"를 얻을 것입니다; 하지만 temperature가 높다면 결과는 예측할 수 없게 됩니다.  
+
+두 번째 함수는 LSTM에 의해 생성된 예상 텍스트를 출력하는 콜백 함수입니다. 
 
 Anyway, so the second is defining a callback function to print out predicted text generated by our trained LSTM at the first and then every subsequent fifth epoch with five different settings of `temperature` each time (see the line `for diversity in [0.2, 0.5, 1.0, 1.2]:` for the values of `temperature`; feel free to tweak these, too!). This way we can fiddle with the `temperature` knob to see what gets us the best generated text ranging from conservative to creative. Note that we're using our model to predict based on a random sequence, or "seed", from our original subsetted data, `user`: `start_index = random.randint(0, len(user) - maxlen - 1)`.
 
@@ -279,7 +273,9 @@ def on_epoch_end(epoch, logs):
 generate_text = LambdaCallback(on_epoch_end=on_epoch_end)
 ```
 
-#### Training the model and generating predictions
+#### 모델 트레이닝 및 예측값 생성
+
+드디어 해냈습니다! 데이터가 준비되었어요(`x`는 시퀀스, `y`는 다음 문자).  
 
 Finally we’ve made it! Our data is ready (`x` for sequences, `y` for next characters), we've chosen a `batch_size` of `128`, and we've defined a callback function which will print generated text using `model.predict()` at the end of the first epoch followed by every fifth epoch with five different `temperature` setting each time. We have another callback, `ModelCheckpoint`, which will save the best model at each epoch if it's improved based on our loss value (find the saved weights file `weights.hdf5` in the "Output" tab of the kernel).
 
@@ -309,23 +305,26 @@ with tf.device('/gpu:0'):
 
 ![img](https://cdn-images-1.medium.com/max/2000/1*kxL8tbTxe3wFsKW7FU_Tiw.png)
 
-Example output after the first epoch.
+<Example output after the first epoch>
 
-### Conclusion
+### 결론
 
-And there you have it! If you ran this notebook in [Kaggle Kernels](https://www.kaggle.com/mrisdal/intro-to-lstms-w-keras-gpu-for-text-generation/), you hopefully caught the model printing out generated text character-by-character to dramatic effect.
+다했습니다! [Kaggle Kernels](https://www.kaggle.com/mrisdal/intro-to-lstms-w-keras-gpu-for-text-generation/)에서 이 노트북을 실행시키면, 생성된 텍스트를 문자별 출력하는 극적인 모델을 얻어낼 수 있습니다. 
 
-I hope you’ve enjoyed learning how to start from a dataframe containing rows of text to using an LSTM model implemented using Keras in Kernels to generate novel sentences thanks to the power of GPUs. You can see how our model improved from the first epoch to the last. The text generated by the model’s predictions in the first epoch didn’t really resemble English at all. And overall, lower levels of diversity generate text with a lot of repetitions, whereas higher levels of diversity correspond to more gobbledegook.
+텍스트 행을 갖는 데이터 프레임으로부터 LSTM 모델을 사용하여 GPU의 힘으로 새로운 문장을 생성하는 방법을 배운 과정이 즐거웠기를 바랍니다. 우리의 모델이 처음 epoch에서 마지막 epoch까지 어떻게 개선되었는지 볼 수 있습니다. 첫 번째 epoch에서 생성된 텍스트는 실제 영어와 비슷하지 않습니다. 전반적으로, 낮은 수준의 다양성은 많은 반복을 통하여 텍스트를 생성하는 반면, 높은 수준의 다양성은 알아듣기 힘든 말을 생성해내죠. 
 
-Can you tweak the model or its hyperparameters to generate even better text? Try it out for yourself by [forking this notebook kernel](https://www.kaggle.com/mrisdal/intro-to-lstms-w-keras-gpu-for-text-generation/) (click “Fork Notebook” at the top).
+더 나은 텍스트를 생성하기 위해 모델 또는 hyperparameter를 조정할 수 있을까요? 다음을 클릭하여 직접해보세요!  [forking this notebook kernel](https://www.kaggle.com/mrisdal/intro-to-lstms-w-keras-gpu-for-text-generation/) (상단의 "Fork Notebook" 클릭)
 
-#### Inspiration for next steps
 
-Here are just a few ideas for how to take what you learned here and expand it:
 
-1. Experiment with different (hyper)-parameters like the amount of training data, number of epochs or batch sizes, `temperature`, etc.
-2. Try out the same code with different data; fork this notebook, go to the “Data” tab and remove the freeCodeCamp data source, then add a different dataset ([good examples here](https://www.kaggle.com/datasets?sortBy=hottest&group=public&page=1&pageSize=20&size=all&filetype=all&license=all&tagids=11208)).
-3. Try out more complicated network architectures like adding dropout layers.
-4. Learn more about deep learning on [Kaggle Learn](https://www.kaggle.com/learn/deep-learning), a series of videos and hands-on notebook tutorials in Kernels.
-5. Use `weights.hdf5` in the "Output" to predict based on different data in a new kernel what it would be like if the user in this tutorial completed someone else's sentences.
-6. Compare the speed-up effect of using a CPU versus a GPU on a minimal example.
+#### 다음 단계로의 영감
+
+배운 것을 활용하여 확장하는 방법에 대한 아이디어입니다. 
+
+1. 훈련 데이터 양, 에폭(epoch), 배치(batch) 크기, `temperature`등 다른(hyper)-매개변수를 사용하여 실험해보세요.
+2. 동일한 코드를 다른 데이터로 시도해보세요; 이 노트북을 fork하고 "Data" 탭으로 이동합니다. freeCodeCamp 데이터 소스를 제거하고 다른 데이터 셋([좋은 예제들]((https://www.kaggle.com/datasets?sortBy=hottest&group=public&page=1&pageSize=20&size=all&filetype=all&license=all&tagids=11208)))을 넣어봅시다. 
+3. dropout 레이어 추가와 같은 복잡한 network 아키텍처를 사용해보세요.
+4. Kernel에서 비디오 및 실습 노트북 튜토리얼이 있는 [Kaggle Learn](https://www.kaggle.com/learn/deep-learning) 에서 딥러닝에 대해 더 공부해보세요.
+5. "출력"에서  `weights.hdf5`를 사용하여 이 튜토리얼의 사용자가 다른 사람의 문장을 완성하면 새로운 Kernel의 다른 데이터를 기반으로 예측할 수 있습니다. 
+6. 최소한의 예제에서 CPU 대 GPU의 속도 향상 효과를 비교해보세요. 
+
