@@ -2,7 +2,7 @@
 
 VAE는 모듈러(modular) 구조를 갖고 있습니다. 인코더(encoder), 디코더(decoder) 
 그리고 VAE는 가중치를 서로 공유하고 있습니다. VAE 모델을 학습한 후,
-인코더는 은닉 벡터(latent vectors)를 생성하는데, 디코더는 가우시안 분포도에서 은닉 벡터를
+인코더는 은닉 벡터(latent vectors)를 생성하는데, 디코더는 가우시안 분포도(mean=0, std=1)에서 은닉 벡터를
 샘플링함으로써 MNIST 숫자를 생성하는데 사용될 수 있습니다.
 
 # 참고 자료
@@ -86,8 +86,7 @@ def plot_results(models,
     n = 30
     digit_size = 28
     figure = np.zeros((digit_size * n, digit_size * n))
-    # linearly spaced coordinates corresponding to the 2D plot
-    # of digit classes in the latent space
+    # 은닉공간의 숫자 클래스의 2D 그림에 해당하는 선형 간격 좌표
     grid_x = np.linspace(-4, 4, n)
     grid_y = np.linspace(-4, 4, n)[::-1]
 
@@ -161,7 +160,7 @@ encoder = Model(inputs, [z_mean, z_log_var, z], name='encoder')
 encoder.summary()
 plot_model(encoder, to_file='vae_cnn_encoder.png', show_shapes=True)
 
-# 디코더 모델을 설계
+# 디코더 모델 설계
 latent_inputs = Input(shape=(latent_dim,), name='z_sampling')
 x = Dense(shape[1] * shape[2] * shape[3], activation='relu')(latent_inputs)
 x = Reshape((shape[1], shape[2], shape[3]))(x)
@@ -180,12 +179,12 @@ outputs = Conv2DTranspose(filters=1,
                           padding='same',
                           name='decoder_output')(x)
 
-# 디코더 모델을 인스턴스화
+# 디코더 모델 인스턴스화
 decoder = Model(latent_inputs, outputs, name='decoder')
 decoder.summary()
 plot_model(decoder, to_file='vae_cnn_decoder.png', show_shapes=True)
 
-# VAE 모델을 인스턴스화
+# VAE 모델 인스턴스화
 outputs = decoder(encoder(inputs)[2])
 vae = Model(inputs, outputs, name='vae')
 

@@ -1,35 +1,33 @@
-'''Neural doodle with Keras
+'''Keras를 이용해 신경망으로 낙서하기
 
-# Script Usage
+# 본 스크립트 사용법
 
 ## Arguments
 ```
---nlabels:              # of regions (colors) in mask images
---style-image:          image to learn style from
---style-mask:           semantic labels for style image
---target-mask:          semantic labels for target image (your doodle)
---content-image:        optional image to learn content from
---target-image-prefix:  path prefix for generated target images
+--nlabels:              mask 이미지안에 영역(색깔)의 수
+--style-image:          학습하고 싶은 스타일이 있는 이미지
+--style-mask:           스타일 이미지를 위한 시맨틱 라벨(semantic labels)
+--target-mask:          목표 이미지를 위한 시맨틱 라벨(사용자가 만든 낙서)
+--content-image:        (선택) 학습하고 싶은 컨텐츠가 있는 이미지
+--target-image-prefix:  생성된 목표 이미지를 위한 저장 경로
 ```
 
-## Example 1: doodle using a style image, style mask
-and target mask.
+## Example 1: 스타일 이미지, 스타일 라벨 그리고 목표 시맨틱 라벨을 사용해 낙서하기
 ```
 python neural_doodle.py --nlabels 4 --style-image Monet/style.png \
 --style-mask Monet/style_mask.png --target-mask Monet/target_mask.png \
 --target-image-prefix generated/monet
 ```
 
-## Example 2: doodle using a style image, style mask,
-target mask and an optional content image.
+## Example 2: 스타일 이미지, 스타일 라벨, 목표 시맨틱 라벨 그리고 옵션인 컨텐츠 이미지를 사용해 낙서하기
 ```
-python neural_doodle.py --nlabels 4 --style-image Renoir/style.png \
+python neural_doodle.py --nlabels 4 --st를yle-image Renoir/style.png \
 --style-mask Renoir/style_mask.png --target-mask Renoir/target_mask.png \
 --content-image Renoir/creek.jpg \
 --target-image-prefix generated/renoir
 ```
 
-# References
+# 참고자료
 
 - [Dmitry Ulyanov's blog on fast-neural-doodle]
     (http://dmitryulyanov.github.io/feed-forward-neural-doodle/)
@@ -42,7 +40,7 @@ python neural_doodle.py --nlabels 4 --style-image Renoir/style.png \
 - [Discussion on parameter tuning]
     (https://github.com/keras-team/keras/issues/3705)
 
-# Resources
+# 소스코드 자료
 
 Example images can be downloaded from
 https://github.com/DmitryUlyanov/fast-neural-doodle/tree/master/data
@@ -59,7 +57,7 @@ from keras.models import Model
 from keras.preprocessing.image import load_img, save_img, img_to_array
 from keras.applications import vgg19
 
-# Command line arguments
+# 커맨드 라인에 입력할 설정들
 parser = argparse.ArgumentParser(description='Keras neural doodle example')
 parser.add_argument('--nlabels', type=int,
                     help='number of semantic labels'
@@ -86,7 +84,7 @@ use_content_img = content_img_path is not None
 
 num_labels = args.nlabels
 num_colors = 3  # RGB
-# determine image sizes based on target_mask
+# 목표 시맨틱 라벨을 기반으로 이미지 사이즈를 결정
 ref_img = img_to_array(load_img(target_mask_path))
 img_nrows, img_ncols = ref_img.shape[:2]
 
@@ -95,12 +93,12 @@ style_weight = 1.
 content_weight = 0.1 if use_content_img else 0
 
 content_feature_layers = ['block5_conv2']
-# To get better generation qualities, use more conv layers for style features
+# 생성이 더 잘되도록, 스타일 피쳐(style feature)용 컨볼루션 레이어를 더 많이 사용
 style_feature_layers = ['block1_conv1', 'block2_conv1', 'block3_conv1',
                         'block4_conv1', 'block5_conv1']
 
 
-# helper functions for reading/processing images
+# 이미지를 읽고 사전처리를 해주는 함수
 def preprocess_image(image_path):
     img = load_img(image_path, target_size=(img_nrows, img_ncols))
     img = img_to_array(img)
@@ -137,10 +135,10 @@ def kmeans(xs, k):
 
 
 def load_mask_labels():
-    '''Load both target and style masks.
-    A mask image (nr x nc) with m labels/colors will be loaded
-    as a 4D boolean tensor:
-        (1, m, nr, nc) for 'channels_first' or (1, nr, nc, m) for 'channels_last'
+    '''목표 및 스타일 시맨틱 라벨을 불러오기
+        m개의 라벨/색을 지닌 시맨틱 이미지(nr x nc)를 4D boolean 텐서로 불러오기.
+    주의 : 
+        (1, m, nr, nc)는 'channels_first'에, (1, nr, nc, m)는 'channels_last'에 사용되는 형태
     '''
     target_mask_img = load_img(target_mask_path,
                                target_size=(img_nrows, img_ncols))
@@ -171,7 +169,7 @@ def load_mask_labels():
             np.expand_dims(target_mask, axis=0))
 
 
-# Create tensor variables for images
+# 이미지를 위해 텐서형 변수들을 생성
 if K.image_data_format() == 'channels_first':
     shape = (1, num_colors, img_nrows, img_ncols)
 else:
@@ -186,20 +184,20 @@ else:
 
 images = K.concatenate([style_image, target_image, content_image], axis=0)
 
-# Create tensor variables for masks
+# 시맨틱 라벨을 위해 텐서형 변수들을 생성
 raw_style_mask, raw_target_mask = load_mask_labels()
 style_mask = K.variable(raw_style_mask.astype('float32'))
 target_mask = K.variable(raw_target_mask.astype('float32'))
 masks = K.concatenate([style_mask, target_mask], axis=0)
 
-# index constants for images and tasks variables
+# 이미지와 작업용 변수인 인덱스 상수들
 STYLE, TARGET, CONTENT = 0, 1, 2
 
-# Build image model, mask model and use layer outputs as features
-# image model as VGG19
+# 이미지 모델(image_model), 시맨틱 모델(mask_input)을 생성하고 피쳐용으로 레이어 출력값을 사용
+# 이미지 모델은 VGG19
 image_model = vgg19.VGG19(include_top=False, input_tensor=images)
 
-# mask model as a series of pooling
+# 나열된 풀링 레이어으로 시맨틱 모델 표현
 mask_input = Input(tensor=masks, shape=(None, None, None), name='mask_input')
 x = mask_input
 for layer in image_model.layers[1:]:
@@ -211,7 +209,7 @@ for layer in image_model.layers[1:]:
         x = AveragePooling2D((2, 2), name=name)(x)
 mask_model = Model(mask_input, x)
 
-# Collect features from image_model and task_model
+# 이미지 모델과 시맨틱 모델에서 피쳐들을 수집
 image_features = {}
 mask_features = {}
 for img_layer, mask_layer in zip(image_model.layers, mask_model.layers):
@@ -223,7 +221,7 @@ for img_layer, mask_layer in zip(image_model.layers, mask_model.layers):
         mask_features[layer_name] = mask_feat
 
 
-# Define loss functions
+# 손실 함수를 정의
 def gram_matrix(x):
     assert K.ndim(x) == 3
     features = K.batch_flatten(x)
@@ -232,8 +230,9 @@ def gram_matrix(x):
 
 
 def region_style_loss(style_image, target_image, style_mask, target_mask):
-    '''Calculate style loss between style_image and target_image,
-    for one common region specified by their (boolean) masks
+    '''
+    (boolean형) 마스크로 지정된 하나의 공통 영역에 대해
+    스타일 이미지와 목표 이미지 사이의 스타일 손실값을 계산   
     '''
     assert 3 == K.ndim(style_image) == K.ndim(target_image)
     assert 2 == K.ndim(style_mask) == K.ndim(target_mask)
@@ -254,8 +253,8 @@ def region_style_loss(style_image, target_image, style_mask, target_mask):
 
 
 def style_loss(style_image, target_image, style_masks, target_masks):
-    '''Calculate style loss between style_image and target_image,
-    in all regions.
+    '''
+    모든 영역에서 스타일 이미지와 목표 이미지 사이의 스타일 손실값을 계산
     '''
     assert 3 == K.ndim(style_image) == K.ndim(target_image)
     assert 3 == K.ndim(style_masks) == K.ndim(target_masks)
@@ -291,8 +290,8 @@ def total_variation_loss(x):
     return K.sum(K.pow(a + b, 1.25))
 
 
-# Overall loss is the weighted sum of content_loss, style_loss and tv_loss
-# Each individual loss uses features from image/mask models.
+# 전체 손실값은 컨텐츠, 스타일, 전체 변화 손실의 가중치를 계산한 합산.
+# 각 개별 손실 함수는 이미지/시맨틱 모델로부터 추출한 피쳐들을 사용.
 loss = K.variable(0)
 for layer in content_feature_layers:
     content_feat = image_features[layer][CONTENT, :, :, :]
@@ -310,7 +309,7 @@ for layer in style_feature_layers:
 loss += total_variation_weight * total_variation_loss(target_image)
 loss_grads = K.gradients(loss, target_image)
 
-# Evaluator class for computing efficiency
+# 효율성 검사를 위한 평가 클래스
 outputs = [loss]
 if isinstance(loss_grads, (list, tuple)):
     outputs += loss_grads
@@ -356,7 +355,7 @@ class Evaluator(object):
 
 evaluator = Evaluator()
 
-# Generate images by iterative optimization
+# 반복 최적화로 이미지를 생성
 if K.image_data_format() == 'channels_first':
     x = np.random.uniform(0, 255, (1, 3, img_nrows, img_ncols)) - 128.
 else:
@@ -368,7 +367,7 @@ for i in range(50):
     x, min_val, info = fmin_l_bfgs_b(evaluator.loss, x.flatten(),
                                      fprime=evaluator.grads, maxfun=20)
     print('Current loss value:', min_val)
-    # save current generated image
+    # 현재 생성된 이미지를 저장
     img = deprocess_image(x.copy())
     fname = target_img_prefix + '_at_iteration_%d.png' % i
     save_img(fname, img)
