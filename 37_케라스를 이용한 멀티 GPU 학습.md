@@ -428,9 +428,12 @@ sys     7m48.890s
 
 ### 딥러닝을 더 깊게 배워볼 준비가 되셨나요? 저만 따라오세요.
 
-If you’re interested in learning more about deep learning (and training state-of-the-art neural networks on multiple GPUs), be sure to take a look at my new book, Deep Learning for Computer Vision with Python.
+만약 딥러닝을 더 배워보는 것(그리고 여러 GPU에서 최첨단 심층 신경망을 학습시키는 것)에 관심이 있으시다면, 제 새 책인
+[*Deep Learning for Computer Vision with Python*](https://www.pyimagesearch.com/deep-learning-computer-vision-python-book/)을
+살펴보시는 것을 추천합니다. 
 
-Whether you’re just getting started with deep learning or you’re already a seasoned deep learning practitioner, my new book is guaranteed to help you reach expert status.
+여러분이 이제 막 딥러닝 공부를 시작하는 사람이든, 아니면 이미 노련한 딥러닝 종사자여도,
+제 새 책은 여러분이 전문가 수준에 도달할 수 있게 도와줄 것이라 확신합니다. 
 
 > 이 글은 2018 컨트리뷰톤에서 Contribute to Keras 프로젝트로 진행했습니다.  
 > Translator: [정연준](https://github.com/fuzzythecat)  
