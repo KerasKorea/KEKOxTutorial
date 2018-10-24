@@ -20,16 +20,16 @@
 케라스로 Deep Dream.
 
 [neural_doodle.py](neural_doodle.py)
-신경망의 낙서.
+신경망으로 낙서하기.
 
 [neural_style_transfer.py](neural_style_transfer.py)
 Neural style transfer.
 
 [variational_autoencoder.py](variational_autoencoder.py)
-변종 Autoencoder를 만드는 방법을 보여줍니다.
+variational autoencoder를 만드는 방법을 보여줍니다.
 
 [variational_autoencoder_deconv.py](variational_autoencoder_deconv.py)
-Deconvolution 레이어와 케라스를 사용해 변종 Autoencoder를 만드는 방법을 보여줍니다.
+Deconvolution 레이어와 케라스를 사용해 variational autoencoder를 만드는 방법을 보여줍니다.
 
 
 > 이 글은 2018 컨트리뷰톤에서 [`Contributue to Keras`](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.  

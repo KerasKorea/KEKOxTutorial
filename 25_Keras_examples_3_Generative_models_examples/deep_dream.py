@@ -26,7 +26,7 @@ import argparse
 from keras.applications import inception_v3
 from keras import backend as K
 
-# 입출력 이미지 경로 설정
+# 입출력 이미지 경로 설정합니다.
 parser = argparse.ArgumentParser(description='Deep Dreams with Keras.')
 parser.add_argument('base_image_path', metavar='base', type=str,
                     help='Path to the image to transform.')

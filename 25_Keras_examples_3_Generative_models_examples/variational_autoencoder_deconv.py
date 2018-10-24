@@ -82,7 +82,7 @@ def plot_results(models,
     plt.show()
 
     filename = os.path.join(model_name, "digits_over_latent.png")
-    # 30X30 2D형태의 숫자들을 표시.
+    # 30X30 2D형태의 숫자들을 표시합니다.
     n = 30
     digit_size = 28
     figure = np.zeros((digit_size * n, digit_size * n))
