@@ -192,8 +192,6 @@ testY = lb.transform(testY)
 원핫 인코딩은 단일 정수인 범주형 라벨을 벡터로 변환해주어
 범주형 교차 엔트로피(Categorical cross-entropy) 손실 함수(Loss function)를 사용할 수 있게 해줍니다. 
 
-One-hot encoding transforms categorical labels from a single integer to a vector so we can apply the categorical cross-entropy loss function. We’ve taken care of this on Lines 61-63.
-
 Next, we create a data augmenter and set of callbacks:
 
 ```python
@@ -213,7 +211,7 @@ Because of these alterations, the network is constantly seeing augmented example
 
 We create a callback function on Line 70 which will allow our learning rate to decay after each epoch — notice our function name, poly_decay .
 
-Let’s check that GPU variable next:
+다음으로 GPU 변수를 살펴보겠습니다.
 
 ```python
 # check to see if we are compiling using just a single GPU
@@ -223,7 +221,8 @@ if G <= 1:
 		classes=10)
 ```
 
-If the GPU count is less than or equal to one, we initialize the model  via the .build  function (Lines 73-76), otherwise we’ll parallelize the model during training:
+만약 GPU의 수가 하나이거나 없으면, `.build` 함수를 통해 `model` 변수를 초기화합니다. 
+GPU가 두 개 이상인 경우, 학습 중에 모델을 병렬화 할 것입니다.
 
 ```python
 # otherwise, we are compiling using multiple GPUs
@@ -241,21 +240,23 @@ else:
 	model = multi_gpu_model(model, gpus=G)
 ```
 
-Creating a multi-GPU model in Keras requires some bit of extra code, but not much!
+케라스에서 멀티 GPU 모델을 만들려면 약간의 코드를 추가해야 하지만, *그 양이 그리 많지는 않습니다!*
 
-To start, you’ll notice on Line 84 that we’ve specified to use the CPU (rather than the GPU) as the network context.
+먼저, `with tf.device("/cpu:0"):`를 통해 네트워크 컨텍스트로 CPU(GPU가 아닌)를 사용하도록 한 것이 보이실 겁니다.
 
-Why do we need the CPU?
+왜 멀티 GPU 모델에서 CPU가 필요할까요?
 
-Well, the CPU is responsible for handling any overhead (such as moving training images on and off GPU memory) while the GPU itself does the heavy lifting.
+그 이유는, GPU가 무거운 연산들을 처리하는 동안,
+CPU가 그에 필요한 오버헤드를(예를 들면, 학습 이미지를 GPU 메모리에 올리는 작업) 처리해주기 때문입니다. 
 
-In this case, the CPU instantiates the base model.
+여기서는 CPU가 기본 모델을 초기화하는 작업을 처리하며,
+초기화가 완료된 후에 `multi_gpu_model`을 호출하게 됩니다. 
+`multi_gpu_model` 함수는 CPU에서 모든 GPU로 모델을 복제하여 단일 시스템, 다중 GPU 데이터 병렬 처리를 가능하게 해줍니다. 
 
-We can then call the multi_gpu_model  on Line 90. This function replicates the model from the CPU to all of our GPUs, thereby obtaining single-machine, multi-GPU data parallelism.
+학습이 시작되면 학습 이미지들은 배치 단위로 각 GPU에 할당됩니다. 
+그 후 CPU는 각 GPU에서 계산한 기울기(Gradients)들을 바탕으로 모델의 가중치를 업데이트 합니다. 
 
-When training our network images will be batched to each of the GPUs. The CPU will obtain the gradients from each GPU and then perform the gradient update step.
-
-We can then compile our model and kick off the training process:
+이제 우리는 모델을 컴파일하고, 학습을 시작할 수 있습니다.
 
 ```python
 # initialize the optimizer and model
@@ -274,11 +275,12 @@ H = model.fit_generator(
 	callbacks=callbacks, verbose=2)
 ```
 
-On Line 94 we build a Stochastic Gradient Descent (SGD) optimizer.
+위 코드 블록의 세 번째 행에서는
+확률적 경사 하강법(Stochastic Gradient Descent, SGD) 알고리즘을 정의합니다.
 
-Subsequently, we compile the model with the SGD optimizer and a categorical crossentropy loss function.
+그 후 모델의 옵티마이저(Optimizer)와 손실 함수의 인자로 SGD와 범주형 교차 엔트로피를 주어 컴파일 합니다.  
 
-We’re now ready to train the network!
+이제 우리는 모델을 학습시킬 준비가 되었습니다!
 
 To initiate the training process, we make a call to model.fit_generator  and provide the necessary arguments.
 
