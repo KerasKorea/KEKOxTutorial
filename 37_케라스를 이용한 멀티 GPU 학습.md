@@ -331,11 +331,9 @@ plt.close()
 
 ### Keras multi-GPU results
 
-Let’s check the results of our hard work.
+이제 우리의 노력의 결과를 확인해볼 차례입니다.
 
-To start, grab the code from this lesson using the “Downloads” section at the bottom of this post. You’ll then be able to follow along with the results
-
-Let’s train on a single GPU to obtain a baseline:
+먼저 단일 GPU를 사용하여 기준을 구하는 과정입니다.
 
 ```shell
 $ python train.py --output single_gpu.png
@@ -365,11 +363,12 @@ sys     11m52.143s
 
 ![single gpu plot](https://www.pyimagesearch.com/wp-content/uploads/2017/10/keras_single_gpu.png)
 
-**Figure 2**: Experimental results from training and testing MiniGoogLeNet network architecture on CIFAR-10 using Keras on a single GPU.
+**Figure 2**: 케라스로 단일 GPU로 MiniGoogLeNet 네트워크를 CIFAR-10 데이터 세트에 학습시킨 결과입니다.
 
-For this experiment, I trained on a single Titan X GPU on my NVIDIA DevBox. Each epoch took ~63 seconds with a total training time of 74m10s.
+이 실험을 위해, 저는 먼저 제 NVIDIA DevBox에서 하나의 Titan X GPU를 사용해 학습을 진행하였습니다.
+매 에폭에는 63초 가량이 소요되었으며, 총 학습에는 74분 10초의 시간이 걸렸습니다. 
 
-I then executed the following command to train with all four of my Titan X GPUs:
+그 후 Titan X GPU 4개를 모두 사용하여 훈련을 진행해 보았습니다. 
 
 ```shell
 $ python train.py --output multi_gpu.png --gpus 4
@@ -399,13 +398,17 @@ sys     7m48.890s
 
 ![multi gpu plot](https://www.pyimagesearch.com/wp-content/uploads/2017/10/keras_multi_gpu.png)
 
-**Figure 3**: Multi-GPU training results (4 Titan X GPUs) using Keras and MiniGoogLeNet on the CIFAR10 dataset. Training results are similar to the single GPU experiment while training time was cut by ~75%.
+**Figure 3**: 케라스로 멀티 GPU로(4 Titan X GPUs) MiniGoogLeNet 네트워크를 CIFAR-10 데이터 세트에 학습시킨 결과입니다.
+모델의 성능은 유지하면서, 학습 시간은 75% 가량 단축되었습니다. 
 
-Here you can see the quasi-linear speed up in training: Using four GPUs, I was able to decrease each epoch to only 16 seconds. The entire network finished training in 19m3s.
+4개의 GPU를 사용하여 매 에폭에 걸리는 학습 시간을 16초 가량으로 줄일 수 있었고, 
+총 학습에는 19분 3초 밖에 소요되지 않았습니다.
 
-As you can see, not only is training deep neural networks with Keras and multiple GPUs easy, it’s also efficient as well!
+보시다시피, 케라스로 멀티 GPU 학습을 하는 것은 쉬울 뿐만 아니라, 효율적이기도 합니다!
 
-Note: In this case, the single GPU experiment obtained slightly higher accuracy than the multi-GPU experiment. When training any stochastic machine learning model, there will be some variance. If you were to average these results out across hundreds of runs they would be (approximately) the same.
+참고: 이 경우 단일 GPU를 사용해 학습한 모델의 정확도가 멀티 GPU를 사용한 경우보다 좋았습니다.
+이는 기계 학습의 확률적인 부분에 기인한 것으로, 만약 이러한 과정을 수백 번 반복하여 평균을 산출하면, 
+거의 동일한 성능을 보일 것입니다.
 
 ### Summary
 
