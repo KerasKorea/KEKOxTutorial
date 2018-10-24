@@ -1,4 +1,4 @@
-## 딥러닝의 Hello World, Fashion-MNIST <br> (Fashion-MNIST with tf.Keras)
+## 딥러닝의 Hello World, Fashion-MNIST
 
 [Fashion-MNIST with tf.Keras 원문 바로 가기](https://medium.com/tensorflow/hello-deep-learning-fashion-mnist-with-keras-50fcff8cd74a)
 
@@ -28,6 +28,7 @@
 
 <br>
 저는 몇가지의 딥러닝 용어에 관해 검토할 것입니다. 만약 당신이 딥러닝 입문자라면, 저의 튜토리얼과 저수준(low-level)의 TensorFlow API을 사용한 훨씬 오래된 [MNIST 튜토리얼](https://www.tensorflow.org/tutorials/)을 비교하고 대조해서 보길 권합니다. 얼마나 쉬운 일이 일어났는지 볼 수 있기 때문입니다.  
+
 <br>
 
 ### Colab에서 실행 (Run this notebook in Colab)
@@ -35,6 +36,8 @@
 모든 코드는 저의 GitHub에 있습니다. Google의 Colab을 사용해 [저의 Gitub의 Jupyter Notebook](https://colab.research.google.com/github/margaretmz/deep-learning/blob/master/fashion_mnist_keras.ipynb)을 직접 열어서 실행할 수 있습니다. 빨리 노트북을 열어 튜토리얼을 따라가고 싶다면 이 옵션을 선택해보세요. Colab에 대해 더 알고싶다면 [공식 블로그](https://medium.com/tensorflow/colab-an-easy-way-to-learn-and-use-tensorflow-d74d1686e309) 혹은 [블로그](https://medium.com/@margaretmz/running-jupyter-notebook-with-colab-f4a29a9c7156)를 참고하세요.
 
 <br>
+
+---
 
 ### 데이터 (Data)
 
@@ -55,7 +58,7 @@ Fashion-MNIST 데이터셋에는 10개의 카테고리가 있습니다.
 
 <br>
 
-### fashion_mnist 데이터셋 불러오기 (Import the fashoin_mnist dataset)
+### Fashion_mnist 데이터셋 불러오기 (Import the fashoin_mnist dataset)
 
 데이터셋을 가져와서 학습, 검증, 테스트 셋을 준비합니다.
 
@@ -64,6 +67,7 @@ keras.datasets API를 사용하여 한 줄의 코드만으로 fashion_minst 데�
 ```python
 !pip install -q -U tensorflow>=1.10.1
 # 원문에서는 1.8.0 버전을 사용했지만 18.08월 기준 1.10 버전이 release되어 1.10.1로 설치했습니다.
+
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
@@ -74,24 +78,56 @@ import matplotlib.pyplot as plt
 
 print("x_train shape:", x_train.shape, "y_train shape:", y_train.shape)
 ```
+
 <br>
+
 
 ### 데이터 시각화 (Visualize the data)
 
 제가 Jupyter Notebook에서 가장 좋아하는 기능은 시각화 입니다. matplotlib 라이브러리의 ```imshow()```를 사용해 학습 데이터셋의 이미지를 시각화하여 데이터셋의 이미지 중 하나를 살펴볼 수 있습니다. 각 이미지는 28x28 모양의 흑백 이미지입니다.
 
- ```
- # 학습 데이터셋 중에서 하나의 이미지 보여주기
+ ```python
+ # 학습 셋 크기(shape) - 이미지 크기가 28x28 인 60,000 개의 학습 이미지 데이터, 60,000 개의 레이블
+ print("x_train shape:", x_train.shape, "y_train shape:", y_train.shape)
+
+ # 학습 셋과 테스트 셋의 데이터 개수
+ print(x_train.shape[0], 'train set')
+ print(x_test.shape[0], 'test set')
+
+ # 레이블 정의
+ fashion_mnist_labels = ["T-shirt/top",  # 인덱스 0
+                         "Trouser",      # 인덱스 1
+                         "Pullover",     # 인덱스 2
+                         "Dress",        # 인덱스 3
+                         "Coat",         # 인덱스 4
+                         "Sandal",       # 인덱스 5
+                         "Shirt",        # 인덱스 6
+                         "Sneaker",      # 인덱스 7
+                         "Bag",          # 인덱스 8
+                         "Ankle boot"]   # 인덱스 9
+
+ # 이미지 인덱스, 0에서 59,999 사이의 숫자를 선택할 수 있습니다.
+ img_index = 5
+
+ # y_train 은 에서 9까지의 레이블 포함합니다.
+ label_index = y_train[img_index]
+
+ # 레이블 출력해 봅니다. 예를들어 2 Pullover
+ print ("y = " + str(label_index) + " " +(fashion_mnist_labels[label_index]))
+
+ # 학습 데이터 중에서 이미지 한 장을 보여줍니다.
  plt.imshow(x_train[img_index])
  ```
  ![](../media/10_2.png)
 
- <br>
+<br>
+
 
 ### 데이터 정규화 (Data normalization)
 
 그런 다음 데이터 크기를 정규화하여 대략적으로 데이터 크기를 동일하게 맞춥니다.
-```
+
+```python
 x_train = x_train.astype('float32') / 255
 x_test = x_test.astype('float32') / 255
 ```
@@ -105,11 +141,38 @@ x_test = x_test.astype('float32') / 255
   - Validation data(검증 데이터) - 하이퍼파라미터를 튜닝하고 모델을 검증하기 위해 사용하는 데이터
   - Test data(테스트 데이터) - 검증 셋으로 모델의 초기 검사를 마친 후에, 모델을 테스트하는 데이터
 
-  <br>
+```python
+# 학습 데이터 셋을 학습 / 평가 셋으로 나눈다. (# 학습 셋: 55,000, 검증 셋: 5000)
+(x_train, x_valid) = x_train[5000:], x_train[:5000]
+(y_train, y_valid) = y_train[5000:], y_train[:5000]
 
-## 모델 (Model)
+# 입력 이미지의 크기를 (28, 28) 에서 (28, 28, 1) 로 배열 차원을 변경(reshape)
+w, h = 28, 28
+x_train = x_train.reshape(x_train.shape[0], w, h, 1)
+x_valid = x_valid.reshape(x_valid.shape[0], w, h, 1)
+x_test = x_test.reshape(x_test.shape[0], w, h, 1)
+
+# 레이블에 원-핫 인코딩 적용
+# 원-핫 벡터는 단 하나의 차원에서만 1이고, 나머지 차원에서는 0인 벡터입니다.
+y_train = tf.keras.utils.to_categorical(y_train, 10)
+y_valid = tf.keras.utils.to_categorical(y_valid, 10)
+y_test = tf.keras.utils.to_categorical(y_test, 10)
+
+# 학습 셋 크기
+print("x_train shape:", x_train.shape, "y_train shape:", y_train.shape)
+
+# 학습용, 검증용, 테스트용 데이터셋의 개수
+print(x_train.shape[0], 'train set')
+print(x_valid.shape[0], 'validation set')
+print(x_test.shape[0], 'test set')
+```
+<br></br>
+
+### 모델 (Model)
 
 모델을 구성하고 학습시켜 봅시다.
+
+<br>
 
 ### 모델 아키텍처 만들기 (Create the model architecture)
 
@@ -125,7 +188,8 @@ Keras에서 모델을 정의하기위한 두 가지 API는 다음과 같습니�
 > 소프트맥스 함수는 다중 클래스분류 문제에서 출력층에 주로 쓰입니다. <br>
 > 덴스(dense)레이어는 이전 레이어의 모든 뉴런과 결합된 형태의 레이어입니다.
 
-```
+
+```python
 model = tf.Keras.Sequential()
 
 # 신경망의 첫 번째 레이어에서 입력 데이터 크기를 정의해야 합니다.
@@ -151,7 +215,7 @@ model.summary()
 
 이제 ```model.compile()```을 사용하여 모델을 학습시키기 전에 학습 프로세스를 구성합니다. 이 과정에서는 손실 함수, 옵티마이저의 종류 및 학습 과 테스트 중 모델을 평가할 지표(metrics)를 정의합니다.
 
-```
+```python
 model.compile(loss='categorical_crossentropy',
              optimizer='adam',
              metrics=['accuracy'])
@@ -159,10 +223,16 @@ model.compile(loss='categorical_crossentropy',
 
 <br>
 
+
 ### 모델 학습시키기 (Train the model)
 
-배치(batch) 사이즈는 64, 에포크(epochs)는 10으로 하여 모델을 학습시킵니다.
-```
+`fit`을 사용하여 배치(batch) 사이즈는 64, 에포크(epochs)는 10으로 모델을 학습시킵니다. `ModelCheckpoint API`를 사용하여 에폭(epoch)마다 모델을 저장할 수 있습니다. 검증 정확도(validation accuracy)가 향상되었을 때 저장하려면 `save_best_only = True`로 설정하면 됩니다.
+>배치(batch)는 전체 데이터 셋 중에서 64개씩 학습시키는 것을 말하며, 에포크(epochs)는 전체 데이터셋을 몇번 학습시킬 것인지를 나타냅니다.
+
+```python
+from keras.callbacks import ModelCheckpoint
+
+checkpointer = ModelCheckpoint(filepath='model.weights.best.hdf5', verbose = 1, save_best_only=True)
 model.fit(x_train,
          y_train,
          batch_size=64,
@@ -173,10 +243,21 @@ model.fit(x_train,
 
 <br>
 
+### 가장 높은 검증 정확도의 모델 불러오기(Load Model with the best validation accuracy)
+
+
+```python
+# 가장 높은 검증 정확도의 가중치 불러오기
+model.load_weights('model.weights.best.hdf5')
+```
+
+<br>
+
 ### 테스트 정확도 (Test Accuracy)
 
 90% 이상의 테스트 정확도를 얻었습니다!
-```
+
+```python
 # 테스트 셋으로 모델 평가
 score = model.evaluate(x_test, y_test, verbose=0)
 
@@ -184,15 +265,36 @@ score = model.evaluate(x_test, y_test, verbose=0)
 print('\n', 'Test accuracy:', score[1])
 ```
 
-<br>
+<br></br>
+
 
 ### 예측값 시각화하기 (Visualize the predictions)
 
 이제 훈련 된 모델을 사용하여 ```model.predict(x_test)``` 으로 테스트 셋을 예측/분류 하고 시각화할 수 있습니다 . 레이블이 빨간색으로 보인다면 실제 레이블과 매칭되지 않음(예측 틀림)을 나타냅니다. 반대로 초록색으로 보인다면 잘 예측한 것 입니다.
 
+```python
+# y_hat은 test 데이터셋 예측
+y_hat = model.predict(x_test)
+
+# 무작위 샘플로 10 개의 테스트 이미지와 예측 레이블 및 실제 레이블을 그려줍니다.
+figure = plt.figure(figsize=(20, 8))
+for i, index in enumerate(np.random.choice(x_test.shape[0], size=15, replace=False)):
+    ax = figure.add_subplot(3, 5, i + 1, xticks=[], yticks=[])
+    ax.imshow(np.squeeze(x_test[index])) # 각각의 이미지를 보여줌
+    predict_index = np.argmax(y_hat[index])
+    true_index = np.argmax(y_test[index]) # 각각의 이미지에 예측레이블 (실제레이블) 표시
+    ax.set_title("{} ({})".format(fashion_mnist_labels[predict_index],
+                                  fashion_mnist_labels[true_index]),
+                                  color=("green" if predict_index == true_index else "red"))
+```
+
 ![](../media/10_4.png)
 
-<br>
+<br></br>
+
+### 참고문서
+* [케라스 공식 홈페이지]()
+* [김태영님의 케라스 블로그](https://tykimos.github.io/)
 
 > 이 글은 2018 컨트리뷰톤에서 [Contribute to Keras](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다. <br>
 > Translator : [김수정](https://github.com/SooDevv) <br>
