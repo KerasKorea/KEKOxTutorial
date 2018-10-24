@@ -192,7 +192,7 @@ testY = lb.transform(testY)
 원핫 인코딩은 단일 정수인 범주형 라벨을 벡터로 변환해주어
 범주형 교차 엔트로피(Categorical cross-entropy) 손실 함수(Loss function)를 사용할 수 있게 해줍니다. 
 
-Next, we create a data augmenter and set of callbacks:
+다음은 데이터 오그멘테이션(Augmentation)을 위한 함수와, 기타 콜백 함수들을 정의하는 부분입니다.
 
 ```python
 # construct the image generator for data augmentation and construct
@@ -203,13 +203,18 @@ aug = ImageDataGenerator(width_shift_range=0.1,
 callbacks = [LearningRateScheduler(poly_decay)]
 ```
 
-On Lines 67-69 we construct the image generator for data augmentation.
+블록의 세 번째 행에서는 데이터 오그멘테이션을 위한 이미지 제너레이터(Generator)를 구성합니다.
 
-Data augmentation is covered in detail inside the Practitioner Bundle of Deep Learning for Computer Vision with Python; however, for the time being understand that it’s a method used during the training process where we randomly alter the training images by applying random transformations to them.
+데이터 오그멘테이션에 대한 자세한 내용은
+[*Deep Learning for Computer Vision with Python*](https://www.pyimagesearch.com/deep-learning-computer-vision-python-book/)
+실무자 버전에서 다루고 있지만, 간단히 설명하자면 오그멘테이션은 학습에 사용되는 이미지들을
+임의로 변형하여 새로운 이미지를 생성하는 방법론 입니다. 
 
-Because of these alterations, the network is constantly seeing augmented examples — this enables the network to generalize better to the validation data while perhaps performing worse on the training set. In most situations these trade off is a worthwhile one.
+이러한 변형은 네트워크가 지속적으로 새로운 이미지를 학습할 수 있게 하고, 
+검증 데이터 세트에 대해 일반화가 더 잘 이루어지게 합니다. 간혹 학습 데이터 세트에 대한 
+성능이 저하될 수도 있지만, 대부분의 경우 이 정도는 타협할 수 있는 수준입니다. 
 
-We create a callback function on Line 70 which will allow our learning rate to decay after each epoch — notice our function name, poly_decay .
+블록의 마지막 행에서는 매 에폭마다 학습률을 감소시켜주기 위한 콜백 함수를 정의합니다.
 
 다음으로 GPU 변수를 살펴보겠습니다.
 
@@ -282,15 +287,17 @@ H = model.fit_generator(
 
 이제 우리는 모델을 학습시킬 준비가 되었습니다!
 
-To initiate the training process, we make a call to model.fit_generator  and provide the necessary arguments.
+학습을 시작하기 위해서는 `model.fit_generator` 함수를 필요한 인자들과 함께 호출해야 합니다.
 
-We’d like a batch size of 64 on each GPU so that is specified by  batch_size=64 * G  .
+각 GPU에 대한 배치 크기를 64로 설정하기 위해 `batch_size=64 * G`로 지정합니다. 
 
-Our training will continue for 70 epochs (which we specified previously).
+학습은 전에 설정한 바와 같이 70 에폭동안 수행됩니다. 
 
-The results of the gradient update will be combined on the CPU and then applied to each GPU throughout the training process.
+학습이 진행되는 동안 CPU는 각 GPU에서 계산된 기울기들을 바탕으로 모델의 가중치를 업데이트 합니다.
+그 후 업데이트된 모델은 각 GPU에 다시 반영됩니다. 
 
-Now that training and testing is complete, let’s plot the loss/accuracy so we can visualize the training process:
+이제 학습과 테스트 과정은 완료되었으니, 다음은 손실 및 정확도를 그래프로 나타내어
+학습 과정을 시각화할 차례입니다.
 
 ```python
 # grab the history object dictionary
@@ -314,9 +321,13 @@ plt.savefig(args["output"])
 plt.close()
 ```
 
-This last block simply uses matplotlib to plot training/testing loss and accuracy (Lines 112-121), and then saves the figure to disk (Line 124).
+위의 마지막 코드 블록은 `matplotlib`을 사용하여 학습과 테스트 데이터 세트에 대한
+손실 및 정확도를 그래프로 나타낸 후, 해당 플롯을 디스크에 저장하는 과정입니다. 
 
-If you would like more to learn more about the training process (and how it works internally), please refer to Deep Learning for Computer Vision with Python.
+만약 학습 과정이 내부적으로 어떻게 작동하는지 자세히 알고 싶으시다면, 제 책
+[*Deep Learning for Computer Vision with Python*](https://www.pyimagesearch.com/deep-learning-computer-vision-python-book/)을 
+참고해 보시는 것을 추천합니다.
+
 
 ### Keras multi-GPU results
 
