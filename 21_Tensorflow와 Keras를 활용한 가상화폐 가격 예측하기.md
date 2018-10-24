@@ -246,7 +246,7 @@ model.fit(training_datas, training_labels,verbose=1, batch_size=batch_size,valid
 
 <br></br>
 
-내가 빌드한 첫 번째 모델은 CNN 입니다. 위의 코드에서는 사용할 GPU 개수를 "1"로 설정합니다(저는 4개의 GPU를 가지고 있지만, 당신은 원하는 만큼의 GPU를 상용할 수 있습니다). 왜냐하면 Tensorflow로 여러개의 GPUs를 사용하는 것은 그다지 잘 돌아가지 않기 때문에, 사용할 GPU를 1개로 제한하는 것이 더 현명한 방법일지도 모릅니다. 당신이 GPU가 없다고해도 걱정하지마세요. GPU를 설정하는 코드를 가뿐히 무시하기만 하면 됩니다.
+여기서 빌드한 첫 번째 모델은 CNN로, 사용할 GPU 개수를 "1"로 설정합니다(저는 4개의 GPU를 가지고 있지만, 당신은 원하는 만큼의 GPU를 사용할 수 있습니다). 왜냐하면 Tensorflow로 여러개의 GPUs를 사용하는 것은 그다지 잘 돌아가지 않기 때문에, 사용할 GPU를 1개로 제한하는 것이 더 현명한 방법일지도 모릅니다. 당신이 GPU가 없다고해도 걱정하지마세요. GPU를 설정하는 코드를 가뿐히 무시하면 됩니다.
 
 ```Python
 os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
@@ -602,11 +602,11 @@ figure5에 보이는 표는 100번의 학습 epochs에서 가장 우수한 valid
 
 #### Regularization
 
-가장 좋은 regularization 전략을 찾기 위해서, 저는 L1 regularization, L2 regularization 으로 몇 개의 실험을 했습니다. 첫 번쨰로 우리는 LSTM에 데이터를 쉽게 피팅시킬 수 있는 새로운 기능을 정의해야 합니다. 저는 bias를 벡터에 대한 regularization인 bias regularizer를 예로 들겠습니다.
+가장 좋은 regularization 전략을 찾기 위해서, L1 regularization, L2 regularization으로 몇 개의 실험을 했습니다. 첫 번째로 우리는 LSTM에 데이터를 쉽게 피팅시킬 수 있는 새로운 기능을 정의해야 합니다. 저는 bias를 벡터에 대한 regularization인 bias regularizer를 예로 들겠습니다.
 
 <br></br>
 
-```pythonn
+```python
 def fit_lstm(reg):
     global training_datas, training_labels, batch_size, epochs,step_size,nb_features, units
     model = Sequential()
