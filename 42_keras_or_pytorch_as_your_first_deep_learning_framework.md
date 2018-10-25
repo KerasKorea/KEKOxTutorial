@@ -149,7 +149,7 @@ PyTorch는 Tensorflow만큼 빠르며, RNN에선 잠재적으로 더 빠릅니�
 - 학습 속도에 대한 걱정과 달리, PyTorch가 Keras를 능가
 
 ### Keras vs PyTorch : 결론
-Keras와 PyTorch는 배우기위한 첫번째 딥러닝 프레임워크로 좋은 선택입니다.  
+Keras와 PyTorch는 배우기 위한 첫번째 딥러닝 프레임워크로 좋은 선택입니다.  
 만약 당신이 수학자, 연구자, 혹은 당신의 모델이 실제로 어떻게 작동하는지 알고 싶다면, PyTorch를 선택하길 권장합니다. 고급 맞춤형 알고리즘(그리고 디버깅)이 필요한 경우(ex. [YOLOv3](https://blog.paperspace.com/how-to-implement-a-yolo-object-detector-in-pytorch/) 혹은 [LSTM](https://medium.com/huggingface/understanding-emotions-from-keras-to-pytorch-3ccb61d5a983)을 사용한 객체 인식) 또는 신경망 이외의 배열 식을 최적화해야 할 경우(ex. [행렬 분해](http://blog.ethanrosenthal.com/2017/06/20/matrix-factorization-in-pytorch/) 혹은 [word2vec](https://adoni.github.io/2017/11/08/word2vec-pytorch/) 알고리즘)에 빛을 발합니다.  
 
  plug & play 프레임워크를 원한다면, Keras는 확실히 더 쉬울 겁니다. 즉, 수학적 구현의 세부 사항들에 많은 시간을 들이지 않고도 모델을 신속하게 제작, 학습 그리고 평가할 수 있습니다.  
