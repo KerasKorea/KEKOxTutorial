@@ -1,6 +1,6 @@
 # Keras와 GPU-enabled Kaggle Kernel을 이용한 텍스트 생성 LSTM 응용
 
-원문: https://medium.freecodecamp.org/applied-introduction-to-lstms-for-text-generation-380158b29fb3
+[원문 바로가기](https://medium.freecodecamp.org/applied-introduction-to-lstms-for-text-generation-380158b29fb3)
 
 > 이 문서는 Keras와 GPU-enabled Kaggle Kernel을 이용한 텍스트 생성 LSTM 모델에 대해 설명합니다. freeCodeCampe Gitter 채팅 로그 데이터셋을 LSTM network 모델에 학습시켜 새로운 텍스트를 생성합니다. 
 
@@ -42,7 +42,7 @@ config.gpu_options.allow_growth = True
 
 ## Part 1: 데이터 준비
 
-파트 1에서는, 먼저 데이터를 읽어보고 작업 내용을 충분히 이해해보겠습니다. 비상호적인 튜토리얼(예를 들어, GitHub의 코드 공유)을 따라할 때, 큰 어려움은 중 하나는 작업하고 싶은 데이터가 샘플 코드의 것과 어떻게 다른지 알기 어렵다는 것입니다. 이를 알기 위해서는 직접 다운받아 비교해보아야합니다. 
+파트 1에서는, 먼저 데이터를 읽어보고 작업 내용을 충분히 이해해보겠습니다. 비상호적인 튜토리얼(예를 들어, GitHub의 코드 공유)을 따라할 때, 큰 어려움은 중 하나는 작업하고 싶은 데이터가 샘플 코드와 어떻게 다른지 알기 어렵다는 것입니다. 이를 알기 위해서는 직접 다운받아 비교해보아야합니다. 
 
 Kernel을 사용해서 이 튜토리얼을 따라하는 것이 좋은 2가지 점은 다음과 같습니다. 1) 모든 주요 단계에서 데이터를 훑어볼 수 있습니다. 2) 언제든지 이 notebook을 fork할 수 있으며, 제 환경, 데이터, Docker 이미지 및 필요한 모든 것을 다운로드나 설치 없이 얻을 수 있습니다. 특히, 딥러닝을 위해 GPU를 사용하는 CUDA 환경을 설치한 경험이 있다면, 이러한 환경이 이미 준비되어 있는 것이 얼마나 좋은지 알 수 있겠지요.
 
@@ -84,7 +84,7 @@ plt.show(g)
 
 ![img](https://cdn-images-1.medium.com/max/1600/1*JxNsHuuN9ESnlzDntuBqBQ.png)
 
-사용자id  `55a7c9e08a7b72f55c3f991e`는 채널에서 140,000개가 넘는 메시지를 남긴 가장 활동적인 사용자입니다. 우리는 이들의 메시지를 사용하여 사용자  `55a7c9e08a7b72f55c3f991e` 의 메시지같은 문장을 생성해내는 LSTM을 학습시키겠습니다. 그러나 먼저,  `55a7c9e08a7b72f55c3f991e`의 메시지를 보면서 무엇에 대해 대화하고 있는지 알아보겠습니다. 
+사용자 id  `55a7c9e08a7b72f55c3f991e`는 채널에서 140,000개가 넘는 메시지를 남긴 가장 활동적인 사용자입니다. 우리는 이들의 메시지를 사용하여 사용자  `55a7c9e08a7b72f55c3f991e`의 메시지같은 문장을 생성해내는 LSTM을 학습시키겠습니다. 그러나 먼저,  `55a7c9e08a7b72f55c3f991e`의 메시지를 보면서 무엇에 대해 대화하고 있는지 알아보겠습니다. 
 
 ```python
 chat[chat['fromUser.id'] == "55a7c9e08a7b72f55c3f991e"].text.head(20)
@@ -100,7 +100,7 @@ chat[chat['fromUser.id'] == "55a7c9e08a7b72f55c3f991e"].text.head(20)
 
 ### LSTM의 입력값에 대한 시퀀스 데이터 준비 
 
-현재, 우리는 사용자id와 메시지 텍스트에 해당하는 열을 가진 데이터 프레임이 있습니다. 여기서 각 행은 전송된 하나의 메시지입니다. 이는 LSTM network의 입력 레이어에 필요한 3차원 형태와는 거리가 멉니다: `model.add(LSTM(batch_size, input_shape=(time_steps, features)))` 에서 `batch_size`는 각 샘플에서 시퀀스의 수이고, `time_steps`은 각 샘플에서 관측치의 크기입니다. `feature`은 관찰 가능한 특징(feature)의 수로 우리의 경우 문자를 의미합니다. 
+현재, 우리는 사용자 id와 메시지 텍스트에 해당하는 열을 가진 데이터 프레임이 있습니다. 여기서 각 행은 전송된 하나의 메시지입니다. 이는 LSTM network의 입력 레이어에 필요한 3차원 형태와는 거리가 멉니다: `model.add(LSTM(batch_size, input_shape=(time_steps, features)))`에서 `batch_size`는 각 샘플에서 시퀀스의 수이고, `time_steps`는 각 샘플에서 관측치의 크기입니다. `feature`는 관찰 가능한 특징(feature)의 수로 우리의 경우 문자를 의미합니다. 
 
 어떻게 데이터 프레임을 올바른 형태인 연속 데이터로 만들 수 있을까요? 3단계로 해볼 수 있습니다. 
 
@@ -113,7 +113,7 @@ chat[chat['fromUser.id'] == "55a7c9e08a7b72f55c3f991e"].text.head(20)
 
 ### 말뭉치로부터 데이터 뽑기 
 
-다음의 두 셀에서, `55a7c9e08a7b72f55c3f991e` (`'fromUser.id' == '55a7c9e08a7b72f55c3f991e'`)의 메시지만 가져와 데이터를 뽑아내고, 문자열 벡터를 단일 문자열로 변환하겠습니다. 우리 모델이 생성하는 텍스트가 올바른 대문자화를 하는지 신경쓰지 않을 것이기 때문에, `tolower()`함수를 사용하여 문자를 모두 소문자로 바꾸겠습니다. 이는 학습해야할 차원을 하나 축소시켜줍니다. 
+다음 두 셀에서, `55a7c9e08a7b72f55c3f991e` (`'fromUser.id' == '55a7c9e08a7b72f55c3f991e'`)의 메시지만 가져와 데이터를 뽑아내고, 문자열 벡터를 단일 문자열로 변환하겠습니다. 우리 모델이 생성하는 텍스트가 올바른 대문자화를 하는지 신경쓰지 않을 것이기 때문에, `tolower()`함수를 사용하여 문자를 모두 소문자로 바꾸겠습니다. 이는 학습해야할 차원을 하나 축소시켜줍니다. 
 
 또한, 데이터의 처음 20%를 샘플로 사용하겠습니다. 중간 길이 정도의 텍스트를 생성하는데 그 이상은 필요없기 때문입니다. 이 kernel을 fork하여 원한다면 더 많은(혹은 적은) 데이터로 실험해볼 수 있습니다. 
 
@@ -142,7 +142,7 @@ user[:100] # Show first 100 characters
 
 ### Format the corpus into arrays of semi-overlapping sequences of uniform length and next characters
 
-나머지 코드는 LSTM을 학습하기 위한 올바른 형식의 데이터를 준비하는 것으로, François Chollet (Keras 및 Kaggler 작성자)이 작성한  [예제 스크립트](https://github.com/keras-team/keras/blob/master/examples/lstm_text_generation.py)를 참고하여 작성하였습니다. 문자 수준의 모델을 학습시키므로, 셀에서 문자들("a", "b", "c", …)을 숫자 인덱스에 연결합니다.  [“Fork Notebook”](https://www.kaggle.com/mrisdal/intro-to-lstms-w-keras-gpu-for-text-generation/) 를 클릭하여 이 코드를 다시 실행하면, 사용된 모든 문자를 출력할 수 있습니다. 
+나머지 코드는 LSTM을 학습하기 위한 올바른 형식의 데이터를 준비하는 것으로, François Chollet (Keras 및 Kaggler 작성자)이 작성한  [예제 스크립트](https://github.com/keras-team/keras/blob/master/examples/lstm_text_generation.py)를 참고하여 작성하였습니다. 문자 수준의 모델을 학습시키므로, 셀에서 문자들("a", "b", "c", …)을 숫자 인덱스에 연결합니다.  [“Fork Notebook”](https://www.kaggle.com/mrisdal/intro-to-lstms-w-keras-gpu-for-text-generation/)를 클릭해 이 코드를 다시 실행하면, 사용된 모든 문자를 출력할 수 있습니다. 
 
 ```python
 chars = sorted(list(set(user)))
@@ -177,7 +177,7 @@ print(next_chars[:10])
 
 ### Represent the sequence data as sparse boolean tensors
 
-다음 셀은 [kernael에서 상호적으로 따라갈 때](https://www.kaggle.com/mrisdal/intro-to-lstms-w-keras-gpu-for-text-generation/), 몇 초 정도 걸립니다. 우리가 훈련시키는 모델에 대한 입력으로 사용하기 위해 `sentence`와 `next_chars`로 부터 문자수준의 특징(feature)들을 인코딩하는 sparse boolean tenser `x`와 `y`를 생성합니다. 마지막 shape는 다음과 같습니다:`input_shape=(maxlen, len(chars)) ` 로 여기서 `maxlen`은 40이며 `len(chars)`는 특징(feature)의 수(즉, 말뭉치의 고유한 문자 수)입니다. 
+다음 셀은 [kernael에서 상호적으로 따라갈 때](https://www.kaggle.com/mrisdal/intro-to-lstms-w-keras-gpu-for-text-generation/), 몇 초 정도 걸립니다. 우리가 훈련시키는 모델에 대한 입력으로 사용하기 위해 `sentence`와 `next_chars`로 부터 문자수준의 특징(feature)들을 인코딩하는 sparse boolean tenser `x`와 `y`를 생성합니다. 마지막 shape는 다음과 같습니다:`input_shape=(maxlen, len(chars)) `로 여기서 `maxlen`은 40이며 `len(chars)`는 특징(feature)의 수(즉, 말뭉치의 고유한 문자 수)입니다. 
 
 ```python
 x = np.zeros((len(sentences), maxlen, len(chars)), dtype=np.bool)
@@ -216,7 +216,7 @@ import io
 
 ![img](https://cdn-images-1.medium.com/max/2000/1*AMS1StiZxxRR64Zg1f3v9g.png)
 
-아래 셀에서 모델을 정의합니다. 우리는 sequential model로 시작하여 입력 레이어로 LSTM을 추가합니다.  입력에 대해 정의한 shape은 우리가 필요로하는 이 시점의 데이터와 동일합니다. 저는 `batch_size` 로 128을 선택하였습니다. 이는 샘플 수, 또는 sequence이며, 우리 모델은 . 원하는 경우 다른 숫자로 실험해볼 수 있습니다. 또한, dense output layer를 추가할 것입니다. 마지막으로, sequence 다음 문자를 예측하기 위해 다범주 분류가 필수적이기 때문에, 활성화 함수로 `softmax` 를 활성화 레이어에 추가합니다. 
+아래 셀에서 모델을 정의합니다. 우리는 sequential model로 시작하여 입력 레이어로 LSTM을 추가합니다. 입력에 대해 정의한 shape은 우리가 필요로하는 이 시점의 데이터와 동일합니다. 저는 `batch_size`로 128을 선택하였습니다. 이는 샘플 수, 또는 sequence이며, 우리 모델은 . 원하는 경우 다른 숫자로 실험해볼 수 있습니다. 또한, dense output layer를 추가할 것입니다. 마지막으로, sequence 다음 문자를 예측하기 위해 다범주 분류가 필수적이기 때문에, 활성화 함수로 `softmax` 를 활성화 레이어에 추가합니다. 
 
 ```python
 model = Sequential()
@@ -236,9 +236,9 @@ model.compile(loss='categorical_crossentropy', optimizer=optimizer)
 
 > **Temperature** *은 활성화 함수인* * `*softmax*`*를 적용하기 전에 dense layer의 출력에 적용되는 scaling factor 입니다. 간단히 말해서, 시퀀스의 다음 문자에 대한 모델의 추측이 얼마나 보수적인지 또는 "창의적인지" 정의합니다.* `*temperature*`*의 낮은 값(예*. `*0.2*`*)는 "안전한" 추측값을 생성하지만* `*1.0*`*을 넘는*  `*temperature*`*의 값은 "위험한" 추측을 생성하기 시작합니다.* "st"로 시작하는 영어단어와 "sg"로 시작하는 영어단어를 보았을 때 추측되는 양을 생각해봅시다. temperature가 낮으면 많은 "the"와 "and"를 얻을 것입니다; 하지만 temperature가 높다면 결과는 예측할 수 없게 됩니다.  
 
-두 번째 함수는 처음과 매 5 epoch마다 5개의 다른 `temperature` 의 설정(`for diversity in [0.2, 0.5, 1.0, 1.2]:`  라인 참조, 각각은 `temperature`의 값으로 아무렇게나 조정해도 됩니다.) 으로 훈련된 LSTM에 의해 생성된 예측 텍스트를 출력하기 위한 콜백 함수입니다.
+두 번째 함수는 처음과 매 5 epoch마다 5개의 다른 `temperature`의 설정(`for diversity in [0.2, 0.5, 1.0, 1.2]:`  라인 참조, 각각은 `temperature`의 값으로 아무렇게나 조정해도 됩니다.) 으로 훈련된 LSTM에 의해 생성된 예측 텍스트를 출력하기 위한 콜백 함수입니다.
 
-이 방법으로 `temperature` 조절을 통하여 보수적인 텍스트부터 창의적인 텍스트까지 생성하는 것을 볼 수 있습니다.  우리의 모델은 원본의 부분 데이터인 `user`: `start_index = random.randint(0, len(user) - maxlen - 1)`  에서 얻어진 임의의 시퀀스 또는 "seed"를 기반으로 예측합니다. 
+이 방법으로 `temperature` 조절을 통하여 보수적인 텍스트부터 창의적인 텍스트까지 생성하는 것을 볼 수 있습니다.  우리의 모델은 원본의 부분 데이터인 `user`: `start_index = random.randint(0, len(user) - maxlen - 1)`에서 얻어진 임의의 시퀀스 또는 "seed"를 기반으로 예측합니다. 
 
 마지막으로 콜백 함수의 이름을 `generate_text`라고 짓겠습니다. 이 콜백 함수를 이 다음 셀에서 모델을 적합할 때 콜백 목록에 추가하겠습니다. 
 
@@ -295,7 +295,7 @@ generate_text = LambdaCallback(on_epoch_end=on_epoch_end)
 
 ### 모델 트레이닝 및 예측값 생성
 
-드디어 해냈습니다! 데이터가 준비되었습니다(`x`는 시퀀스, `y`는 다음 문자).  `batch_size`로 128을 선택하였습니다. 또한 우리는 매번 다른 5개의 `temperature` 설정을 가지는 매 5 epoch의 첫 epoch의 끝에서  `model.predict()`을 사용하여 생성된 텍스트를 출력할 콜백 함수를 정의하였습니다. 또 다른 콜백함수로 `ModelCheckpoint`를 사용하였는데, 이는 손실 값을 기준으로 손실 값이 개선된다면 각 epoch마다 최고의 모델을 저장합니다(kernel의 "Output" 탭에서 저장된 가중치 파일 `weights.hdf5`을 보십시오).
+드디어 해냈습니다! 데이터가 준비되었습니다(`x`는 시퀀스, `y`는 다음 문자). `batch_size`로 128을 선택하였습니다. 또한 우리는 매번 다른 5개의 `temperature` 설정을 가지는 매 5 epoch의 첫 epoch의 끝에서 `model.predict()`을 사용하여 생성된 텍스트를 출력할 콜백 함수를 정의하였습니다. 또 다른 콜백함수로 `ModelCheckpoint`를 사용하였는데, 이는 손실 값을 기준으로 손실 값이 개선된다면 각 epoch마다 최고의 모델을 저장합니다(kernel의 "Output" 탭에서 저장된 가중치 파일 `weights.hdf5`을 보십시오).
 
 이제 우리의 모델에 이러한 점들을 적용시키고, 훈련시킬 ephoch의 수를 `epochs = 15`로 정하겠습니다. 물론, GPU를 사용하는 것을 잊지마세요! 이렇게 하면 CPU를 사용하는 것보다 훨씬 더 빨리 학습/예측할 수 있습니다. 이 코드를 대화식으로 실행한다면 모델을 훈련시키고 예측을 생성하는 것을 기다리는 동안 점심을 먹거나 산책해도 되겠죠. 
 
@@ -342,10 +342,10 @@ with tf.device('/gpu:0'):
 배운 것을 활용하여 확장하는 방법에 대한 아이디어입니다. 
 
 1. 훈련 데이터 양, 에폭(epoch), 배치(batch) 크기, `temperature`등 다른(hyper)-매개변수를 사용하여 실험해보세요.
-2. 동일한 코드를 다른 데이터로 시도해보세요; 이 notebook을 fork하고 "Data" 탭으로 이동합니다. freeCodeCamp 데이터 소스를 제ㄴ거하고 다른 데이터 셋([좋은 예제들]((https://www.kaggle.com/datasets?sortBy=hottest&group=public&page=1&pageSize=20&size=all&filetype=all&license=all&tagids=11208)))을 넣어봅시다. 
+2. 동일한 코드를 다른 데이터로 시도해보세요; 이 notebook을 fork하고 "Data" 탭으로 이동합니다. freeCodeCamp 데이터 소스를 제거하고 다른 데이터 셋([좋은 예제들]((https://www.kaggle.com/datasets?sortBy=hottest&group=public&page=1&pageSize=20&size=all&filetype=all&license=all&tagids=11208)))을 넣어봅시다. 
 3. dropout 레이어 추가와 같은 복잡한 network 아키텍처를 사용해보세요.
 4. Kernel에서 비디오 및 실습 notebook 튜토리얼이 있는 [Kaggle Learn](https://www.kaggle.com/learn/deep-learning) 에서 딥러닝에 대해 더 공부해보세요.
-5. "출력"에서  `weights.hdf5`를 사용하여 이 튜토리얼의 사용자가 다른 사람의 문장을 완성하면 새로운 Kernel의 다른 데이터를 기반으로 예측할 수 있습니다. 
+5. "출력"에서 `weights.hdf5`를 사용하여 이 튜토리얼의 사용자가 다른 사람의 문장을 완성하면 새로운 Kernel의 다른 데이터를 기반으로 예측할 수 있습니다. 
 6. 최소한의 예제에서 CPU와 GPU의 속도 향상 정도를 비교해보세요. 
 
 
