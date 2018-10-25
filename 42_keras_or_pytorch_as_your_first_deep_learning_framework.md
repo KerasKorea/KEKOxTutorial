@@ -101,7 +101,7 @@ PyTorch보다 간단한 Keras는 더이상 장난감을 의미하진 않습니�
 
 두 프레임워크는 만족스러운 참고 문서를 갖고 있지만, PyTorch는 강력한 커뮤니티 지원을 제공합니다. 해당 커뮤니티 게시판은 당신이 난관에 부딪쳤거나 참고 문서나 스택오버플로우는 당신이 필요로 하는 정답이 없다면 방문하기 좋은 곳이다.
 
-anecdotally, 우리는 특정 신경망 구조에서 초심자 수준의 딥러닝 코스를 PyTorch보다 Keras로 더 쉽게 접근할 수 있다는 걸 발견했습니다. Keras에서 제공하는 코드의 가독성과 실험을 쉽게 해주는 장점으로 인해, Keras는 딥러닝 열광자, 튜터, 고수준의 kaggle 우승자들에 의해 많이 쓰이게 될 겁니다.
+한 일화를 들자면, 우리는 특정 신경망 구조에서 초심자 수준의 딥러닝 코스를 PyTorch보다 Keras로 더 쉽게 접근할 수 있다는 걸 발견했습니다. Keras에서 제공하는 코드의 가독성과 실험을 쉽게 해주는 장점으로 인해, Keras는 딥러닝 열광자, 튜터, 고수준의 kaggle 우승자들에 의해 많이 쓰이게 될 겁니다.
 
 Keras 자료와 딥러닝 코스의 예시로, ["Starting deep learning hands-on: image classification on CIFAR-10"](https://blog.deepsense.ai/deep-learning-hands-on-image-classification/#_ga=2.52232937.114026073.1540369751-2000517400.1540369751)와 ["Deep Learning with Rython"](https://www.manning.com/books/deep-learning-with-python)를 참조하십시오. PyTorch 자료로는, 신경망의 내부 작업을 학습하는데 더 도던적이고 포괄적인 접근법을 제공하는 공식 튜토리얼을 추천합니다. PyTorch에 대한 전반적인 내용을 보려면, 이 [문서](http://www.goldsborough.me/ml/ai/python/2018/02/04/20-17-20-a_promenade_of_pytorch/)를 참조하세요.
 
