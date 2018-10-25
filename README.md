@@ -6,7 +6,7 @@
 
 ![케라스 로고](media/readme_logo.png)
 
-# KEKOxTutorial 
+# KEKOxTutorial
 `2018 오픈소스 컨트리뷰톤`으로 시작된 케라스 문서 번역 프로젝트 입니다. 전 세계의 멋진 케라스 문서 및 튜토리얼을 한글화하여 `케라스x코리아`를 널리널리 이롭게합니다. 🇰🇷
 
 ### 케라스 코리아 블로그
@@ -21,10 +21,10 @@
 
 ## 멋쟁이 컨트리뷰터 🦄
 
-| 😁 | NAME | HOBBY | CONTRIBUTIONs | 
+| 😁 | NAME | HOBBY | CONTRIBUTIONs |
 |------|----------|----------|-----------|
-|   😉   |  [김수정](https://github.com/SooDevv)    |  🕹 게임하기    |  [Fasion-MNIST](https://keraskorea.github.io/posts/2018-09-28-딥러닝의%20Hello%20World,%20Fashion-MNIST/)  <br/>  [안드로이드에 MNIST 심기]() | 
-| | |
+|   😉   |  [김수정](https://github.com/SooDevv)    |  🕹 게임하기    |  [Fasion-MNIST](https://keraskorea.github.io/posts/2018-09-28-딥러닝의%20Hello%20World,%20Fashion-MNIST/)  <br/>  [안드로이드에 MNIST 심기]() |
+| ![정현](./profile/contributor_jh.JPG) | [박정현](https://github.com/parkjh688)| 위키피디아, 나무위키 읽기 📙 <br></br> 서브웨이 샌드위치 먹기 🥪 <br></br> 운동하기 💪 | [케라스 LSTM 모델로 작곡하기](https://keraskorea.github.io/posts/2018-09-01-케라스%20LSTM%20모델로%20작곡하기/) <br></br> [OpenCV를 사용한 Neural Style Transfer](https://keraskorea.github.io/posts/2018-09-10-OpenCV를%20사용한%20Neural%20Style%20Transfer/) <br></br> [딥러닝(CycleGAN)을 이용해 Fornite 를 PUBG 로 바꾸기](https://keraskorea.github.io/posts/2018-10-24-딥러닝(CycleGAN)을%20이용해%20Fornite%20를%20PUBG%20로%20바꾸기/) <br></br> [뉴럴 네트워크 임베딩을 이용한 추천 시스템](https://keraskorea.github.io/posts/2018-10-16-뉴럴%20네트워크%20임베딩을%20이용한%20추천%20시스템%20만들기/) <br></br> [Keras 와 Gym 과 함께하는 Deep Q-Learning 을 향한 여행]() <br></br> [Tensorflow와 Keras를 활용한 가상화폐 가격 예측하기](https://keraskorea.github.io/posts/2018-10-24-Tensorflow와%20Keras를%20활용한%20가상화폐%20가격%20예측하기/) <br></br> [Generative Adversarial Nets (GANs) 이해하기](https://keraskorea.github.io/posts/2018-09-18-Generative%20Adversarial%20Nets%20(GANs)%20이해하기/)|
 
 
 > 오해하지 마세요, 외모 순서가 아니라 ㄱ-ㄴ-ㄷ순서입니다.
@@ -32,7 +32,7 @@
 ----
 **METORED BY**
 
-| 😁 | NAME | HOBBY | 
+| 😁 | NAME | HOBBY |
 |------|------|--------|
 | ![태영](media/readme_tykim.png) |   [김태영](https://github.com/tykimos)  |   다른 사람 취미 같이하기   |   
 | ![미정](media/readme_mjjeon.png)   |   [전미정](https://github.com/mijeongjeon)  |   🐱☕️🍷🥖🛫📸📝    |     
