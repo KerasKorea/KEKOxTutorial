@@ -125,7 +125,7 @@ PyTorch는 python기반으로 휴대할 수 없는 pickle에 모델을 저장하
 
 Tensorflow에서 실행되는 Keras는 [모바일용 Tensorflow](https://www.tensorflow.org/mobile/mobile_intro)(혹은 [Tensorflow Lite](https://www.tensorflow.org/mobile/tflite/index))를 통해 모바일 플랫폼에 구축할 수 있는 다양한 솔리드 옵션을 제공합니다. [Tensorflow.js](https://js.tensorflow.org/) 혹은 [Keras.js](https://github.com/transcranial/keras-js)를 사용하여 멋진 웹 애플리케이션을 배포할 수 있습니다. 예를 들어, Piotr와 그의 학생들이 만든, [시험 공포증 유발 요소를 탐지하는 딥러닝 브라우저 플러그인](https://github.com/cytadela8/trypophobia)을 보세요.
 
-PyTorch 모델을 추출하는 건 python 코드때문에 더 부담되기에, 현재 많이 추천하는 접근방식은 [ONNX](https://pytorch.org/docs/master/onnx.html)를 사용하여 PyTorch 모델을 Caffe2로 변환하는 것입니다.
+PyTorch 모델을 추출하는 건 python 코드 때문에 더 부담되기에, 현재 많이 추천하는 접근방식은 [ONNX](https://pytorch.org/docs/master/onnx.html)를 사용하여 PyTorch 모델을 Caffe2로 변환하는 것입니다.
 
 #### 요약
 - Keras : (Tensorflow backend를 통해) 더 많은 개발 옵션을 제공하고, 모델을 쉽게 추출할 수 있음. 
