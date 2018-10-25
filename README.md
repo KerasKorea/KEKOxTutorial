@@ -21,10 +21,10 @@
 
 ## 멋쟁이 컨트리뷰터 🦄
 
-| 😁 | NAME | HOBBY | CONTRIBUTIONs | 
+| 😁 | NAME | HOBBY | CONTRIBUTIONs |
 |------|----------|----------|-----------|
-|   😉   |  [김수정](https://github.com/SooDevv)    |  🕹 게임하기    |  [Fasion-MNIST](https://keraskorea.github.io/posts/2018-09-28-딥러닝의%20Hello%20World,%20Fashion-MNIST/)  <br/>  [안드로이드에 MNIST 심기]() | 
-| | |
+|   😉   |  [김수정](https://github.com/SooDevv)    |  🕹 게임하기    |  [Fasion-MNIST](https://keraskorea.github.io/posts/2018-09-28-딥러닝의%20Hello%20World,%20Fashion-MNIST/)  <br/>  [안드로이드에 MNIST 심기]() |
+| ![정인](media/readme_jungin.jpeg) | [윤정인](https://github.com/wjddlsy) |유튜브 보기!|[케라스로 이해하는 Autoencoder](https://keraskorea.github.io/posts/2018-10-23-keras_autoencoder/) <br/>|
 
 
 > 오해하지 마세요, 외모 순서가 아니라 ㄱ-ㄴ-ㄷ순서입니다.
@@ -32,9 +32,9 @@
 ----
 **METORED BY**
 
-| 😁 | NAME | HOBBY | 
+| 😁 | NAME | HOBBY |
 |------|------|--------|
-| ![태영](media/readme_tykim.png) |   [김태영](https://github.com/tykimos)  |   다른 사람 취미 같이하기   |   
-| ![미정](media/readme_mjjeon.png)   |   [전미정](https://github.com/mijeongjeon)  |   🐱☕️🍷🥖🛫📸📝    |     
+| ![태영](media/readme_tykim.png) |   [김태영](https://github.com/tykimos)  |   다른 사람 취미 같이하기   |
+| ![미정](media/readme_mjjeon.png)   |   [전미정](https://github.com/mijeongjeon)  |   🐱☕️🍷🥖🛫📸📝    |
 
 ##### 컨트리뷰터가 되어 함께 작업하고 싶다면 언제든 연락주세요! [📮](mailto:ninevincentg@gmail.com)
