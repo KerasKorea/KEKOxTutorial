@@ -123,7 +123,7 @@ Keras로 기본 신경망을 만든 사용자들은 PyTorch 사용자들보다 �
 
 PyTorch는 python기반으로 휴대할 수 없는 pickle에 모델을 저장하지만, Keras는 JSON + H5 파일을 사용하는 안전한 접근 방식의 장점을 활용합니다.(일반적으로 Keras에 저장하는게 더 어렵습니다.) 또한 [R에도 Keras](https://keras.rstudio.com/)가 있습니다. 이 경우, R을 사용하여 데이터 분석팀과 협력해야 할 수도 있습니다. 
 
-Tensorflow에서 실행되는 Keras는 [모바일용 Tensorflow](https://www.tensorflow.org/mobile/mobile_intro)(혹은 [Tensorflow Lite](https://www.tensorflow.org/mobile/tflite/index))를 통해 모바일 플랫폼에 구축할 수 있는 다양한 솔리드 옵션을 제공합니다. [Tensorflow.js](https://js.tensorflow.org/) 혹은 [Keras.js](https://github.com/transcranial/keras-js)를 사용하여 멋진 웹 애플리케이션을 배포할 수 있습니다. 예를 들어, Piotr와 그의 학생들이 만든, [시험 공포증 유발 요소를 탐지하는 딥러닝 브라우저 플러그인](https://github.com/cytadela8/trypophobia)를 보세요.
+Tensorflow에서 실행되는 Keras는 [모바일용 Tensorflow](https://www.tensorflow.org/mobile/mobile_intro)(혹은 [Tensorflow Lite](https://www.tensorflow.org/mobile/tflite/index))를 통해 모바일 플랫폼에 구축할 수 있는 다양한 솔리드 옵션을 제공합니다. [Tensorflow.js](https://js.tensorflow.org/) 혹은 [Keras.js](https://github.com/transcranial/keras-js)를 사용하여 멋진 웹 애플리케이션을 배포할 수 있습니다. 예를 들어, Piotr와 그의 학생들이 만든, [시험 공포증 유발 요소를 탐지하는 딥러닝 브라우저 플러그인](https://github.com/cytadela8/trypophobia)을 보세요.
 
 PyTorch 모델을 추출하는 건 python 코드때문에 더 부담되기에, 현재 많이 추천하는 접근방식은 [ONNX](https://pytorch.org/docs/master/onnx.html)를 사용하여 PyTorch 모델을 Caffe2로 변환하는 것입니다.
 
