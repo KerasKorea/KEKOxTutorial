@@ -349,7 +349,7 @@ with tf.device('/gpu:0'):
 6. 최소한의 예제에서 CPU와 GPU의 속도 향상 정도를 비교해보세요. 
 
 
-
-> 이 글은 2018 컨트리뷰톤에서 [Contribute to Keras](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다. 
-> Translator : [윤정인](https://github.com/wjddlsy)
+> 이 글은 2018 컨트리뷰톤에서 [Contribute to Keras](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.   
+> Translator : [윤정인](https://github.com/wjddlsy)   
 > Translator email : [asdff2002@gmail.com](mailto:asdff2002@gmail.com)
+
