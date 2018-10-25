@@ -19,17 +19,13 @@
 
 이 튜토리얼은 같은 주제의 여러 영상을 통합하여 정리한 내용을 담고 있습니다. 튜토리얼에서 쓰인 코드와 주된 설명은 유명 유투버 Siraj Raval를 비롯한 개발자들에 의해 제작되었음을 밝힙니다. 원만한 이해를 돕기 위해 역자가 영상의 내용 및 코드를 적절히 편집하여 다시 작성했습니다. 역자의 개인적인 의견도 다수 포함되어 있습니다.
 
-이 튜토리얼을 제작하는 데 참고한 원본 영상과 Github Repository는 다음과 같습니다.
-
-|  원본   | ![](https://i.ytimg.com/vi/ftMq5ps503w/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLA9OryHkFBqlxXo_j6n5xrL03V4pA) | ![](https://i.ytimg.com/vi/rRssY6FrTvU/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLA0OPIGuoDKJXFwTtzk5Zlm3NBe9A) | ![](https://i.ytimg.com/vi/05NqKJ0v7EE/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBMPWNkS3jrEQuz4CWTnGODc0t7fQ) |
-| :-----: | :----------------------------------------------------------: | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Youtube | [How to Predict Stock Prices Easily - Intro to Deep Learning #7](https://www.youtube.com/watch?v=ftMq5ps503w) | [Q Learning for Trading](https://www.youtube.com/watch?v=rRssY6FrTvU) | [Reinforcement Learning for Stock Prediction](https://www.youtube.com/watch?v=05NqKJ0v7EE) |
-| GitHub  | https://github.com/llSourcell/How-to-Predict-Stock-Prices-Easily-Demo | https://github.com/llSourcell/Q-Learning-for-Trading         | https://github.com/llSourcell/Reinforcement_Learning_for_Stock_Prediction |
-|  내용   |             LSTM을 활용하여 S&P 500의 종가 예측              | Q-Learning을 활용하여 S&P 500의 종가 예측                    | Q-Learning을 활용하여 S&P 500의 종가 예측                    |
+이 튜토리얼을 제작하는 데 참고한 원본 영상과 Github Repository는 이 문서의 하단에 정리되어 있습니다.
 
 
 
 ## LSTM을 활용한 S&P 종가 예측
+
+원본 코드와 데이터는 [여기](https://github.com/llSourcell/How-to-Predict-Stock-Prices-Easily-Demo)에서 확인할 수 있습니다.
 
 > 유의: 이 코드는 python 2를 기반으로 작성되었습니다. 만약 python 3에서 실행하고 싶으시다면 `lstm.py` 코드 내의 `print`와 `xrange` 함수만 적절히 수정해주시면 가능합니다.
 
@@ -92,11 +88,23 @@ def normalise_windows(window_data):
 
 
 
-LSTM은 
+![](https://i.imgur.com/jKodJ1u.png)
+
+`LSTM`은 `RNN(Recurrent Neural Network)`의 일종입니다. `RNN`은 학습을 할 때 현재 입력값뿐만 아니라 이전에 들어온 입력값을 함께 고려하기 때문에 `시계열 데이터`를 학습하기에 적합합니다. 신경망 중간에 있는 `히든 레이어`의 결과값들이 다시 입력값으로 들어가기 때문에 순환(Recurrent) 신경망(Neural Network)이라는 이름이 붙었습니다.
+
+그러나 `RNN`은 만약 데이터가 너무 길어져 이를 표현하는 신경망이 깊어져야만 할 경우 문제가 발생합니다. `RNN`은 `역전파(Backpropagation)`라는 방법을 통해 학습하는데, 위와 같은 경우 그래디언트가 너무 작아져 학습이 잘 안 되는 문제(Vanishing Gradient Problem)가 발생하는 것입니다. 이 문제를 해결하기 위해 `LSTM`이 만들어졌습니다. 
 
 
 
-다음과 같은 코드로 `LSTM` 모델을 생성합니다.
+![](https://i.imgur.com/MPb3OvZ.png)
+
+`LSTM`은 `셀 스테이트(cell state)`라는 개념을 도입하여 그 내부에 있는 `게이트(gate)`들을 통해 어떤 정보를 기억하고 어떤 정보를 버릴지 추가적인 학습을 가능하게 합니다. 이를 통해 `RNN`이 가진 문제(Vanishing Gradient Problem)를 해결할 수 있었습니다.
+
+`LSTM`에 대한 보다 자세한 설명은 [여기](https://brunch.co.kr/@chris-song/9)를 참고하면 좋을 것 같습니다.
+
+
+
+그럼 다시 우리가 풀던 문제로 돌아가볼까요. 다음과 같은 코드로 `LSTM` 모델을 생성합니다.
 
 ```python
 #2단계: 모델 생성
@@ -292,20 +300,199 @@ Q Learning은 다음과 같은 순서로 이루어집니다.
 2. 그리고 Q 함수와 `정책`에 따라, `보상`을 최대화해주는 `행동`을 선택합니다.
 3. `행동`을 한 뒤, 이에 따른 `보상`과 다음 `상태`를 관찰합니다.
 4. 이에 따라 Q 함수를 업데이트 해줍니다.
-5. 다시 2번, `행동`을 선택하는 단계로 돌아가 반복합니다.
+5. 다시 2번, `행동`을 선택하는 단계로 돌아가 반복합니다. 이러한 하나의 반복을 `에피소드`라 합니다.
 6. 학습이 끝나고 나면 `행동`의 `보상`값을 잘 예측해주는 새로운 Q 함수를 얻을 수 있습니다.
 
 
 
+이러한 Q Learning에 있어, Q 함수를 Deep Neural Network로 구성하면 그게 바로 **Deep Q Learning**이 됩니다. 우리는 이러한 Deep Q Network를 활용해 트레이딩 봇을 만들 것입니다.
 
 
 
-
-> 역자 추가 코멘트: 원본 유투브에 댓글이 달리기도 했지만, 사실 Q Learning은 주식 시장에 있어서 좋은 방법은 아닙니다. PPO(Proximal Policy Optimization)와 같은 Policy Gradient 방법이 좀 더 효과적이라고 알려져 있습니다. 그러나 이 튜토리얼의 경우 '주식 시장에 강화학습을 적용해보는 것'에 좀 더 초점을 맞추었기에, 가장 대중적인 강화학습인 Q Learning을 적용했다고 Siraj가 밝혔습니다.
-
+그럼 알고리즘에 대해서 이해했으니, 실제 데이터에 적용하러 가봅시다!
 
 
 
+#### 활용할 코드와 데이터
+
+원본 코드와 데이터는 [여기](https://github.com/llSourcell/Q-Learning-for-Trading)에서 확인할 수 있습니다. `Python 2.7.`로 쓰여 있습니다.
+
+- `agent.py`: Deep Q Learning `에이전트`가 구현되어 있습니다.
+- `envs.py`: 3개의 주식에 대한 거래 환경이 구현되어 있습니다.
+- `model.py`: Q 함수로 쓰이는 Multi-layer Perceptron이 구현되어 있습니다.
+- `utils.py`: 유용한 함수들이 포함되어 있는 파일입니다.
+- `run.py`: 학습/테스트를 할 수 있는 메인 코드입니다.
+- `requirement.txt`: 의존성 파일입니다. `pip install -r requirements.txt`로 필요한 라이브러리를 설치할 수 있습니다.
+- `data/`: 데이터는 `data` 폴더 내에 있는 3개의 csv 파일을 활용합니다. 각각 IBM, MSFT, QCOM의 주가 데이터로, 2000년 1월 3일부터 2017년 12월 27일까지 5629 거래일의 데이터가 포함되어 있습니다. 이 데이터들은 [Alpha Vantage API](https://www.alphavantage.co/)를 활용해 받았습니다.
+
+
+
+#### 코드 실행시키는 방법
+
+- **Deep Q `에이전트`를 훈련시키려면**
+
+  `python run.py --mode train` 명령어를 실행합니다. 여러가지 추가 옵션이 있는데, 다음과 같습니다.
+
+  - `-e`, `--episode`: (기본값: 2000) 실행시킬 `에피소드`의 수를 정해줍니다.
+  - `-b`, `--batch_size`: (기본값: 32) `배치 사이즈`를 정해줍니다.
+  - `-i`, `--inital_invest`: (기본값: 20000) 초기 투자 금액을 정해줍니다.
+
+- **훈련된 모델의 성능을 테스트하려면**
+
+  `python run.py --mode test --weights <trained_model>` 명령어를 실행합니다. `<trained_model>` 는 훈련된 모델의 `weight`가 저장된 경로입니다. 이 명령어를 실행하면 테스트 데이터 포트폴리오의 `에피소드` 당 가치 변화가 저장됩니다.
+
+
+
+#### 코드 설명
+
+모든 코드를 설명하기보다는 학습 메인 코드인 `run.py`를 중심으로 설명하겠습니다.
+
+```python
+import pickle
+import time
+import numpy as np
+import argparse
+import re
+
+from envs import TradingEnv
+from agent import DQNAgent
+from utils import get_data, get_scaler, maybe_make_dir
+
+
+
+if __name__ == '__main__':
+  parser = argparse.ArgumentParser()
+  parser.add_argument('-e', '--episode', type=int, default=2000,
+                      help='number of episode to run')
+  parser.add_argument('-b', '--batch_size', type=int, default=32,
+                      help='batch size for experience replay')
+  parser.add_argument('-i', '--initial_invest', type=int, default=20000,
+                      help='initial investment amount')
+  parser.add_argument('-m', '--mode', type=str, required=True,
+                      help='either "train" or "test"')
+  parser.add_argument('-w', '--weights', type=str, help='a trained model weights')
+  args = parser.parse_args()
+
+  maybe_make_dir('weights')
+  maybe_make_dir('portfolio_val')
+```
+
+먼저 학습에 필요한 라이브러리와 다른 파일에 있는 함수들을 불러와줍니다.
+
+그 후 `argparse`를 활용해 학습 인자를 받을 수 있도록 설정해줍니다.
+
+
+
+```python
+  timestamp = time.strftime('%Y%m%d%H%M')
+
+  data = np.around(get_data())
+  train_data = data[:, :3526]
+  test_data = data[:, 3526:]
+
+  env = TradingEnv(train_data, args.initial_invest)
+  state_size = env.observation_space.shape
+  action_size = env.action_space.n
+  agent = DQNAgent(state_size, action_size)
+  scaler = get_scaler(env)
+    
+  portfolio_value = []
+
+  if args.mode == 'test':
+    # remake the env with test data
+    env = TradingEnv(test_data, args.initial_invest)
+    # load trained weights
+    agent.load(args.weights)
+    # when test, the timestamp is same as time when weights was trained
+    timestamp = re.findall(r'\d{12}', args.weights)[0]
+```
+
+`get_data` 함수를 통해 데이터를 불러온 후, 이를 학습/테스트 데이터로 나눠줍니다.
+
+` env.py` 파일 내에 있는 `TradingEnv`로 `환경`을, `agent.py` 파일 내에 있는 `DQNAgent`로 `에이전트`를 생성합니다.
+
+또 `get_scaler` 함수를 통해 데이터의 `정규화`를 진행합니다.
+
+만약 `test` 모드일 경우에는 훈련 데이터가 아니라 테스트 데이터를 가지고 `환경`을 생성하며, 사전 훈련된 모델의 `weight`를 불러와줍니다.
+
+
+
+```python
+ for e in range(args.episode):
+    state = env.reset()
+    state = scaler.transform([state])
+    for time in range(env.n_step):
+      action = agent.act(state)
+      next_state, reward, done, info = env.step(action)
+      next_state = scaler.transform([next_state])
+      if args.mode == 'train':
+        agent.remember(state, action, reward, next_state, done)
+      state = next_state
+      if done:
+        print("episode: {}/{}, episode end value: {}".format(
+          e + 1, args.episode, info['cur_val']))
+        portfolio_value.append(info['cur_val']) # 에피소드가 끝날 때의 포트폴리오 가치를 기록합니다.
+        break
+      if args.mode == 'train' and len(agent.memory) > args.batch_size:
+        agent.replay(args.batch_size)
+    if args.mode == 'train' and (e + 1) % 10 == 0:  # weights를 중간중간에 저장합니다.
+      agent.save('weights/{}-dqn.h5'.format(timestamp))
+
+  # 포트폴리오 가치 변화를 저장합니다.
+  with open('portfolio_val/{}-{}.p'.format(timestamp, args.mode), 'wb') as fp:
+    pickle.dump(portfolio_value, fp)
+```
+
+사용자가 입력으로 넘겨주는 `에피소드` 수에 따라 학습을 진행합니다. 각 `에피소드`마다 `에이전트`가 `행동`을 하고 그 결과로 `보상`과 다음 `상태`를 받습니다. 만약 이렇게 쌓인 `에피소드` 데이터의 수가 `배치 사이즈`만큼 많아지면 학습을 진행합니다. 10번의 학습을 진행할 때마다 `weight`를 중간중간에 저장해줍니다.
+
+그렇게 학습이 모두 끝나면, 포트폴리오의 가치를 기록한 파일을 생성합니다.
+
+
+
+#### 테스트 결과
+
+![](./media/22_13.png)
+
+모델을 훈련한 뒤 테스트 데이터에 대해 성능을 측정하면 다음과 같은 그래프가 나타납니다. 빨간 선(\$20,000)은 초기 투자 금액을 의미하고, 초록 선은 2000번 실행한 결과의 평균인 \$23,788을 의미합니다. 1000일 동안 \$3,788을 벌었네요! 그렇지만 우리가 이 `에이전트`를 활용해 투자를 시작해도 될까요? 아마도 안 될 것 같습니다. 그래프에서 나타난 포트폴리오 가치가 상당히 변동성이 크다는 것에서도 알 수 있듯, 우리의 `에이전트`는 상당히 불안정합니다.
+
+
+
+#### 앞으로 해야 할 것
+
+평균 \$3,788라는 꽤 괜찮은 수익을 확인했지만, 그럼에도 그 리스크가 너무 커서 사용할 수 없을 정도입니다. 또한 이것은 단지 이 아이디어가 실제로 먹힐까 시범적으로 시도해본 것이지 거래 비용과 같은 실제 현실을 완전히 반영하지는 못합니다. 또 지금 당장은 3개의 주식만 가지고 진행했기 때문에, 만약 주식의 수를 늘린다면 `행동`과 `상태` 공간이 지수적으로 커져 학습이 어려울지도 모릅니다.
+
+
+
+즉, 이 실험에서는 주식 시장에서 `강화학습`으로 문제를 푸는 것이 불가능하지 않다라는 것을 보여준 정도입니다. 만약 좋은 특징(feature)들을 뽑아내 적절한 `강화학습` 알고리즘과 함께 섞어 학습할 수 있다면 상당히 효과적인 중기 트레이딩 시스템을 만들 수 있을 것입니다. 앞으로 할 수 있는 것들은(새로 뽑을 수 있는 특징의 관점에서 봤을 때) 다음과 같습니다.
+
+- 회사에 대한 뉴스 (예-긍정/부정 트윗)
+- 회사의 성과에 대한 정보 (시장 점유, 성장률, 시장 가치, 수입, 매출, 영업이익 등)
+- 경쟁 회사의 뉴스나 성과
+- 산업군의 뉴스
+- 거시경제
+- 정부 정책
+- 주식의 수요와 공급
+- 등등
+
+
+
+> 역자 추가 코멘트: 원본 유투브에 댓글이 달리기도 했지만, 사실 Q Learning은 주식 시장에 적용하는 데 있어서 좋은 방법은 아닙니다. PPO(Proximal Policy Optimization)와 같은 Policy Gradient 방법이 좀 더 효과적이라고 알려져 있습니다. 그러나 이 튜토리얼의 경우 '주식 시장에 강화학습을 적용해보는 것'에 좀 더 초점을 맞추었기에, 가장 대중적인 강화학습인 Q Learning을 적용했다고 Siraj가 밝혔습니다.
+
+
+
+## 참고 자료
+
+[Siraj Raval의 유투브 채널](https://www.youtube.com/channel/UCWN3xxRkmTPmbKwht9FuE5A)
+
+|  원본   | ![](https://i.ytimg.com/vi/ftMq5ps503w/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLA9OryHkFBqlxXo_j6n5xrL03V4pA) | ![](https://i.ytimg.com/vi/rRssY6FrTvU/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLA0OPIGuoDKJXFwTtzk5Zlm3NBe9A) | ![](https://i.ytimg.com/vi/05NqKJ0v7EE/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBMPWNkS3jrEQuz4CWTnGODc0t7fQ) |
+| :-----: | :----------------------------------------------------------: | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Youtube | [How to Predict Stock Prices Easily - Intro to Deep Learning #7](https://www.youtube.com/watch?v=ftMq5ps503w) | [Q Learning for Trading](https://www.youtube.com/watch?v=rRssY6FrTvU) | [Reinforcement Learning for Stock Prediction](https://www.youtube.com/watch?v=05NqKJ0v7EE) |
+| GitHub  | https://github.com/llSourcell/How-to-Predict-Stock-Prices-Easily-Demo | https://github.com/llSourcell/Q-Learning-for-Trading         | https://github.com/llSourcell/Reinforcement_Learning_for_Stock_Prediction |
+|  내용   |             LSTM을 활용하여 S&P 500의 종가 예측              | Q-Learning을 활용하여 S&P 500의 종가 예측                    | Q-Learning을 활용하여 S&P 500의 종가 예측                    |
+
+[송호연 님의 `LSTM` 설명 번역 자료](https://brunch.co.kr/@chris-song/9)
+
+[Teach Machine to Trade](https://shuaiw.github.io/2018/02/11/teach-machine-to-trade.html)
 
 
 
