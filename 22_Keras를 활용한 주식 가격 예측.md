@@ -476,7 +476,11 @@ if __name__ == '__main__':
 
 
 
-> 역자 추가 코멘트: 원본 유투브에 댓글이 달리기도 했지만, 사실 Q Learning은 주식 시장에 적용하는 데 있어서 좋은 방법은 아닙니다. PPO(Proximal Policy Optimization)와 같은 Policy Gradient 방법이 좀 더 효과적이라고 알려져 있습니다. 그러나 이 튜토리얼의 경우 '주식 시장에 강화학습을 적용해보는 것'에 좀 더 초점을 맞추었기에, 가장 대중적인 강화학습인 Q Learning을 적용했다고 Siraj가 밝혔습니다.
+> 역자 추가 코멘트: 원본 유투브에 댓글이 달리기도 했지만, 사실 Q Learning은 주식 시장에 적용하는 데 있어서 좋은 방법은 아닙니다. PPO(Proximal Policy Optimization)와 같은 Policy Gradient 방법이 좀 더 효과적이라고 알려져 있습니다. 
+>
+> 그러나 이 튜토리얼의 경우 '주식 시장에 강화학습을 적용해보는 것'에 좀 더 초점을 맞추었기에, 가장 대중적인 강화학습인 Q Learning을 적용했다고 Siraj가 밝혔습니다. 
+>
+> 만약 Policy Gradient 방법에 대해 좀 더 자세히 알고 싶으시다면 RL Korea에서 제작한 [PG여행](https://reinforcement-learning-kr.github.io/2018/06/29/0_pg-travel-guide/) 페이지를 추천드립니다.
 
 
 
