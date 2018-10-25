@@ -93,7 +93,7 @@ PyTorch보다 간단한 Keras는 더이상 장난감을 의미하진 않습니�
 - PyTorch : 더 유연하고, 딥러닝 개념을 깁게 이해하는데 도움을 줌
 
 ### Keras vs PyTorch : 인기와 학습자료 접근성
-프레임워크의 인기는 단지 유용성의 대리만은 아니다. 작업 코드가 있는 튜토리얼, 리포지토리 그리고 단체 토론 등 커뮤니티 지원도 중요합니다. 2018년 6월 현재, Keras와 PyTorch는 GitHub과 arXiv 논문에서 인기를 누리고 있습니다.(Keras를 언급한 대부분의 논문들은 Tensorflow 백엔드 또한 언급하고 있습니다.) KDnugget에 따르면, Keras와 PyTorch는 가장 빠르게 성장하는 [데이터 과학 도구들](https://www.kdnuggets.com/2018/05/poll-tools-analytics-data-science-machine-learning-results.html)입니다.
+프레임워크의 인기는 단지 유용성의 대리만은 아닙니다. 작업 코드가 있는 튜토리얼, 리포지토리 그리고 단체 토론 등 커뮤니티 지원도 중요합니다. 2018년 6월 현재, Keras와 PyTorch는 GitHub과 arXiv 논문에서 인기를 누리고 있습니다.(Keras를 언급한 대부분의 논문들은 Tensorflow 백엔드 또한 언급하고 있습니다.) KDnugget에 따르면, Keras와 PyTorch는 가장 빠르게 성장하는 [데이터 과학 도구들](https://www.kdnuggets.com/2018/05/poll-tools-analytics-data-science-machine-learning-results.html)입니다.
 
 ![Percentof ML papers that mention...](https://github.com/KerasKorea/KEKOxTutorial/blob/issue_42/media/42_1.png)  
 
