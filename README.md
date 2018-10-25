@@ -25,6 +25,8 @@
 |------|----------|----------|-----------|
 |   😉   |  [김수정](https://github.com/SooDevv)    |  🕹 게임하기    |  [Fasion-MNIST](https://keraskorea.github.io/posts/2018-09-28-딥러닝의%20Hello%20World,%20Fashion-MNIST/)  <br/>  [안드로이드에 MNIST 심기]() |
 | ![](./profile/contributor_YK.png) | [김영규](https://github.com/karl6885) |고양이, 춤, 유투브 보기|[파이썬과 케라스를 이용한 알파제로 만들기](https://keraskorea.github.io/posts/2018-10-23-파이썬과_케라스를_이용한_알파제로_만들기/) <br/>[Keras의 Autoencoder를 활용해 신용카드 이상 거래 탐지하기](https://keraskorea.github.io/posts/2018-10-23-Keras의%20Autoencoder를%20활용해%20신용카드%20이상%20거래%20탐지하기/) <br/>[Keras를 활용한 주식 가격 예측](https://github.com/KerasKorea/KEKOxTutorial/blob/master/22_Keras를%20활용한%20주식%20가격%20예측.md)|
+| ![](./profile/contributor_jw.bmp) | [visionNoob<br/>(이재원)](https://github.com/insurgent92) |조촐하게 모여서 한 잔 🍻🍺🍻 |[딥러닝으로 당뇨망막병증 검출하기](https://github.com/KerasKorea/KEKOxTutorial/blob/master/13_%EB%94%A5%EB%9F%AC%EB%8B%9D%EC%9C%BC%EB%A1%9C%20%EB%8B%B9%EB%87%A8%EB%A7%9D%EB%A7%89%EB%B3%91%EC%A6%9D%20%EA%B2%80%EC%B6%9C%ED%95%98%EA%B8%B0.md) <br/>|
+
 
 
 > 오해하지 마세요, 외모 순서가 아니라 ㄱ-ㄴ-ㄷ순서입니다.
