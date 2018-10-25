@@ -351,7 +351,5 @@ with tf.device('/gpu:0'):
 
 
 > 이 글은 2018 컨트리뷰톤에서 [Contribute to Keras](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다. 
-
 > Translator : [윤정인](https://github.com/wjddlsy)
-
 > Translator email : [asdff2002@gmail.com](mailto:asdff2002@gmail.com)
