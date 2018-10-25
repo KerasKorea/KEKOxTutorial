@@ -84,7 +84,7 @@ model = Net()
 
 만약 초보자라면, Keras는 명확한 이점을 보일 것입니다. Keras는 실제로 읽기 쉽고 간결해 구현 단계에서의 세부 사항을 건너뛰는 동시에 그대의 첫번째 end-to-end 딥러닝 모델을 빠르게 설계하도록 해줄겁니다. 그러나, 이런 세부 사항을 뛰어넘는 건 당신의 딥러닝 작업에서 계산이 필요한 블럭의 내부 작업 탐색에 제한이 됩니다. PyTorch를 사용하는 건 당신에게 역전파처럼 핵심 딥러닝 개념과 학습 단계의 나머지 부분에 대해 생각할 것들을 제공합니다.
 
-PyTorch보다 간단한 Keras는 더이상 장난감을 의미하진 않는다. 이는 초심자들이 사용하는 중요한 딥러닝 도구이다. 능숙한 데이터 과학자들에게도 마찬가지다. 예를 들면, Kaggle에서 열린 `the Dstl Satellite Imagery Feature Detection`에서 상위 3팀이 그들의 솔루션에 Keras를 사용하였다. 반면, 4등인 [우리](https://blog.deepsense.ai/deep-learning-for-satellite-imagery-via-image-segmentation/#_ga=2.53479528.114026073.1540369751-2000517400.1540369751)는 PyTorch와 Keras를 혼합해서 사용하였다.  
+PyTorch보다 간단한 Keras는 더이상 장난감을 의미하진 않습니다. 이는 초심자들이 사용하는 중요한 딥러닝 도구입니다. 능숙한 데이터 과학자들에게도 마찬가지입니다. 예를 들면, Kaggle에서 열린 `the Dstl Satellite Imagery Feature Detection`에서 상위 3팀이 그들의 솔루션에 Keras를 사용하였습니다. 반면, 4등인 [우리](https://blog.deepsense.ai/deep-learning-for-satellite-imagery-via-image-segmentation/#_ga=2.53479528.114026073.1540369751-2000517400.1540369751)는 PyTorch와 Keras를 혼합해서 사용하였습니다.  
 
 당신의 딥러닝 어플리케이션이 Keras가 제공하는 것 이상의 유연성을 필요하는 지 파악하는 건 가치가 있다. 그대의 필요에 따라, Keras는 [가장 적은 힘의 규칙](https://en.wikipedia.org/wiki/Rule_of_least_power)에 입각하는 좋은 방법이 될 수 있다.
 
