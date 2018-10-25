@@ -1,8 +1,17 @@
-# An applied introduction to LSTMs for text generation — using Keras and GPU-enabled Kaggle Kernels
+# Keras와 GPU-enabled Kaggle Kernel을 이용한 텍스트 생성 LSTM 응용
 
 원문: https://medium.freecodecamp.org/applied-introduction-to-lstms-for-text-generation-380158b29fb3
 
-Kaggle은 최근 데이터 과학자들에게 Kernel (Kaggle의 클라우드 기반 notebook 플랫폼)에 GPU를 적용할 수 있도록 하였습니다. 저는 이것이 더 많은 intensive model을 구축하고 학습하는 방법을 배울 수 있는 절호의 기회라고 생각했습니다. 
+> 이 문서는 Keras와 GPU-enabled Kaggle Kernel을 이용한 텍스트 생성 LSTM 모델에 대해 설명합니다. freeCodeCampe Gitter 채팅 메시지를 LSTM network 모델에 학습시켜 새로운 텍스트를 생성합니다. 
+
+- Keras
+- GPU-enabled Kaggle Kernel
+- LSTM
+- Text generation 
+
+-------
+
+Kaggle은 최근 데이터 과학자들에게 Kernel (Kaggle의 클라우드 기반 호스팅 notebook 플랫폼)에 GPU를 적용할 수 있도록 하였습니다. 저는 이것이 더 많은 intensive model을 구축하고 학습하는 방법을 배울 수 있는 절호의 기회라고 생각했습니다. 
 
  [Kaggle Learn](https://www.kaggle.com/learn/deep-learning), [Keras documentation](https://keras.io/) 그리고 [freeCodeCamp](https://www.freecodecamp.org/)의 좋은 자연어 데이터와 함께라면, [random forests](https://www.kaggle.com/mrisdal/exploring-survival-on-the-titanic)를  recurrent neural network로 발전시킬 수 있습니다. 
 
@@ -11,11 +20,11 @@ Kaggle은 최근 데이터 과학자들에게 Kernel (Kaggle의 클라우드 기
 
 ​				<freeCodeCamp’s dataset on Kaggle Datasets>
 
-이 블로그 포스트에서, Kaggle 데이터셋에 게시 된 [freeCodeCamp의 Gitter 채팅 로그 데이터셋](https://www.kaggle.com/freecodecamp/all-posts-public-main-chatroom)에서 새로운 텍스트 출력을 생성하는 LSTM network를 학습하는 방법에 대해 설명하겠습니다. 
+이 블로그 포스트에서는 Kaggle 데이터셋에 게시 된 [freeCodeCamp의 Gitter 채팅 로그 데이터셋](https://www.kaggle.com/freecodecamp/all-posts-public-main-chatroom)에서 새로운 텍스트 출력을 생성하는 LSTM network를 학습하는 방법에 대해 설명하겠습니다. 
 
  [Python notebook kernel](https://www.kaggle.com/mrisdal/intro-to-lstms-w-keras-gpu-for-text-generation/notebook)에서 제 코드를 볼 수 있습니다. 
 
-이제 6시간의 실행시간 동안 Kernels-Kaggle의 클라우드 기반 호스팅 노트북 플랫폼에서 GPU를 사용할 수 있으므로, Kaggle에서 이전보다 훨씬 많은 intensive 모델을 학습시킬 수 있습니다.
+이제 6시간의 실행시간 동안 Kernels-Kaggle의 클라우드 기반 호스팅 notebook 플랫폼에서 GPU를 사용할 수 있으므로, Kaggle에서 이전보다 훨씬 많은 intensive 모델을 학습시킬 수 있습니다.
 
 ```python
 import tensorflow as tf
@@ -33,7 +42,7 @@ config.gpu_options.allow_growth = True
 
 파트 1에서는, 먼저 데이터를 읽어보고 작업 내용을 충분히 이해해보겠습니다. 비상호적인 튜토리얼(예를 들어, GitHub의 코드 공유)를 따라하는 것에서 큰 어려움 중 하나는 작업하고 싶은 데이터가 샘플 코드와 어떻게 다른지 알기 어렵다는 것입니다. 직접 다운받아 비교해보아야합니다. 
 
-Kernel을 사용해서 이 튜토리얼을 따라하는 것이 좋은 2가지 점은 다음과 같습니다. 1) 모든 중요 단계에서 데이터를 훑어볼 수 있습니다. 2) 언제든지 이 notebook을 fork할 수 있으며, 제 환경, 데이터, Docker 이미지 및 필요한 모든 것을 다운로드나 설치 없이 얻을 수 있습니다. 특히, 딥러닝을 위해 GPU를 사용하는 CUDA 환경을 설치한 경험이 있다면, 이러한 환경이 이미 준비되어 있는 것이 얼마나 좋은지 경험하셨을 것입니다. 
+Kernel을 사용해서 이 튜토리얼을 따라하는 것이 좋은 2가지 점은 다음과 같습니다. 1) 모든 주요 단계에서 데이터를 훑어볼 수 있습니다. 2) 언제든지 이 notebook을 fork할 수 있으며, 제 환경, 데이터, Docker 이미지 및 필요한 모든 것을 다운로드나 설치 없이 얻을 수 있습니다. 특히, 딥러닝을 위해 GPU를 사용하는 CUDA 환경을 설치한 경험이 있다면, 이러한 환경이 이미 준비되어 있는 것이 얼마나 좋은지 경험하셨을 것입니다. 
 
 ### Read in the data
 
@@ -85,16 +94,19 @@ chat[chat['fromUser.id'] == "55a7c9e08a7b72f55c3f991e"].text.head(20)
 
 "documentation", "pair coding", "BASH", "Bootstrap", "CSS" 와 같은 단어와 구문을 볼 수 있습니다. 그리고 "With all of the various frameworks…"으로 시작되는 문장은 JavaScript를 JavaScript를 가리킨다고 가정할수 있습니다. 맞습니다, freeCodeCamp에서 있을만한 주제들입니다. 따라서 만약 우리의 결과가 성공적이라면 이러한 문장들이 생성될 것으로 기대할 수 있습니다. 
 
-### LSTM의 입력값에 대한 연속적인 데이터 준비 
 
-현재, 우리는 사용자id와 메시지 텍스트에 해당하는 컬럼을 가진 데이터 프레임이 있습니다. 여기서 각 행은 전송된 하나의 메시지입니다. 이는 LSTM network의 입력 레이어에 필요한 3차원 형태와는 거리가 멉니다: `model.add(LSTM(batch_size, input_shape=(time_steps, features)))` where `batch_size` is the number of sequences in each sample (can be one or more), `time_steps` is the size of observations in each sample, and `features` is the number of possible observable features (i.e., characters in our case).
+
+### LSTM의 입력값에 대한 시퀀스 데이터 준비 
+
+현재, 우리는 사용자id와 메시지 텍스트에 해당하는 컬럼을 가진 데이터 프레임이 있습니다. 여기서 각 행은 전송된 하나의 메시지입니다. 이는 LSTM network의 입력 레이어에 필요한 3차원 형태와는 거리가 멉니다: `model.add(LSTM(batch_size, input_shape=(time_steps, features)))` 에서 `batch_size`는 각 샘플에서 시퀀스의 수이고, `time_steps`은 각 샘플에서 관측치의 크기입니다. `feature`은 관찰 가능한 특징(feature)의 수로 우리의 경우 문자를 의미합니다. 
 
 어떻게 데이터 프레임을 올바른 형태인 연속 데이터로 만들 수 있을까요? 3단계로 해볼 수 있습니다. 
 
 1. 말뭉치로부터 데이터를 뽑아냅니다. 
-2. #1의 말뭉치를 균일한 길이를 가지고 다음 문자와 일부 겹치는 시퀀스의 행렬로 만듭니다. 
-3. #2로의 시퀀스를 sparse boolean tensor로 표현합니다. 
 
+2. #1의 말뭉치를 균일한 길이를 가지고 다음 문자와 일부 겹치는 시퀀스의 행렬로 만듭니다. 
+
+3. #2의 시퀀스를 sparse boolean tensor로 표현합니다. 
 
 
 ### 말뭉치로부터 데이터 뽑기 
@@ -139,7 +151,7 @@ indices_char = dict((i, c) for i, c in enumerate(chars))
 
 ![img](https://cdn-images-1.medium.com/max/2000/1*3vGVqm30QNs8SqNNTKae6g.png)
 
-This next cell step gives us an array, `sentences`, made up of `maxlen` (40) character sequences chunked in steps of 3 characters from our corpus `user`, and `next_chars`, an array of single characters from `user` at `i + maxlen` for each `i`. I've printed out the first 10 strings in the array so you can see we're chunking the corpus into partially overlapping, equal length "sentences."
+다음 셀에서 말뭉치 `user`로부터 3문자씩 잘라낸 `maxlen`(40) 개의 문자 시퀀스로 이루어진 `sentences` 행렬을 얻을 수 있습니다. 또한 각 `i`에 대한 `i+maxlen`에서 `user`의 단일 문자 배열인 `next_chars`를 얻습니다.  배열의 처음 10개의 문자열을 출력한 것을 보면 우리가 부분적으로 겹치며 동일한 길이를 가지는 "sentences"를 말뭉치에서 잘라냈음을 알 수 있습니다. 
 
 ```python
 maxlen = 40
@@ -157,15 +169,13 @@ print(next_chars[:10])
 
 ![img](https://cdn-images-1.medium.com/max/2000/1*T_gKrW3LTAJpTne4gT4t4g.png)
 
-
-
  `'hi folks. just doing the new signee stuf'`의 다음 문자가 단어 "stuff"의 마지막 글자인 `f`임을 알 수 있습니다.  그리고 시퀀스  `'folks. just doing the new signee stuff. '` 의 다음 문자는 "hello" 단어의 `h`입니다. 이런 방식으로, `next_chars`가 `sentences` 내 시퀀스에 대한 "데이터 라벨" 또는 ground truth가 되도록 해야하고, 이 labled data에 대해 학습된 모델은 주어진 시퀀스 입력에 대한 *새로운 다음 문자* 를 예측으로 생성해낼 수 있습니다. 
 
 #### Represent the sequence data as sparse boolean tensors
 
 다음 셀은 [kernael에서 상호적으로 따라갈 때](https://www.kaggle.com/mrisdal/intro-to-lstms-w-keras-gpu-for-text-generation/), 몇 초 정도 걸립니다. 우리가 훈련시키는 모델에 대한 입력으로 사용하기 위해 `sentence`와 `next_chars`로 부터 문자수준의 특징(feature)들을 인코딩하는 sparse boolean tenser `x`와 `y`를 생성합니다. 마지막 shape는 다음과 같습니다:`input_shape=(maxlen, len(chars)) ` 로 여기서 `maxlen`은 40이며 `len(chars)`는 특징(feature)의 수(즉, 말뭉치의 고유한 문자 수)입니다. 
 
-```
+```python
 x = np.zeros((len(sentences), maxlen, len(chars)), dtype=np.bool)
 y = np.zeros((len(sentences), len(chars)), dtype=np.bool)
 for i, sentence in enumerate(sentences):
@@ -185,7 +195,7 @@ for i, sentence in enumerate(sentences):
 
 라이브러리를 읽는 것 부터 시작하겠습니다. Tensorflow backend에 대해 대중적이고 사용하기 쉬운 인터페이스인 Keras를 사용하겠습니다. [Keras를 딥러닝 프레임 워크로 사용하는 이유](https://keras.io/why-use-keras/)를 읽어보세요. 아래에서 우리가 사용할 모델, 레이어, 최적화도구 및 콜백을 볼 수 있습니다. 
 
-```
+```python
 from keras.models import Sequential
 from keras.layers import Dense, Activation
 from keras.layers import LSTM
@@ -200,7 +210,7 @@ import io
 
 아래 셀에서 모델을 정의합니다. 우리는 sequential model로 시작하여 입력 레이어로 LSTM을 추가합니다.  입력에 대해 정의한 shape은 우리가 필요로하는 이 시점의 데이터와 동일합니다. 저는 `batch_size` 로 128을 선택하였습니다. 이는 샘플 수, 또는 sequence이며, 우리 모델은 . 원하는 경우 다른 숫자로 실험해볼 수 있습니다. 또한, dense output layer를 추가할 것입니다. 마지막으로, sequence 다음 문자를 예측하기 위해 다범주 분류가 필수적이기 때문에, 활성화 함수로 `softmax` 를 활성화 레이어에 추가합니다. 
 
-```
+```python
 model = Sequential()
 model.add(LSTM(128, input_shape=(maxlen, len(chars))))
 model.add(Dense(len(chars)))
@@ -209,7 +219,7 @@ model.add(Activation('softmax'))
 
 이제 모델을 컴파일할 수 있습니다. 모델의 가중치를 최적화하기 위해 학습속도(learning rate)가 0.1인 `RMSprop`을 사용하고(여기서 다른 학습 속도로도 실험할 수 있습니다),`categorical_crossentropy`는 손실 함수로 사용합니다. 교차 엔트로피(cross entropy)는 Kaggle에서 이진 분류 competition에서 사용하는 로그 손실과 동일합니다(우리의 경우에는 두 가지 이상의 가능한 결과가 있는 경우는 제외). 
 
-```
+```python
 optimizer = RMSprop(lr=0.01)
 model.compile(loss='categorical_crossentropy', optimizer=optimizer)
 ```
@@ -218,15 +228,15 @@ model.compile(loss='categorical_crossentropy', optimizer=optimizer)
 
 > **Temperature** *은 활성화 함수인* * `*softmax*`*를 적용하기 전에 dense layer의 출력에 적용되는 scaling factor 입니다. 간단히 말해서, 시퀀스의 다음 문자에 대한 모델의 추측이 얼마나 보수적인지 또는 "창의적인지" 정의합니다.* `*temperature*`*의 낮은 값(예*. `*0.2*`*)는 "안전한" 추측값을 생성하지만* `*1.0*`*을 넘는*  `*temperature*`*의 값은 "위험한" 추측을 생성하기 시작합니다.* *"st"로 시작하는 영어단어와 "sg"로 시작하는 영어단어를 보았을 때 추측의 양을 생각해봅시다. temperature가 낮으면 많은 "the"와 "and"를 얻을 것입니다; 하지만 temperature가 높다면 결과는 예측할 수 없게 됩니다.  
 
-두 번째 함수는 LSTM에 의해 생성된 예상 텍스트를 출력하는 콜백 함수입니다. 
+두 번째 함수는 처음과 매 5 epoch마다 5개의 다른 `temperature` 의 설정(`for diversity in [0.2, 0.5, 1.0, 1.2]:`  라인 참조, 각각은 `temperature`의 값으로 아무렇게나 조정해도 됩니다.) 으로 훈련된 LSTM에 의해 생성된 예측 텍스트를 출력하기 위한 콜백 함수입니다.
 
-Anyway, so the second is defining a callback function to print out predicted text generated by our trained LSTM at the first and then every subsequent fifth epoch with five different settings of `temperature` each time (see the line `for diversity in [0.2, 0.5, 1.0, 1.2]:` for the values of `temperature`; feel free to tweak these, too!). This way we can fiddle with the `temperature` knob to see what gets us the best generated text ranging from conservative to creative. Note that we're using our model to predict based on a random sequence, or "seed", from our original subsetted data, `user`: `start_index = random.randint(0, len(user) - maxlen - 1)`.
+이 방법으로 `temperature` 조절을 통하여 보수적인 텍스트부터 창의적인 텍스트까지 생성하는 것을 볼 수 있습니다.  우리의 모델은 원본의 부분 데이터인 `user`: `start_index = random.randint(0, len(user) - maxlen - 1)`  에서 얻어진 임의의 시퀀스 또는 "seed"를 기반으로 예측합니다. 
 
-Finally, we name our callback function `generate_text` which we'll add to the list of callbacks when we fit our model in the cell after this one.
+마지막으로 콜백 함수의 이름을 `generate_text`라고 짓겠습니다. 이 콜백 함수를 이 다음 셀에서 모델을 적합할 때 콜백 목록에 추가하겠습니다. 
 
-```
+```python
 def sample(preds, temperature=1.0):
-    # helper function to sample an index from a probability array
+	# 확률 행렬로부터 인덱스를 샘플링하는 helper 함수 
     preds = np.asarray(preds).astype('float64')
     preds = np.log(preds) / temperature
     exp_preds = np.exp(preds)
@@ -235,8 +245,8 @@ def sample(preds, temperature=1.0):
     return np.argmax(probas)
 
 def on_epoch_end(epoch, logs):
-    # Function invoked for specified epochs. Prints generated text.
-    # Using epoch+1 to be consistent with the training epochs printed by Keras
+    # 특정 epoch에서 활성화되는 함수. 생성된 텍스트 출력.
+    # Keras가 출력한 epoch과 일치시키기 위해 epoch+1을 사용.
     if epoch+1 == 1 or epoch+1 == 15:
         print()
         print('----- Generating text after Epoch: %d' % epoch)
@@ -275,16 +285,14 @@ generate_text = LambdaCallback(on_epoch_end=on_epoch_end)
 
 #### 모델 트레이닝 및 예측값 생성
 
-드디어 해냈습니다! 데이터가 준비되었어요(`x`는 시퀀스, `y`는 다음 문자).  
+드디어 해냈습니다! 데이터가 준비되었어요(`x`는 시퀀스, `y`는 다음 문자).  `batch_size`로 128을 선택하였습니다. 또한 우리는 매번 다른 5개의 `temperature` 설정을 가지는 매 5 epoch의 첫 epoch의 끝에서  `model.predict()`을 사용하여 생성된 텍스트를 출력할 콜백 함수를 정의하였습니다. 또 다른 콜백함수로 `ModelCheckpoint`를 사용하였는데, 이는 손실 값을 기준으로 손실 값이 개선된다면 각 epoch마다 최고의 모델을 저장합니다(kernel의 "Output" 탭에서 저장된 가중치 파일 `weights.hdf5`을 보십시오).
 
-Finally we’ve made it! Our data is ready (`x` for sequences, `y` for next characters), we've chosen a `batch_size` of `128`, and we've defined a callback function which will print generated text using `model.predict()` at the end of the first epoch followed by every fifth epoch with five different `temperature` setting each time. We have another callback, `ModelCheckpoint`, which will save the best model at each epoch if it's improved based on our loss value (find the saved weights file `weights.hdf5` in the "Output" tab of the kernel).
+이제 우리의 모델에 이러한 점들을 적용시키고, 훈련시킬 ephoch의 수를 `epochs = 15`로 정하겠습니다. 물론, GPU를 사용하는 것을 잊지마세요! 이렇게 하면 CPU를 사용하는 것보다 훨씬 더 빨리 학습/예측할 수 있습니다. 이 코드를 대화식으로 실행한다면 모델을 훈련시키고 예측을 생성하는 것을 기다리는 동안 점심을 먹거나 산책해도 되겠죠. 
 
-Let’s fit our model with these specifications and `epochs = 15` for the number of epochs to train. And of course, let's not forget to put our GPU to use! This will make training/prediction much faster than if we used a CPU. In any case, you will still want to grab some lunch or go for a walk while you wait for the model to train and generate predictions if you're running this code interactively.
+추신. Kaggle에서 자신의 notebook으로 이를 실행하는 경우, 화면 하단의 콘솔 옆에 있는 파란색 사각형 "Stop" 버튼을 눌러 모델 학습을 중단할 수 있습니다. 
 
-P.S. If you’re running this interactively in your own notebook on Kaggle, you can click the blue square “Stop” button next to the console at the bottom of your screen to interrupt the model training.
-
-```
-# define the checkpoint
+```python
+# checkpoint 정의
 filepath = "weights.hdf5"
 checkpoint = ModelCheckpoint(filepath, 
                              monitor='loss', 
@@ -305,11 +313,13 @@ with tf.device('/gpu:0'):
 
 ![img](https://cdn-images-1.medium.com/max/2000/1*kxL8tbTxe3wFsKW7FU_Tiw.png)
 
-<Example output after the first epoch>
+​									< 첫 epoch 이후 출력 예 > 
+
+
 
 ### 결론
 
-다했습니다! [Kaggle Kernels](https://www.kaggle.com/mrisdal/intro-to-lstms-w-keras-gpu-for-text-generation/)에서 이 노트북을 실행시키면, 생성된 텍스트를 문자별 출력하는 극적인 모델을 얻어낼 수 있습니다. 
+다했습니다! [Kaggle Kernels](https://www.kaggle.com/mrisdal/intro-to-lstms-w-keras-gpu-for-text-generation/)에서 이 notebook을 실행시키면, 생성된 텍스트를 문자별 출력하는 엄청난 모델을 얻어낼 수 있습니다. 
 
 텍스트 행을 갖는 데이터 프레임으로부터 LSTM 모델을 사용하여 GPU의 힘으로 새로운 문장을 생성하는 방법을 배운 과정이 즐거웠기를 바랍니다. 우리의 모델이 처음 epoch에서 마지막 epoch까지 어떻게 개선되었는지 볼 수 있습니다. 첫 번째 epoch에서 생성된 텍스트는 실제 영어와 비슷하지 않습니다. 전반적으로, 낮은 수준의 다양성은 많은 반복을 통하여 텍스트를 생성하는 반면, 높은 수준의 다양성은 알아듣기 힘든 말을 생성해내죠. 
 
@@ -322,9 +332,15 @@ with tf.device('/gpu:0'):
 배운 것을 활용하여 확장하는 방법에 대한 아이디어입니다. 
 
 1. 훈련 데이터 양, 에폭(epoch), 배치(batch) 크기, `temperature`등 다른(hyper)-매개변수를 사용하여 실험해보세요.
-2. 동일한 코드를 다른 데이터로 시도해보세요; 이 노트북을 fork하고 "Data" 탭으로 이동합니다. freeCodeCamp 데이터 소스를 제거하고 다른 데이터 셋([좋은 예제들]((https://www.kaggle.com/datasets?sortBy=hottest&group=public&page=1&pageSize=20&size=all&filetype=all&license=all&tagids=11208)))을 넣어봅시다. 
+2. 동일한 코드를 다른 데이터로 시도해보세요; 이 notebook을 fork하고 "Data" 탭으로 이동합니다. freeCodeCamp 데이터 소스를 제거하고 다른 데이터 셋([좋은 예제들]((https://www.kaggle.com/datasets?sortBy=hottest&group=public&page=1&pageSize=20&size=all&filetype=all&license=all&tagids=11208)))을 넣어봅시다. 
 3. dropout 레이어 추가와 같은 복잡한 network 아키텍처를 사용해보세요.
-4. Kernel에서 비디오 및 실습 노트북 튜토리얼이 있는 [Kaggle Learn](https://www.kaggle.com/learn/deep-learning) 에서 딥러닝에 대해 더 공부해보세요.
+4. Kernel에서 비디오 및 실습 notebook 튜토리얼이 있는 [Kaggle Learn](https://www.kaggle.com/learn/deep-learning) 에서 딥러닝에 대해 더 공부해보세요.
 5. "출력"에서  `weights.hdf5`를 사용하여 이 튜토리얼의 사용자가 다른 사람의 문장을 완성하면 새로운 Kernel의 다른 데이터를 기반으로 예측할 수 있습니다. 
-6. 최소한의 예제에서 CPU 대 GPU의 속도 향상 효과를 비교해보세요. 
+6. 최소한의 예제에서 CPU와 GPU의 속도 향상 정도를 비교해보세요. 
+
+
+
+> 이 글은 2018 컨트리뷰톤에서 [Contribute to Keras](https://github.com/KerasKorea/KEKOxTutorial) 프로젝트로 진행했습니다.
+> Translator : [윤정인](https://github.com/wjddlsy)
+> Translator email : [asdff2002@gmail.com](mailto:asdff2002@gmail.com)
 
