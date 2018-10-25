@@ -24,7 +24,7 @@
 | 😁 | NAME | HOBBY | CONTRIBUTIONs | 
 |------|----------|----------|-----------|
 |   😉   |  [김수정](https://github.com/SooDevv)    |  🕹 게임하기    |  [Fasion-MNIST](https://keraskorea.github.io/posts/2018-09-28-딥러닝의%20Hello%20World,%20Fashion-MNIST/)  <br/>  [안드로이드에 MNIST 심기]() | 
-|   ![](./profile/contributor_ar.png)   |  [조아라](https://github.com/ahracho)    |  뭐니뭐니해도 돈쓰는 게 제일 재밌죠 :money_with_wings: <br/> 덕질도 좋아합니다 (어덕행덕!!) | [환각 딥강화학습(작업중)](https://github.com/KerasKorea/KEKOxTutorial/blob/issue_06/06_Python%EA%B3%BC%20Keras%EB%A5%BC%20%EC%9D%B4%EC%9A%A9%ED%95%9C%20%ED%99%98%EA%B0%81%20%EB%94%A5%EA%B0%95%ED%99%94%ED%95%99%EC%8A%B5.md)   [KEKOxTutorial 블로그](https://keraskorea.github.io/) | 
+|   ![](./profile/contributor_ar.png)   |  [조아라](https://github.com/ahracho)    |  뭐니뭐니해도 돈쓰는 게 제일 재밌죠 :money_with_wings: <br/> 덕질도 좋아합니다 (어덕행덕!!) | [환각 딥강화학습(작업중)](https://github.com/KerasKorea/KEKOxTutorial/blob/issue_06/06_Python%EA%B3%BC%20Keras%EB%A5%BC%20%EC%9D%B4%EC%9A%A9%ED%95%9C%20%ED%99%98%EA%B0%81%20%EB%94%A5%EA%B0%95%ED%99%94%ED%95%99%EC%8A%B5.md) <br/>  [KEKOxTutorial 블로그](https://keraskorea.github.io/) | 
 
 
 > 오해하지 마세요, 외모 순서가 아니라 ㄱ-ㄴ-ㄷ순서입니다.
