@@ -73,12 +73,12 @@ $ pip install --upgrade keras
 이제 `train.py`라는 새 파일을 만들고, 아래와 같이 코드를 작성합니다. 
 
 ```python
-# set the matplotlib backend so figures can be saved in the background
-# (uncomment the lines below if you are using a headless server)
+# matplotlib의 백엔드를 설정하여 그림이 백그라운드에서 저장될 수 있게합니다
+# 헤드리스 서버에서 작업하는 경우 아래의 함수를 호출하세요
 # import matplotlib
 # matplotlib.use("Agg")
  
-# import the necessary packages
+# 필요한 패키지들을 가져옵니다
 from pyimagesearch.minigooglenet import MiniGoogLeNet
 from sklearn.preprocessing import LabelBinarizer
 from keras.preprocessing.image import ImageDataGenerator
@@ -106,7 +106,7 @@ import argparse
 이제, 스크립트에 필요한 인자들을 파싱하기 위한 명령줄 인터페이스를 작성해 보겠습니다.  
 
 ```python
-# construct the argument parse and parse the arguments
+# 명령줄 인수를 파싱해옵니다
 ap = argparse.ArgumentParser()
 ap.add_argument("-o", "--output", required=True,
 	help="path to output plot")
@@ -114,7 +114,7 @@ ap.add_argument("-g", "--gpus", type=int, default=1,
 	help="# of GPUs to use for training")
 args = vars(ap.parse_args())
  
-# grab the number of GPUs and store it in a conveience variable
+# 편의를 위해 GPU의 개수를 파싱해와 변수에 저장합니다
 G = args["gpus"]
 ```
 
@@ -129,22 +129,21 @@ G = args["gpus"]
 이어서 [학습률을 다항적으로 감소시키는](https://stackoverflow.com/questions/30033096/what-is-lr-policy-in-caffe) `poly_decay` 학습률 스케줄러를 정의합니다.
 
 ```python
-# definine the total number of epochs to train for along with the
-# initial learning rate
+# 학습을 위해 에폭, 초기 학습률 그리고 배치 크기를 설정합니다
 NUM_EPOCHS = 70
 INIT_LR = 5e-3
  
 def poly_decay(epoch):
-	# initialize the maximum number of epochs, base learning rate,
-	# and power of the polynomial
+	# 에폭의 최대치와 초기 학습률, 그리고
+	# 다항식의 거듭제곱의 지수를 초기화합니다
 	maxEpochs = NUM_EPOCHS
 	baseLR = INIT_LR
 	power = 1.0
  
-	# compute the new learning rate based on polynomial decay
+ 	# 새 학습률을 계산합니다
 	alpha = baseLR * (1 - (epoch / float(maxEpochs))) ** power
  
-	# return the new learning rate
+	# 새 학습률을 반환합니다
 	return alpha
 ```
 
@@ -158,8 +157,8 @@ def poly_decay(epoch):
 다음은 학습 및 테스트 데이터 세트를 로드한 후, 이미지 데이터를 정수형에서 실수형으로 변환하는 작업입니다. 
 
 ```python
-# load the training and testing data, converting the images from
-# integers to floats
+# 학습과 테스트 데이터 세트를 로드한 후, 이미지 데이터를 
+# 정수형에서 실수형으로 변환합니다
 print("[INFO] loading CIFAR-10 data...")
 ((trainX, trainY), (testX, testY)) = cifar10.load_data()
 trainX = trainX.astype("float")
@@ -170,7 +169,7 @@ testX = testX.astype("float")
 [평균값을 빼줍니다](http://ufldl.stanford.edu/wiki/index.php/Data_Preprocessing#Per-example_mean_subtraction). 
 
 ```python
-# apply mean subtraction to the data
+# 데이터의 각 원소에서 데이터 전체의 평균값을 빼줍니다
 mean = np.mean(trainX, axis=0)
 trainX -= mean
 testX -= mean
@@ -183,7 +182,7 @@ testX -= mean
 원핫 인코딩에 대한 자세한 설명은 제 책에 나와있습니다. 
 
 ```python
-# convert the labels from integers to vectors
+# 단일 정수인 범주형 라벨을 벡터로 변환합니다
 lb = LabelBinarizer()
 trainY = lb.fit_transform(trainY)
 testY = lb.transform(testY)
@@ -195,8 +194,8 @@ testY = lb.transform(testY)
 다음은 데이터 오그멘테이션(Augmentation)을 위한 함수와, 기타 콜백 함수들을 정의하는 부분입니다.
 
 ```python
-# construct the image generator for data augmentation and construct
-# the set of callbacks
+# 데이터 오그멘테이션을 위한 이미지 제너레이터와
+# 기타 콜백 함수들을 정의합니다
 aug = ImageDataGenerator(width_shift_range=0.1,
 	height_shift_range=0.1, horizontal_flip=True,
 	fill_mode="nearest")
@@ -219,7 +218,7 @@ callbacks = [LearningRateScheduler(poly_decay)]
 다음으로 GPU 변수를 살펴보겠습니다.
 
 ```python
-# check to see if we are compiling using just a single GPU
+# 단일 GPU로 학습을 하는지 여부를 확인합니다
 if G <= 1:
 	print("[INFO] training with 1 GPU...")
 	model = MiniGoogLeNet.build(width=32, height=32, depth=3,
@@ -230,12 +229,12 @@ if G <= 1:
 GPU가 두 개 이상인 경우, 학습 중에 모델을 병렬화 할 것입니다.
 
 ```python
-# otherwise, we are compiling using multiple GPUs
+# 여러개의 GPU를 사용하는 경우입니다
 else:
 	print("[INFO] training with {} GPUs...".format(G))
  
-	# we'll store a copy of the model on *every* GPU and then combine
-	# the results from the gradient updates on the CPU
+ 	# 모델은 복제되어 모든 GPU에 저장되며, CPU에서는 각 GPU에서 
+	# 계산한 기울기들을 바탕으로 모델의 가중치를 업데이트 합니다
 	with tf.device("/cpu:0"):
 		# initialize the model
 		model = MiniGoogLeNet.build(width=32, height=32, depth=3,
@@ -264,13 +263,13 @@ CPU가 그에 필요한 오버헤드를(예를 들면, 학습 이미지를 GPU �
 이제 우리는 모델을 컴파일하고, 학습을 시작할 수 있습니다.
 
 ```python
-# initialize the optimizer and model
+# 옵티마이저와 모델을 초기화합니다
 print("[INFO] compiling model...")
 opt = SGD(lr=INIT_LR, momentum=0.9)
 model.compile(loss="categorical_crossentropy", optimizer=opt,
 	metrics=["accuracy"])
  
-# train the network
+# 네트워크를 학습합니다
 print("[INFO] training network...")
 H = model.fit_generator(
 	aug.flow(trainX, trainY, batch_size=64 * G),
@@ -300,10 +299,10 @@ H = model.fit_generator(
 학습 과정을 시각화할 차례입니다.
 
 ```python
-# grab the history object dictionary
+# 학습의 중간과정에서의 결과들을 저장하있는 딕셔너리를 가져옵니다
 H = H.history
  
-# plot the training loss and accuracy
+# 학습 로스와 정확도를 그래프로 그려줍니다 
 N = np.arange(0, len(H["loss"]))
 plt.style.use("ggplot")
 plt.figure()
@@ -316,7 +315,7 @@ plt.xlabel("Epoch #")
 plt.ylabel("Loss/Accuracy")
 plt.legend()
  
-# save the figure
+# 그래프를 디스크에 저장합니다
 plt.savefig(args["output"])
 plt.close()
 ```
