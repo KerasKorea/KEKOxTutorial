@@ -12,19 +12,18 @@ from keras.preprocessing.image import save_img
 from keras.applications import vgg16
 from keras import backend as K
 
-# 각 필터들을 위한 생성 이미지의 차원 설정
+# 각 필터들을 위한 생성 이미지의 차원 설정합니다
 img_width = 128
 img_height = 128
 
-# 시각화하고 싶은 레이어의 이름 설정
+# 시각화하고 싶은 레이어의 이름을 설정합니다
 # (모델에 대한 정의는 keras/applications/vgg16.py에서 볼 수 있습니다.)
 layer_name = 'block5_conv1'
 
-# 텐서(tensor)를 확인된 이미지로 변환해주는 함수
-
+# 텐서(tensor)를 확인된 이미지로 변환해주는 함수입니다.
 def deprocess_image(x):
 
-    # 텐서를 정규화한다 : 중심은 0, 편차는 0.1
+    # 텐서를 정규화합니다 : 중심은 0, 편차는 0.1
     x -= x.mean()
     x /= (x.std() + K.epsilon())
     x *= 0.1
@@ -33,7 +32,7 @@ def deprocess_image(x):
     x += 0.5
     x = np.clip(x, 0, 1)
 
-    # RGB 배열로 변환
+    # RGB 배열로 변환합니다
     x *= 255
     if K.image_data_format() == 'channels_first':
         x = x.transpose((1, 2, 0))
@@ -41,16 +40,16 @@ def deprocess_image(x):
     return x
 
 
-# ImageNet의 가중치를 VGG16에 적용, 설계한다. 
+# ImageNet의 가중치를 VGG16에 적용, 설계합니다 
 model = vgg16.VGG16(weights='imagenet', include_top=False)
 print('Model loaded.')
 
 model.summary()
 
-# 이미지를 입력받기 위한 placeholder 설정
+# 이미지를 입력받기 위한 placeholder를 설정합니다
 input_img = model.input
 
-# (앞서 이름을 지정한)각 핵심 레이어의 출력들을 가져옴.
+# (앞서 이름을 지정한)각 핵심 레이어의 출력들을 가져옵니다.
 layer_dict = dict([(layer.name, layer) for layer in model.layers[1:]])
 
 
@@ -82,7 +81,7 @@ for filter_index in range(200):
     # 입력 이미지의 손실과 기울기를 반환합니다.
     iterate = K.function([input_img], [loss, grads])
 
-    # 기울기 상승을 위해 스탭 크기 지정.
+    # 기울기 상승을 위해 스탭 크기 지정합니다.
     step = 1.
 
     # 몇 개의 임의의 노이즈와 같이 회색 이미지부터 시작합니다.
@@ -117,8 +116,6 @@ n = 8
 kept_filters.sort(key=lambda x: x[1], reverse=True)
 kept_filters = kept_filters[:n * n]
 
-# build a black picture with enough space for
-# our 8 x 8 filters of size 128 x 128, with a 5px margin in between
 # 128 x 128 크기의 8 x 8 필터를 저장할 수 있는 충분한 공간이 있는 검정 이미지를 만듭니다. 
 # 5px의 여유공간도 둬야합니다.
 margin = 5

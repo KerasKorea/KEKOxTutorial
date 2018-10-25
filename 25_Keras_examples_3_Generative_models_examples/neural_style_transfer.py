@@ -105,7 +105,7 @@ def deprocess_image(x):
         x = x.transpose((1, 2, 0))
     else:
         x = x.reshape((img_nrows, img_ncols, 3))
-    # 평균 픽셀을 기준으로 zero중심 제거
+    # 평균 픽셀을 기준으로 zero중심 제거합니다.
     x[:, :, 0] += 103.939
     x[:, :, 1] += 116.779
     x[:, :, 2] += 123.68
@@ -115,7 +115,7 @@ def deprocess_image(x):
     return x
 
 
-# 주어진 이미지를 tensor형식으로 갖는다.
+# 주어진 이미지를 tensor형식으로 갖습니다.
 base_image = K.variable(preprocess_image(base_image_path))
 style_reference_image = K.variable(preprocess_image(style_reference_image_path))
 
@@ -143,7 +143,6 @@ outputs_dict = dict([(layer.name, layer.output) for layer in model.layers])
 # 먼저 4가지 함수들을 정의할 필요가 있습니다.
 
 # 이미지 tensor의 gram matrix(feature-wise 외적연산)
-
 def gram_matrix(x):
     assert K.ndim(x) == 3
     if K.image_data_format() == 'channels_first':
@@ -155,8 +154,6 @@ def gram_matrix(x):
 
 # 스타일 손실은 생성된 이미지에서 기존 이미지의 스타일을 유지하도록 설계됩니다.
 # 스타일 기준 이미지와 생성된 이미지에서 특징에 대한 gram matrix(스타일 수집)를 기반으로 합니다.
-
-
 def style_loss(style, combination):
     assert K.ndim(style) == 3
     assert K.ndim(combination) == 3
@@ -168,14 +165,11 @@ def style_loss(style, combination):
 
 # 보조 손실 함수는 생성된 이미지에서 
 # 기존 이미지의 '콘텐츠'를 유지하도록 설계되었습니다.
-
-
 def content_loss(base, combination):
     return K.sum(K.square(combination - base))
 
 # 3번째 손실함수인 전체 변화 손실(total variation loss)은 
 # 생성된 이미지를 지역적으로 일관성있게 유지되도록 설계되었습니다.
-
 def total_variation_loss(x):
     assert K.ndim(x) == 4
     if K.image_data_format() == 'channels_first':
@@ -238,7 +232,6 @@ def eval_loss_and_grads(x):
 # 한번으로 손실과 기울기를 검색하는 동시에 계산을 할 수 있도록 합니다.
 # 왜 그렇게 진행했냐면 scipy.optimize는 손실과 기울기에 대한 별도의 함수를
 # 요구하지만 따로 계산할 경우 비효율적일수 있기 때문입니다.
-
 class Evaluator(object):
 
     def __init__(self):

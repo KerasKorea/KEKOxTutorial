@@ -33,8 +33,7 @@ print('total chars:', len(chars))
 char_indices = dict((c, i) for i, c in enumerate(chars))
 indices_char = dict((i, c) for i, c in enumerate(chars))
 
-# cut the text in semi-redundant sequences of maxlen characters
-# 텍스트를 maxlen만큼의 문자들로 잘라냅니다.(?)
+# 텍스트를 maxlen만큼의 문자들로 자릅니다.
 maxlen = 40
 step = 3
 sentences = []

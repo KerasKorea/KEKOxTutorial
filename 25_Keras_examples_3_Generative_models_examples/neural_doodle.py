@@ -93,7 +93,7 @@ style_weight = 1.
 content_weight = 0.1 if use_content_img else 0
 
 content_feature_layers = ['block5_conv2']
-# 생성이 더 잘되도록, 스타일 피쳐(style feature)용 컨볼루션 레이어를 더 많이 사용
+# 생성이 더 잘되도록, 스타일 피쳐(style feature)용 컨볼루션 레이어를 더 많이 사용합니다.
 style_feature_layers = ['block1_conv1', 'block2_conv1', 'block3_conv1',
                         'block4_conv1', 'block5_conv1']
 
@@ -169,7 +169,7 @@ def load_mask_labels():
             np.expand_dims(target_mask, axis=0))
 
 
-# 이미지를 위해 텐서형 변수들을 생성
+# 이미지를 위해 텐서형 변수들을 생성합니다.
 if K.image_data_format() == 'channels_first':
     shape = (1, num_colors, img_nrows, img_ncols)
 else:
@@ -184,7 +184,7 @@ else:
 
 images = K.concatenate([style_image, target_image, content_image], axis=0)
 
-# 시맨틱 라벨을 위해 텐서형 변수들을 생성
+# 시맨틱 라벨을 위해 텐서형 변수들을 생성합니다.
 raw_style_mask, raw_target_mask = load_mask_labels()
 style_mask = K.variable(raw_style_mask.astype('float32'))
 target_mask = K.variable(raw_target_mask.astype('float32'))
@@ -197,7 +197,7 @@ STYLE, TARGET, CONTENT = 0, 1, 2
 # 이미지 모델은 VGG19
 image_model = vgg19.VGG19(include_top=False, input_tensor=images)
 
-# 나열된 풀링 레이어으로 시맨틱 모델 표현
+# 나열된 풀링 레이어으로 시맨틱 모델 표현합니다.
 mask_input = Input(tensor=masks, shape=(None, None, None), name='mask_input')
 x = mask_input
 for layer in image_model.layers[1:]:
@@ -209,7 +209,7 @@ for layer in image_model.layers[1:]:
         x = AveragePooling2D((2, 2), name=name)(x)
 mask_model = Model(mask_input, x)
 
-# 이미지 모델과 시맨틱 모델에서 피쳐들을 수집
+# 이미지 모델과 시맨틱 모델에서 피쳐들을 수집합니다.
 image_features = {}
 mask_features = {}
 for img_layer, mask_layer in zip(image_model.layers, mask_model.layers):
@@ -221,7 +221,7 @@ for img_layer, mask_layer in zip(image_model.layers, mask_model.layers):
         mask_features[layer_name] = mask_feat
 
 
-# 손실 함수를 정의
+# 손실 함수를 정의합니다.
 def gram_matrix(x):
     assert K.ndim(x) == 3
     features = K.batch_flatten(x)
@@ -232,7 +232,7 @@ def gram_matrix(x):
 def region_style_loss(style_image, target_image, style_mask, target_mask):
     '''
     (boolean형) 마스크로 지정된 하나의 공통 영역에 대해
-    스타일 이미지와 목표 이미지 사이의 스타일 손실값을 계산   
+    스타일 이미지와 목표 이미지 사이의 스타일 손실값을 계산합니다.
     '''
     assert 3 == K.ndim(style_image) == K.ndim(target_image)
     assert 2 == K.ndim(style_mask) == K.ndim(target_mask)
@@ -291,7 +291,7 @@ def total_variation_loss(x):
 
 
 # 전체 손실값은 컨텐츠, 스타일, 전체 변화 손실의 가중치를 계산한 합산.
-# 각 개별 손실 함수는 이미지/시맨틱 모델로부터 추출한 피쳐들을 사용.
+# 각 개별 손실 함수는 이미지/시맨틱 모델로부터 추출한 피쳐들을 사용합니다.
 loss = K.variable(0)
 for layer in content_feature_layers:
     content_feat = image_features[layer][CONTENT, :, :, :]
@@ -355,7 +355,7 @@ class Evaluator(object):
 
 evaluator = Evaluator()
 
-# 반복 최적화로 이미지를 생성
+# 반복 최적화로 이미지를 생성합니다.
 if K.image_data_format() == 'channels_first':
     x = np.random.uniform(0, 255, (1, 3, img_nrows, img_ncols)) - 128.
 else:
@@ -367,7 +367,7 @@ for i in range(50):
     x, min_val, info = fmin_l_bfgs_b(evaluator.loss, x.flatten(),
                                      fprime=evaluator.grads, maxfun=20)
     print('Current loss value:', min_val)
-    # 현재 생성된 이미지를 저장
+    # 현재 생성된 이미지를 저장합니다.
     img = deprocess_image(x.copy())
     fname = target_img_prefix + '_at_iteration_%d.png' % i
     save_img(fname, img)
