@@ -234,7 +234,7 @@ model.compile(loss='categorical_crossentropy', optimizer=optimizer)
 
 이제 모델이 준비되었습니다. 데이터를 넣어보기 전에 아래의 셀은 [이 스크립트에서 수정된 코드](https://github.com/keras-team/keras/blob/master/examples/lstm_text_generation.py)로 몇가지 헬퍼(helper) 함수를 정의합니다. 첫 번째 함수인 `sample()`은 일정한 `temperature` 의 확률 배열에서 인덱스를 샘플링합니다. 잠깐 질문시간입니다, `temperature`은 정확히 무엇일까요? 
 
-> **Temperature** *은 활성화 함수인* * `*softmax*`*를 적용하기 전에 dense layer의 출력에 적용되는 scaling factor 입니다. 간단히 말해서, 시퀀스의 다음 문자에 대한 모델의 추측이 얼마나 보수적인지 또는 "창의적인지" 정의합니다.* `*temperature*`*의 낮은 값(예*. `*0.2*`*)는 "안전한" 추측값을 생성하지만* `*1.0*`*을 넘는*  `*temperature*`*의 값은 "위험한" 추측을 생성하기 시작합니다.* *"st"로 시작하는 영어단어와 "sg"로 시작하는 영어단어를 보았을 때 추측의 양을 생각해봅시다. temperature가 낮으면 많은 "the"와 "and"를 얻을 것입니다; 하지만 temperature가 높다면 결과는 예측할 수 없게 됩니다.  
+> **Temperature** *은 활성화 함수인* * `*softmax*`*를 적용하기 전에 dense layer의 출력에 적용되는 scaling factor 입니다. 간단히 말해서, 시퀀스의 다음 문자에 대한 모델의 추측이 얼마나 보수적인지 또는 "창의적인지" 정의합니다.* `*temperature*`*의 낮은 값(예*. `*0.2*`*)는 "안전한" 추측값을 생성하지만* `*1.0*`*을 넘는*  `*temperature*`*의 값은 "위험한" 추측을 생성하기 시작합니다.* "st"로 시작하는 영어단어와 "sg"로 시작하는 영어단어를 보았을 때 추측되는 양을 생각해봅시다. temperature가 낮으면 많은 "the"와 "and"를 얻을 것입니다; 하지만 temperature가 높다면 결과는 예측할 수 없게 됩니다.  
 
 두 번째 함수는 처음과 매 5 epoch마다 5개의 다른 `temperature` 의 설정(`for diversity in [0.2, 0.5, 1.0, 1.2]:`  라인 참조, 각각은 `temperature`의 값으로 아무렇게나 조정해도 됩니다.) 으로 훈련된 LSTM에 의해 생성된 예측 텍스트를 출력하기 위한 콜백 함수입니다.
 
@@ -333,7 +333,7 @@ with tf.device('/gpu:0'):
 
 텍스트 행을 갖는 데이터 프레임으로부터 LSTM 모델을 사용하여 GPU의 힘으로 새로운 문장을 생성하는 방법을 배운 과정이 즐거웠기를 바랍니다. 우리의 모델이 처음 epoch에서 마지막 epoch까지 어떻게 개선되었는지 볼 수 있습니다. 첫 번째 epoch에서 생성된 텍스트는 실제 영어와 비슷하지 않습니다. 전반적으로, 낮은 수준의 다양성은 많은 반복을 통하여 텍스트를 생성하는 반면, 높은 수준의 다양성은 알아듣기 힘든 말을 생성해내죠. 
 
-더 나은 텍스트를 생성하기 위해 모델 또는 hyperparameter를 조정할 수 있을까요? 다음을 클릭하여 직접 해보세요!  [forking this notebook kernel](https://www.kaggle.com/mrisdal/intro-to-lstms-w-keras-gpu-for-text-generation/) (상단의 "Fork Notebook" 클릭)
+더 나은 텍스트를 생성하기 위해 모델 또는 hyperparameter를 조정할 수 있을까요? 다음을 클릭하여 직접 해보세요!  [forking this notebook kernel](https://www.kaggle.com/mrisdal/intro-to-lstms-w-keras-gpu-for-text-generation/) (상단의 "Fork Notebook" 클릭).
 
 
 
