@@ -133,3 +133,9 @@ model.add(Reshape((curr_width, curr_height, curr_channels)))
 ### Next up: training
 
 나의 [Github](https://github.com/nicolov/segmentation_keras)에 전체 코드를 올렸는데, 오리지널 논문과 샘플 이미지 몇 개를 사용하여 결과를 확인할 수 있습니다. 이제 추론이 작동하므로, 다음 단계는 학습 인프라를 설정하여 서로 다른 데이터셋의 pre-trained 네트워크를 파인 튜닝하는 것입니다. 
+
+</br>
+
+> Translator: [박정현](https://github.com/parkjh688)
+>
+> Translator email : <parkjh688@gmail.com>
