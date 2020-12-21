@@ -86,7 +86,7 @@ encoding_dim = 32 # 입력이 784 float라고 가정했을 때, 표현될 크기
 # 입력 플레이스홀더
 input_img = Input(shape=(784,))
 # "encoded"는 입력의 인코딩된 표현
-encoded = Dense(encdoing_dim, activation='relu')(input_img)
+encoded = Dense(encoding_dim, activation='relu')(input_img)
 # "decoded"는 입력의 손실 복원 (lossy reconstruction)
 decoded = Dense(784, activation='sigmoid')(encoded)
 
