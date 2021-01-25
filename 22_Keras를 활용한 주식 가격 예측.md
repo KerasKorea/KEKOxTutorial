@@ -492,7 +492,7 @@ if __name__ == '__main__':
 | :-----: | :----------------------------------------------------------: | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | Youtube | [How to Predict Stock Prices Easily - Intro to Deep Learning #7](https://www.youtube.com/watch?v=ftMq5ps503w) | [Q Learning for Trading](https://www.youtube.com/watch?v=rRssY6FrTvU) | [Reinforcement Learning for Stock Prediction](https://www.youtube.com/watch?v=05NqKJ0v7EE) |
 | GitHub  | https://github.com/llSourcell/How-to-Predict-Stock-Prices-Easily-Demo | https://github.com/llSourcell/Q-Learning-for-Trading         | https://github.com/llSourcell/Reinforcement_Learning_for_Stock_Prediction |
-|  내용   |             LSTM을 활용하여 S&P 500의 종가 예측              | Q-Learning을 활용하여 S&P 500의 종가 예측                    | Q-Learning을 활용하여 S&P 500의 종가 예측                    |
+|  내용   |             LSTM을 활용하여 S&P 500의 종가 예측              | Q-Learning을 활용한 3개 주식 종목 트레이딩                   | Q-Learning을 활용한 S&P 500 주식 트레이딩                    |
 
 [송호연 님의 `LSTM` 설명 번역 자료](https://brunch.co.kr/@chris-song/9)
 
