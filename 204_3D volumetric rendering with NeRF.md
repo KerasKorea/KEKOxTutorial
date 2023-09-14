@@ -194,11 +194,11 @@ def render_flat_rays(ray_origins, ray_directions, near, far, num_samples, rand=F
 
     Args:
         ray_origins: 레이의 원점
-        ray_directions: 레이의 단위 벡터
-        near: The near bound of the volumetric scene.
-        far: The far bound of the volumetric scene.
-        num_samples: 레이의 샘플 포인트
-        rand: 랜덤화의 유무 (True of False)
+        ray_directions: 레이의 방향 벡터
+        near: 3D 공간의 근처 경계.
+        far: 3D 공간의 먼 경계.
+        num_samples: 레이의 샘플 포인트 수
+        rand: 무작위 노이즈 추가 여부 (True 또는 False)
 
     Returns:
         각 레이의 flattened 레이와 샘플 포인트로 구성된 튜플
