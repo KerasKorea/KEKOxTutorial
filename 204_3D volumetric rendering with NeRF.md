@@ -1,6 +1,6 @@
 ## NeRF로 해보는 3D volumetric rendering
 [원문 링크](https://keras.io/examples/vision/nerf/)
-> 이 튜토리얼은 3D 볼륨 렌더링하는 모델인 NeRF를 구현 코드 및 NeRF를 이해하기 위한 배경지식으로 구성되어 있습니다.
+> 이 튜토리얼은 3D 볼륨 렌더링하는 모델인 NeRF를 구현 코드 및 이해를 위한 배경지식으로 구성되어 있습니다.
 
 * Keras
 * NeRF
@@ -203,12 +203,11 @@ def render_flat_rays(ray_origins, ray_directions, near, far, num_samples, rand=F
     Returns:
         각 레이의 flattened 레이와 샘플 포인트로 구성된 튜플
     """
-    # Compute 3D query points.
-    # Equation: r(t) = o+td -> Building the "t" here.
+    # 3D point를 계산
+    # 수식: r(t) = o+td -> "t"를 여기서 만듭니다.
     t_vals = tf.linspace(near, far, num_samples)
     if rand:
-        # Inject uniform noise into sample space to make the sampling
-        # continuous.
+        # 샘플 공간에 균일한 노이즈를 주입하여 샘플링을 조금 더 다양하게 만듭니다.
         shape = list(ray_origins.shape[:-1]) + [num_samples]
         noise = tf.random.uniform(shape=shape) * (far - near) / num_samples
         t_vals = t_vals + noise
@@ -279,7 +278,7 @@ val_ds = (
 
 ### NeRF model
 
-이 모델은 ReLU를 사용하는 하는 다층 퍼셉트론(MLP)입니다.
+이 모델은 ReLU를 사용하는 다층 퍼셉트론(MLP)입니다.
 
 논문에서 발췌한 내용:
 
